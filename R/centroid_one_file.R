@@ -36,6 +36,7 @@ centroid_one_file <- function(file,
   # Input validation
   if (!file.exists(file)) {
     logger::log_error("File does not exist: {file}")
+    message("File does not exist: ",file)
     return(FALSE)
   }
 

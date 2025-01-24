@@ -61,13 +61,10 @@ docker pull adafede/centroidr
 ```
 
 ``` bash
-docker run --rm \
-  -e FILE=/path_to_your/profile/spectra.mzML \
-  -e PATTERN="/profile/" \
-  -e REPLACEMENT="/profile_centroided/" \
-  -v $(pwd):/home/centroid-user \
+ docker run --rm \
+  -v path_to_your:/home \
   adafede/centroidr \
-  Rscript inst/scripts/centroiding.R "${FILE}" "${PATTERN}" "${REPLACEMENT}"
+  Rscript centroiding.R home/profile/spectra.mzML "/profile/" "/profile_centroided/"
 ```
 
 ## Main Citations

@@ -45,7 +45,7 @@ install.packages(
 ### R
 
 ``` r
-CentroidR::centroid_one_file(file = "path_to_your/profile/file.mzML",
+CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
                              pattern = "/profile/",
                              replacement = "/profile_centroided/")
 ```
@@ -58,15 +58,13 @@ docker pull adafede/centroidr
 ```
 
 ``` bash
-docker run --user centroid-user -v "$(pwd):/home/centroid-user" adafede/centroidr Rscript -e "CentroidR::centroid_one_file(file='/home/centroid-user/data/file.mzML', pattern='/profile/', replacement='/profile_centroided/')"
-```
-
-``` bash
-docker-compose up -d \
-  --build \
-  -e INPUT_FILE=/home/centroid-user/data/example.mzML \
+docker run --rm \
+  -e FILE=/path_to_your/profile/spectra.mzML \
   -e PATTERN="/profile/" \
-  -e REPLACEMENT="/profile_centroided/"
+  -e REPLACEMENT="/profile_centroided/" \
+  -v $(pwd):/home/centroid-user \
+  adafede/centroidr \
+  Rscript -e "CentroidR::centroid_one_file(file='${FILE}', pattern='${PATTERN}', replacement='${REPLACEMENT}')"
 ```
 
 ## Main Citations

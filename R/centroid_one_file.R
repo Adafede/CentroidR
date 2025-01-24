@@ -32,7 +32,7 @@ centroid_one_file <- function(file,
 
   # Input validation
   if (!file.exists(file)) {
-    log_error("File does not exist: {file}")
+    logger::log_error("File does not exist: {file}")
     return(FALSE)
   }
 
@@ -94,7 +94,7 @@ centroid_one_file <- function(file,
             tmp <- tmp[peaksCount(tmp) > min_peaks]
 
             if (length(tmp) < nspec) {
-              log_warn("Removed {nspec - length(tmp)} spectra with insufficient peaks")
+              logger::log_warn("Removed {nspec - length(tmp)} spectra with insufficient peaks")
             }
 
             tmp <- tmp |>
@@ -107,10 +107,10 @@ centroid_one_file <- function(file,
           tmp |>
             MSnbase::writeMSData(file = outf, copy = TRUE)
 
-          log_info("Successfully centroided: {basename(file)}")
+          logger::log_info("Successfully centroided: {basename(file)}")
           return(TRUE)
         } else {
-          log_warn("No MS1 spectra found in {basename(file)}")
+          logger::log_warn("No MS1 spectra found in {basename(file)}")
           return(FALSE)
         }
       },

@@ -1,0 +1,46 @@
+Package: CentroidR
+Title: CentroidR
+Version: 0.0.0.9000
+Authors@R: c(
+    person(given = "Adriano",
+           family = "Rutz",
+           email = "adafede@gmail.com",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-0443-9902")),
+    person(given = "Johannes",
+           family = "Rainer",
+           email = "Johannes.Rainer@eurac.edu",
+           role = "aut",
+           comment = c(ORCID = "0000-0002-6977-7147"))
+  )
+Maintainer: Adriano Rutz <adafede@gmail.com>
+Description: CentroidR provides the infrastructure to centroid profile spectra
+License: GPL (>= 3)
+URL: https://github.com/adafede/CentroidR,
+    https://adafede.github.io/CentroidR
+BugReports: https://github.com/adafede/CentroidR/issues
+Depends:
+    R (>= 4.3.0)
+Imports:
+    logger (>= 0.4.0),
+    MSnbase (>= 2.28.1)
+Suggests: 
+    BiocManager,
+    knitr,
+    R.utils,
+    spelling,
+    testthat
+Config/testthat/edition: 3
+Encoding: UTF-8
+LazyData: true
+ByteCompile: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+VignetteBuilder:
+    knitr
+biocViews: centroiding, spectra
+X-schema.org-keywords: centroiding, spectra
+Language: en-US
+Collate: 
+    'CentroidR-package.R'
+    'centroid_one_file.R'

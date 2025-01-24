@@ -90,23 +90,24 @@
 <div class="section level3">
 <h3 id="r">R<a class="anchor" aria-label="anchor" href="#r"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="st">"path_to_your/profile/spectra.mzML"</span> <span class="st">"/profile/"</span> <span class="st">"/profile_centroided/"</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#                              pattern = "/profile/",</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#                              replacement = "/profile_centroided/")</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",</span></span>
+<span><span class="co">#                              pattern = "/profile/",</span></span>
+<span><span class="co">#                              replacement = "/profile_centroided/")</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="st">"path_to_your/profile/spectra.mzML"</span> <span class="st">"/profile/"</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="docker">Docker<a class="anchor" aria-label="anchor" href="#docker"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">docker</span> pull adafede/centroidr</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co"># docker build . -t adafede/centroidr</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">-e</span> FILE=/path_to_your/profile/spectra.mzML <span class="dt">\</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">-e</span> PATTERN=<span class="st">"/profile/"</span> <span class="dt">\</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">-e</span> REPLACEMENT=<span class="st">"/profile_centroided/"</span> <span class="dt">\</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/home/centroid-user <span class="dt">\</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  adafede/centroidr <span class="dt">\</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  Rscript inst/scripts/centroiding.R <span class="st">"</span><span class="va">${FILE}</span><span class="st">"</span> <span class="st">"</span><span class="va">${PATTERN}</span><span class="st">"</span> <span class="st">"</span><span class="va">${REPLACEMENT}</span><span class="st">"</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">docker</span> pull adafede/centroidr</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># docker build . -t adafede/centroidr</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">-e</span> FILE=/path_to_your/profile/spectra.mzML <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">-e</span> PATTERN=<span class="st">"/profile/"</span> <span class="dt">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">-e</span> REPLACEMENT=<span class="st">"/profile_centroided/"</span> <span class="dt">\</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/home/centroid-user <span class="dt">\</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  adafede/centroidr <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  Rscript inst/scripts/centroiding.R <span class="st">"</span><span class="va">${FILE}</span><span class="st">"</span> <span class="st">"</span><span class="va">${PATTERN}</span><span class="st">"</span> <span class="st">"</span><span class="va">${REPLACEMENT}</span><span class="st">"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

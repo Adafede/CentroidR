@@ -45,9 +45,9 @@ install.packages(
 ### R
 
 ``` r
-# CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
-#                              pattern = "/profile/",
-#                              replacement = "/profile_centroided/")
+CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
+                             pattern = "/profile/",
+                             replacement = "/profile_centroided/")
 ```
 
 ``` bash

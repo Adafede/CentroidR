@@ -21,8 +21,7 @@ Repository to centroid profile spectra.
 
 Here is what you *minimally* need:
 
-- **An mzML file containing profile MS/MS spectra with associated
-  skeleton information**
+- **An mzML file containing profile spectra**
 
 ## Installation
 

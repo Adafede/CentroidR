@@ -34,8 +34,6 @@ LazyData: true
 ByteCompile: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-VignetteBuilder:
-    knitr
 biocViews: centroiding, spectra
 X-schema.org-keywords: centroiding, spectra
 Language: en-US

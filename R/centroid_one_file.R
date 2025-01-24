@@ -27,6 +27,9 @@ centroid_one_file <- function(file,
                               ms2_peak_snr = 1L,
                               ms2_signal_percentage = 50,
                               min_peaks = 1000) {
+  ## TODO remove this ugly hack to make it work
+  library(MSnbase, quietly = TRUE)
+
   # Setup logging
   setup_logger()
 
@@ -91,7 +94,7 @@ centroid_one_file <- function(file,
             # Single level processing with additional checks
             nspec <- tmp |>
               length()
-            tmp <- tmp[peaksCount(tmp) > min_peaks]
+            tmp <- tmp[MSnbase::peaksCount(tmp) > min_peaks]
 
             if (length(tmp) < nspec) {
               logger::log_warn("Removed {nspec - length(tmp)} spectra with insufficient peaks")
@@ -108,14 +111,17 @@ centroid_one_file <- function(file,
             MSnbase::writeMSData(file = outf, copy = TRUE)
 
           logger::log_info("Successfully centroided: {basename(file)}")
+          message("Processing completed for: ", file)
           return(TRUE)
         } else {
           logger::log_warn("No MS1 spectra found in {basename(file)}")
+          message("No MS1 spectra found in: ", file)
           return(FALSE)
         }
       },
       error = function(e) {
         logger::log_error("Error processing {basename(file)}: {e$message}")
+        message("Error processing: ", file, " - ", e$message)
         return(FALSE)
       }
     )
@@ -139,11 +145,9 @@ try_centroid_one_file <- function(file, pattern, replacement, fixed = TRUE, ...)
     fixed = fixed,
     ...
   )
-
   if (!result) {
     logger::log_error("Failed to process file: {basename(file)}")
   }
-
   return(result)
 }
 

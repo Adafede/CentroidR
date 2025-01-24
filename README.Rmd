@@ -50,11 +50,14 @@ install.packages(
 
 ### R
 
-``` bash
-Rscript inst/scripts/centroiding.R "path_to_your/profile/spectra.mzML" "/profile/" "/profile_centroided/"
+```r
 # CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
 #                              pattern = "/profile/",
 #                              replacement = "/profile_centroided/")
+```
+
+``` bash
+Rscript inst/scripts/centroiding.R "path_to_your/profile/spectra.mzML" "/profile/" "/profile_centroided/"
 ```
 
 ### Docker

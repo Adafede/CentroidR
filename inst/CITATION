@@ -1,0 +1,12 @@
+citHeader("To cite CentroidR in publications use:")
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "CentroidR: CentroidR provides the infrastructure to centroid profile spectra",
+  author   = c(
+    person(given = "Adriano", family = "Rutz", email = "adafede@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-0443-9902")),
+    person(given = "Johannes", family = "Rainer", email = "Johannes.Rainer@eurac.edu", role = "aut", comment = c(ORCID = "0000-0002-6977-71472"))
+    ),
+  year     = "2025",
+  note     = "R package, version 0.0.9000",
+)

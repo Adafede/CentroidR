@@ -13,8 +13,8 @@ USER centroid-user
 WORKDIR /home/centroid-user
 
 # Install R dependencies
-RUN Rscript -e "devtools::install_github('adafede/CentroidR')"
-# RUN Rscript -e "install.packages('CentroidR', repos = c('https://adafede.r-universe.dev', 'https://bioc.r-universe.dev', 'https://cran.r-universe.dev'))"
+# RUN Rscript -e "devtools::install_github('adafede/CentroidR')"
+RUN Rscript -e "install.packages('CentroidR', repos = c('https://adafede.r-universe.dev', 'https://bioc.r-universe.dev', 'https://cran.r-universe.dev'))"
 
 # Set default working directory and copy the script
 COPY inst/scripts/centroiding.R /home/centroid-user/centroiding.R
@@ -23,4 +23,4 @@ COPY inst/scripts/centroiding.R /home/centroid-user/centroiding.R
 HEALTHCHECK NONE
 
 # Define default command
-CMD ["Rscript", "/home/centroid-user/centroiding.R"]
+# CMD ["Rscript", "/home/centroid-user/centroiding.R"]

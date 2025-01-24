@@ -70,7 +70,7 @@ docker run --rm \
   -e REPLACEMENT="/profile_centroided/" \
   -v $(pwd):/home/centroid-user \
   adafede/centroidr \
-  Rscript -e "CentroidR::centroid_one_file(file='${FILE}', pattern='${PATTERN}', replacement='${REPLACEMENT}')"
+  Rscript inst/scripts/centroiding.R "${FILE}" "${PATTERN}" "${REPLACEMENT}"
 ```
 
 ## Main Citations

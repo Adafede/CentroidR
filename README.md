@@ -50,7 +50,11 @@ CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
 ```
 
 ``` bash
-Rscript inst/scripts/centroiding.R "path_to_your/profile/spectra.mzML" "/profile/" "/profile_centroided/"
+Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
+```
+
+``` bash
+Rscript inst/scripts/centroiding.R --help
 ```
 
 ### Docker
@@ -64,7 +68,7 @@ docker pull adafede/centroidr
  docker run --rm \
   -v path_to_your:/home \
   adafede/centroidr \
-  Rscript centroiding.R home/profile/spectra.mzML "/profile/" "/profile_centroided/"
+  Rscript centroiding.R --file "home/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
 
 ## Main Citations

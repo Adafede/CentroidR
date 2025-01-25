@@ -8,7 +8,6 @@ centroid_one_file(
   file,
   pattern,
   replacement,
-  fixed = TRUE,
   smooth_method = "SavitzkyGolay",
   smooth_window = 6L,
   refine_mz = "descendPeak",
@@ -25,8 +24,6 @@ centroid_one_file(
 \item{pattern}{Pattern to replace in file path}
 
 \item{replacement}{Replacement string for output path}
-
-\item{fixed}{Logical, whether pattern matching should be fixed}
 
 \item{smooth_method}{Smoothing method for spectra}
 

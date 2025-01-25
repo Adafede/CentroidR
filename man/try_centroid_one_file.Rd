@@ -4,7 +4,7 @@
 \alias{try_centroid_one_file}
 \title{Wrapper for centroiding with additional error handling and flexible parameters}
 \usage{
-try_centroid_one_file(file, pattern, replacement, fixed = TRUE, ...)
+try_centroid_one_file(file, pattern, replacement, ...)
 }
 \arguments{
 \item{file}{Path to the input mzML file}
@@ -12,8 +12,6 @@ try_centroid_one_file(file, pattern, replacement, fixed = TRUE, ...)
 \item{pattern}{Pattern to replace in file path}
 
 \item{replacement}{Replacement string for output path}
-
-\item{fixed}{Logical, whether pattern matching should be fixed}
 
 \item{...}{Additional parameters to pass to centroid_one_file}
 }

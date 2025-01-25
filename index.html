@@ -94,17 +94,18 @@
 <code class="sourceCode R"><span><span class="fu">CentroidR</span><span class="fu">::</span><span class="fu"><a href="reference/centroid_one_file.html">centroid_one_file</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"path_to_your/profile/spectra.mzML"</span>,</span>
 <span>                             pattern <span class="op">=</span> <span class="st">"/profile/"</span>,</span>
 <span>                             replacement <span class="op">=</span> <span class="st">"/profile_centroided/"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="st">"path_to_your/profile/spectra.mzML"</span> <span class="st">"/profile/"</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="at">--file</span> <span class="st">"path_to_your/profile/spectra.mzML"</span> <span class="at">--pattern</span> <span class="st">"/profile/"</span> <span class="at">--replacement</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="at">--help</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="docker">Docker<a class="anchor" aria-label="anchor" href="#docker"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">docker</span> pull adafede/centroidr</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># docker build . -t adafede/centroidr</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a> <span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">-v</span> path_to_your:/home <span class="dt">\</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  adafede/centroidr <span class="dt">\</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  Rscript centroiding.R home/profile/spectra.mzML <span class="st">"/profile/"</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">docker</span> pull adafede/centroidr</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># docker build . -t adafede/centroidr</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a> <span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">-v</span> path_to_your:/home <span class="dt">\</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  adafede/centroidr <span class="dt">\</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  Rscript centroiding.R <span class="at">--file</span> <span class="st">"home/profile/spectra.mzML"</span> <span class="at">--pattern</span> <span class="st">"/profile/"</span> <span class="at">--replacement</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

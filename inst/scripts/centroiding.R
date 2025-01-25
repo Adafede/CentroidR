@@ -87,7 +87,7 @@ opt <- parser |>
 # Ensure required arguments are provided
 if (is.null(opt$file) ||
   is.null(opt$pattern) || is.null(opt$replacement)) {
-  optparse::print_help(opt_parser)
+  optparse::print_help(parser)
   stop("Error: Missing required arguments --file, --pattern, or --replacement.")
 }
 
@@ -95,12 +95,12 @@ CentroidR::centroid_one_file(
   file = opt$file,
   pattern = opt$pattern,
   replacement = opt$replacement,
-  smooth_method = opt$smooth_method,
-  smooth_window = opt$smooth_window,
-  refine_mz = opt$refine_mz,
-  ms1_peak_snr = opt$ms1_peak_snr,
-  ms1_signal_percentage = opt$ms1_signal_percentage,
-  ms2_peak_snr = opt$ms2_peak_snr,
-  ms2_signal_percentage = opt$ms2_signal_percentage,
-  min_peaks = opt$min_peaks
+  smooth_method = opt$smooth_method %||% "SavitzkyGolay",
+  smooth_window = opt$smooth_window %||% 6L,
+  refine_mz = opt$refine_mz %||% "descendPeak",
+  ms1_peak_snr = opt$ms1_peak_snr %||% 1L,
+  ms1_signal_percentage = opt$ms1_signal_percentage %||% 33,
+  ms2_peak_snr = opt$ms2_peak_snr %||% 1L,
+  ms2_signal_percentage = opt$ms2_signal_percentage %||% 50,
+  min_peaks = opt$min_peaks %||% 1000
 )

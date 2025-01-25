@@ -29,6 +29,7 @@ Imports:
 Remotes:
     sneumann/mzR
 Suggests: 
+    optparse (>= 1.7.5),
     R.utils,
     testthat
 Config/testthat/edition: 3

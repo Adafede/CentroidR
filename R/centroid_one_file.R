@@ -3,7 +3,6 @@
 #' @param file Path to the input mzML file
 #' @param pattern Pattern to replace in file path
 #' @param replacement Replacement string for output path
-#' @param fixed Logical, whether pattern matching should be fixed
 #' @param smooth_method Smoothing method for spectra
 #' @param smooth_window Half window size for smoothing
 #' @param refine_mz Refining method
@@ -18,7 +17,6 @@
 centroid_one_file <- function(file,
                               pattern,
                               replacement,
-                              fixed = TRUE,
                               smooth_method = "SavitzkyGolay",
                               smooth_window = 6L,
                               refine_mz = "descendPeak",
@@ -27,9 +25,6 @@ centroid_one_file <- function(file,
                               ms2_peak_snr = 1L,
                               ms2_signal_percentage = 50,
                               min_peaks = 1000) {
-  ## TODO remove this ugly hack to make it work
-  library(MSnbase, quietly = TRUE)
-
   # Setup logging
   setup_logger()
 
@@ -45,7 +40,7 @@ centroid_one_file <- function(file,
     pattern = pattern,
     replacement = replacement,
     x = file,
-    fixed = fixed
+    fixed = TRUE
   )
   if (file.exists(outf)) {
     message("Output file already exists, skipping: ", outf)
@@ -56,6 +51,20 @@ centroid_one_file <- function(file,
       dir.create(path = outd, recursive = TRUE) |>
         try(silent = TRUE)
     }
+
+    ## TODO remove this ugly hack to make it work
+    library(MSnbase, quietly = TRUE)
+
+    message("Processing file: ", file)
+    message("Replacing pattern: ", pattern, " with ", replacement)
+    message("Smooth method: ", smooth_method)
+    message("Smooth window: ", smooth_window)
+    message("Refine m/z: ", refine_mz)
+    message("MS1 peak SNR: ", ms1_peak_snr)
+    message("MS1 signal percentage: ", ms1_signal_percentage)
+    message("MS2 peak SNR: ", ms2_peak_snr)
+    message("MS2 signal percentage: ", ms2_signal_percentage)
+    message("Minimum peaks: ", min_peaks)
 
     # tryCatch for comprehensive error handling
     tryCatch(
@@ -134,16 +143,14 @@ centroid_one_file <- function(file,
 #' @param file Path to the input mzML file
 #' @param pattern Pattern to replace in file path
 #' @param replacement Replacement string for output path
-#' @param fixed Logical, whether pattern matching should be fixed
 #' @param ... Additional parameters to pass to centroid_one_file
 #' @keywords internal
 #' @return Logical indicating success of processing
-try_centroid_one_file <- function(file, pattern, replacement, fixed = TRUE, ...) {
+try_centroid_one_file <- function(file, pattern, replacement, ...) {
   result <- centroid_one_file(
     file = file,
     pattern = pattern,
     replacement = replacement,
-    fixed = fixed,
     ...
   )
   if (!result) {

@@ -86,7 +86,7 @@ opt <- parser |>
 
 # Ensure required arguments are provided
 if (is.null(opt$file) ||
-    is.null(opt$pattern) || is.null(opt$replacement)) {
+  is.null(opt$pattern) || is.null(opt$replacement)) {
   optparse::print_help(opt_parser)
   stop("Error: Missing required arguments --file, --pattern, or --replacement.")
 }

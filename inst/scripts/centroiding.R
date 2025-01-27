@@ -95,12 +95,12 @@ CentroidR::centroid_one_file(
   file = opt$file,
   pattern = opt$pattern,
   replacement = opt$replacement,
-  smooth_method = opt$smooth_method %||% "SavitzkyGolay",
-  smooth_window = opt$smooth_window %||% 6L,
-  refine_mz = opt$refine_mz %||% "descendPeak",
-  ms1_peak_snr = opt$ms1_peak_snr %||% 1L,
-  ms1_signal_percentage = opt$ms1_signal_percentage %||% 33,
-  ms2_peak_snr = opt$ms2_peak_snr %||% 1L,
-  ms2_signal_percentage = opt$ms2_signal_percentage %||% 50,
-  min_peaks = opt$min_peaks %||% 1000
+  smooth_method = opt$`smooth-method` %||% "SavitzkyGolay",
+  smooth_window = opt$`smooth-window` %||% 6L,
+  refine_mz = opt$`refine-mz` %||% "descendPeak",
+  ms1_peak_snr = opt$`ms1-peak-snr` %||% 1L,
+  ms1_signal_percentage = opt$`ms1-signal-percentage` %||% 33,
+  ms2_peak_snr = opt$`ms2-peak-snr` %||% 1L,
+  ms2_signal_percentage = opt$`ms2-signal-percentage` %||% 50,
+  min_peaks = opt$`min-peaks` %||% 1000
 )

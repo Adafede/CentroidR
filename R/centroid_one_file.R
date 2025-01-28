@@ -1,130 +1,201 @@
-#' Centroid an mzML file with Configurable Peak Picking Parameters
+#' Centroid an mzML file with configurable parameters
 #'
-#' @param file Path to the input mzML file
-#' @param pattern Pattern to replace in file path
-#' @param replacement Replacement string for output path
-#' @param smooth_method Smoothing method for spectra
-#' @param smooth_window Half window size for smoothing
-#' @param refine_mz Refining method
-#' @param ms1_peak_snr Signal-to-noise ratio for MS1 peak picking
-#' @param ms1_signal_percentage Signal percentage for MS1 peak refinement
-#' @param ms2_peak_snr Signal-to-noise ratio for MS2 peak picking
-#' @param ms2_signal_percentage Signal percentage for MS2 peak refinement
-#' @param min_peaks Minimum number of peaks to retain a spectrum
-#' @return Logical indicating success of centroiding
+#' This function processes an mzML file for centroiding, providing detailed controls for
+#' peak picking, smoothing, and noise estimation. It allows fine-tuning of MS1 and MS2
+#' peak detection, optimizing spectral data analysis for different experimental needs.
+#'
+#' @param file `character(1)`
+#'   Path to the input mzML file.
+#'   The file must be accessible and in valid mzML format.
+#' @param pattern `character(1)`
+#'   Regular expression pattern to match in the input file path, useful for modifying the output file path.
+#' @param replacement `character(1)`
+#'   Replacement string for altering the output file path based on the `pattern`.
+#' @param ms1_min_peaks `integer(1)`
+#'   Minimum number of peaks required to retain an MS1 spectrum.
+#'   Spectra with fewer peaks than this threshold are discarded.
+#'
+#'   Default: `1000`.
+#' @param ms1_noise_estimator `character(1)`
+#'   Noise estimation method for MS1 spectra. Available options:
+#'   - `"SuperSmoother"`: Smoothing method from the `supsmu` function.
+#'   - `"MAD"`: Median Absolute Deviation
+#'
+#'   Default: `"SuperSmoother"`.
+#' @param ms1_peak_snr `numeric(1)`
+#'   Signal-to-noise ratio threshold for MS1 peak picking.
+#'   Peaks below this threshold will be ignored.
+#'   Default: `0`.
+#' @param ms1_refine_mz `character(1)`
+#'   Method for refining m/z values after MS1 peak picking.
+#'   Available options:
+#'   - `"descendPeak"`: Refines peaks by descending intensity.
+#'   - `"kNeighbors"`: Refines using nearest neighbors.
+#'   - `"none"`: No refinement applied.
+#'
+#'   Default: `"descendPeak"`.
+#' @param ms1_signal_percentage `numeric(1)`
+#'   Minimum signal percentage (relative to the maximum signal) for retaining MS1 peaks in centroid calculation.
+#'   Default: `33`.
+#' @param ms1_smooth_window `integer(1)`
+#'   Half window size for smoothing MS1 spectra.
+#'   Larger values apply stronger smoothing.
+#'
+#'   Default: `6L`.
+#' @param ms2_noise_estimator `character(1)`
+#'   Noise estimation method for MS2 spectra.
+#'   Options:
+#'   - `"SuperSmoother"`: Smoothing-based estimator.
+#'   - `"MAD"`: Median Absolute Deviation
+#'
+#'   Default: `"SuperSmoother"`.
+#' @param ms2_peak_snr `numeric(1)`
+#'   Signal-to-noise ratio threshold for MS2 peak picking.
+#'   Default: `0`.
+#' @param ms2_refine_mz `character(1)`
+#'   Method for refining m/z values after MS2 peak picking.
+#'   Available options:
+#'   - `"descendPeak"`: Refines peaks by descending intensity.
+#'   - `"kNeighbors"`: Refines using nearest neighbors.
+#'   - `"none"`: No refinement applied.
+#'
+#'   Default: `"descendPeak"`.
+#' @param ms2_signal_percentage `numeric(1)`
+#'   Minimum signal percentage (relative to the maximum signal) for retaining MS2 peaks in centroid calculation.
+#'   Default: `50`.
+#' @param ms2_smooth_window `integer(1)`
+#'   Half window size for smoothing MS2 spectra.
+#'   Larger values apply stronger smoothing.
+#'   Default: `4L`.
+#'
+#' @return `logical(1)`
+#'   Returns `TRUE` if centroiding was successful; otherwise, returns `FALSE`.
+#'
+#' @details
+#' This function processes both MS1 and MS2 data, applying user-defined smoothing, peak-picking, and noise estimation methods.
+#' The centroiding is tailored according to specific experimental requirements, with file path customization available via `pattern` and `replacement`.
+#'
 #' @export
-#' @author Johannes Rainer
+#' @author
+#'   Johannes Rainer, Adriano Rutz
 centroid_one_file <- function(file,
                               pattern,
                               replacement,
-                              smooth_method = "SavitzkyGolay",
-                              smooth_window = 6L,
-                              refine_mz = "descendPeak",
-                              ms1_peak_snr = 1L,
+                              ms1_min_peaks = 1000,
+                              ms1_noise_estimator = c("SuperSmoother", "MAD"),
+                              ms1_peak_snr = 0,
+                              ms1_refine_mz = c("descendPeak", "kNeighbors", "none"),
                               ms1_signal_percentage = 33,
-                              ms2_peak_snr = 1L,
+                              ms1_smooth_window = 6L,
+                              ms2_noise_estimator = c("SuperSmoother", "MAD"),
+                              ms2_peak_snr = 0,
+                              ms2_refine_mz = c("descendPeak", "kNeighbors", "none"),
                               ms2_signal_percentage = 50,
-                              min_peaks = 1000) {
-  # Setup logging
-  setup_logger()
-
-  # Input validation
-  if (!file.exists(file)) {
-    logger::log_error("File does not exist: {file}")
-    message("File does not exist: ", file)
-    return(FALSE)
-  }
-
-  # Create output directory
+                              ms2_smooth_window = 4L) {
+  # Setup logger
   outf <- sub(
     pattern = pattern,
     replacement = replacement,
     x = file,
     fixed = TRUE
   )
+  outd <- dirname(outf)
+  setup_logger(dir = outd)
+
+  # Input validation
+  if (!file.exists(file)) {
+    logger::log_error("Input file does not exist: {file}")
+    message("File does not exist: ", file)
+    return(FALSE)
+  }
+
   if (file.exists(outf)) {
     message("Output file already exists, skipping: ", outf)
     return(TRUE)
   } else {
-    outd <- dirname(outf)
     if (!dir.exists(outd)) {
-      dir.create(path = outd, recursive = TRUE) |>
-        try(silent = TRUE)
+      dir.create(path = outd, recursive = TRUE)
     }
 
     ## TODO remove this ugly hack to make it work
     library(MSnbase, quietly = TRUE)
 
-    message("Processing file: ", file)
+    message("Processing mzML file: ", file)
     message("Replacing pattern: ", pattern, " with ", replacement)
-    message("Smooth method: ", smooth_method)
-    message("Smooth window: ", smooth_window)
-    message("Refine m/z: ", refine_mz)
+    # message("Smooth method: ", smooth_method)
+    message("MS1 minimum peaks: ", ms1_min_peaks)
+    message("MS1 noise estimator: ", ms1_noise_estimator)
     message("MS1 peak SNR: ", ms1_peak_snr)
+    message("MS1 Refine m/z: ", ms1_refine_mz)
     message("MS1 signal percentage: ", ms1_signal_percentage)
+    message("MS1 Smoothing window: ", ms1_smooth_window)
+    message("MS2 noise estimator: ", ms2_noise_estimator)
     message("MS2 peak SNR: ", ms2_peak_snr)
+    message("MS2 Refine m/z: ", ms2_refine_mz)
     message("MS2 signal percentage: ", ms2_signal_percentage)
-    message("Minimum peaks: ", min_peaks)
+    message("MS2 Smoothing window: ", ms2_smooth_window)
 
-    # tryCatch for comprehensive error handling
+
     tryCatch(
       {
-        # Read MS data
-        tmp <- MSnbase::readMSData(files = file, mode = "onDisk")
+        # Read MS data from file
+        ms_data <- MSnbase::readMSData(files = file, mode = "onDisk")
 
         # Check for MS levels
-        ms_levels <- MSnbase::msLevel(object = tmp) |>
+        ms_levels <- ms_data |>
+          MSnbase::msLevel() |>
           unique()
         logger::log_info("Processing file with MS levels: {paste(ms_levels, collapse=', ')}")
 
         if (1L %in% ms_levels) {
-          # Sophisticated peak picking strategy
+          # Process MS1 and MS2 data separately
           if (length(ms_levels) > 1) {
-            # Multi-level processing
-            tmp <- tmp |>
-              MSnbase::smooth(
-                method = smooth_method,
-                halfWindowSize = smooth_window,
-                msLevel. = 1L
-              ) |>
+            ms_data <- ms_data |>
+              ## NOTE: Removed for now
+              # MSnbase::smooth(
+              #   method = smooth_method,
+              #   halfWindowSize = smooth_window,
+              #   msLevel. = 1L
+              # ) |>
               MSnbase::pickPeaks(
-                refineMz = refine_mz,
+                method = ms1_noise_estimator,
+                refineMz = ms1_refine_mz,
                 signalPercentage = ms1_signal_percentage,
                 SNR = ms1_peak_snr,
                 msLevel. = 1L
               ) |>
               MSnbase::pickPeaks(
-                halfWindowSize = smooth_window,
-                SNR = ms2_peak_snr,
-                refineMz = refine_mz,
+                method = ms2_noise_estimator,
+                refineMz = ms2_refine_mz,
                 signalPercentage = ms2_signal_percentage,
+                SNR = ms2_peak_snr,
                 msLevel. = 2L
               )
           } else {
             # Single level processing with additional checks
-            nspec <- tmp |>
+            nspec <- ms_data |>
               length()
-            tmp <- tmp[MSnbase::peaksCount(tmp) > min_peaks]
+            ms_data <- ms_data[MSnbase::peaksCount(ms_data) > min_peaks]
 
-            if (length(tmp) < nspec) {
+            if (length(ms_data) < nspec) {
               logger::log_warn("Removed {nspec - length(tmp)} spectra with insufficient peaks")
             }
 
-            tmp <- tmp |>
+            ms_data <- ms_data |>
               MSnbase::combineSpectraMovingWindow(timeDomain = TRUE) |>
-              MSnbase::smooth(method = smooth_method, halfWindowSize = smooth_window) |>
+              ## NOTE: Removed for now
+              # MSnbase::smooth(method = smooth_method, halfWindowSize = smooth_window) |>
               MSnbase::pickPeaks(refineMz = refine_mz, signalPercentage = ms1_signal_percentage)
           }
-
-          # Write processed data
-          tmp |>
+          # Write centroided data to output file
+          ms_data |>
             MSnbase::writeMSData(file = outf, copy = TRUE)
 
           logger::log_info("Successfully centroided: {basename(file)}")
-          message("Processing completed for: ", file)
+          message("Centroiding completed for: ", file)
           return(TRUE)
         } else {
-          logger::log_warn("No MS1 spectra found in {basename(file)}")
+          logger::log_warn("No MS1 spectra found in: {basename(file)}")
           message("No MS1 spectra found in: ", file)
           return(FALSE)
         }
@@ -141,11 +212,11 @@ centroid_one_file <- function(file,
 #' Wrapper for centroiding with additional error handling and flexible parameters
 #'
 #' @param file Path to the input mzML file
-#' @param pattern Pattern to replace in file path
+#' @param pattern Pattern to replace in the file path
 #' @param replacement Replacement string for output path
 #' @param ... Additional parameters to pass to centroid_one_file
-#' @keywords internal
 #' @return Logical indicating success of processing
+#' @keywords internal
 try_centroid_one_file <- function(file, pattern, replacement, ...) {
   result <- centroid_one_file(
     file = file,
@@ -153,16 +224,18 @@ try_centroid_one_file <- function(file, pattern, replacement, ...) {
     replacement = replacement,
     ...
   )
+
   if (!result) {
     logger::log_error("Failed to process file: {basename(file)}")
   }
+
   return(result)
 }
 
 #' Setup Logging for Centroiding Process
 #'
-#' @param dir Directory. Defaults to HOME
-#' @param filename Filename. Defaults to centroiding.log
+#' @param dir Directory for saving the log file. Defaults to the user's output directory.
+#' @param filename Filename for the log file. Default: `"centroiding.log"`.
 #' @return NULL
 #' @keywords internal
 setup_logger <- function(dir = Sys.getenv("HOME"),

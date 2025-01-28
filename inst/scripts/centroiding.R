@@ -24,6 +24,13 @@ parser <- optparse::OptionParser() |>
     metavar = "character"
   ) |>
   optparse::add_option(
+    opt_str = c("--ms1-half-window-size"),
+    type = "integer",
+    default = 4L,
+    help = "MS1 smoothing window size (default: 4L) IGNORED FOR NOW",
+    metavar = "integer"
+  ) |>
+  optparse::add_option(
     opt_str = c("--ms1-min-peaks"),
     type = "integer",
     default = 1000,
@@ -33,7 +40,7 @@ parser <- optparse::OptionParser() |>
   optparse::add_option(
     opt_str = c("--ms1-noise-estimator"),
     type = "character",
-    default = "MAD",
+    default = "SuperSmoother",
     help = "MS1 smoothing window size (default: SuperSmoother)",
     metavar = "character"
   ) |>
@@ -47,8 +54,8 @@ parser <- optparse::OptionParser() |>
   optparse::add_option(
     opt_str = c("--ms1-refine-mz"),
     type = "character",
-    default = "descendPeak",
-    help = "MS1 method for refining m/z (default: descendPeak)",
+    default = "kNeighbors",
+    help = "MS1 method for refining m/z (default: kNeighbors)",
     metavar = "character"
   ) |>
   optparse::add_option(
@@ -59,16 +66,9 @@ parser <- optparse::OptionParser() |>
     metavar = "integer"
   ) |>
   optparse::add_option(
-    opt_str = c("--ms1-smooth-window"),
-    type = "integer",
-    default = 6L,
-    help = "MS1 smoothing window size (default: 6)",
-    metavar = "integer"
-  ) |>
-  optparse::add_option(
     opt_str = c("--ms2-noise-estimator"),
     type = "character",
-    default = "MAD",
+    default = "SuperSmoother",
     help = "MS2 smoothing window size (default: SuperSmoother)",
     metavar = "character"
   ) |>
@@ -82,8 +82,8 @@ parser <- optparse::OptionParser() |>
   optparse::add_option(
     opt_str = c("--ms2-refine-mz"),
     type = "character",
-    default = "descendPeak",
-    help = "MS2 method for refining m/z (default: descendPeak)",
+    default = "kNeighbors",
+    help = "MS2 method for refining m/z (default: kNeighbors)",
     metavar = "character"
   ) |>
   optparse::add_option(
@@ -91,13 +91,6 @@ parser <- optparse::OptionParser() |>
     type = "integer",
     default = 50,
     help = "MS2 signal percentage (default: 50)",
-    metavar = "integer"
-  ) |>
-  optparse::add_option(
-    opt_str = c("--ms2-smooth-window"),
-    type = "integer",
-    default = 4L,
-    help = "MS2 smoothing window size (default: 4)",
     metavar = "integer"
   )
 
@@ -116,15 +109,14 @@ CentroidR::centroid_one_file(
   file = opt$file,
   pattern = opt$pattern,
   replacement = opt$replacement,
+  ms1_half_window_size = opt$`ms1-half-window-size` %||% 4L,
   ms1_min_peaks = opt$`ms1-min-peaks` %||% 1000,
   ms1_noise_estimator = opt$`ms1-noise-estimator` %||% "SuperSmoother",
   ms1_peak_snr = opt$`ms1-peak-snr` %||% 0,
-  ms1_refine_mz = opt$`ms1-refine-mz` %||% "descendPeak",
+  ms1_refine_mz = opt$`ms1-refine-mz` %||% "kNeighbors",
   ms1_signal_percentage = opt$`ms1-signal-percentage` %||% 33,
-  ms1_smooth_window = opt$`ms1-smooth-window` %||% 6L,
   ms2_noise_estimator = opt$`ms2-noise-estimator` %||% "SuperSmoother",
   ms2_peak_snr = opt$`ms2-peak-snr` %||% 0,
-  ms2_refine_mz = opt$`ms2-refine-mz` %||% "descendPeak",
-  ms2_signal_percentage = opt$`ms2-signal-percentage` %||% 50,
-  ms2_smooth_window = opt$`ms2-smooth-window` %||% 6L
+  ms2_refine_mz = opt$`ms2-refine-mz` %||% "kNeighbors",
+  ms2_signal_percentage = opt$`ms2-signal-percentage` %||% 50
 )

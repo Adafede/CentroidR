@@ -8,17 +8,16 @@ centroid_one_file(
   file,
   pattern,
   replacement,
+  ms1_half_window_size = 4L,
   ms1_min_peaks = 1000,
-  ms1_noise_estimator = c("SuperSmoother", "MAD"),
+  ms1_noise_estimator = "SuperSmoother",
   ms1_peak_snr = 0,
-  ms1_refine_mz = c("descendPeak", "kNeighbors", "none"),
+  ms1_refine_mz = "kNeighbors",
   ms1_signal_percentage = 33,
-  ms1_smooth_window = 6L,
-  ms2_noise_estimator = c("SuperSmoother", "MAD"),
+  ms2_noise_estimator = "SuperSmoother",
   ms2_peak_snr = 0,
-  ms2_refine_mz = c("descendPeak", "kNeighbors", "none"),
-  ms2_signal_percentage = 50,
-  ms2_smooth_window = 4L
+  ms2_refine_mz = "kNeighbors",
+  ms2_signal_percentage = 50
 )
 }
 \arguments{
@@ -31,6 +30,13 @@ Regular expression pattern to match in the input file path, useful for modifying
 
 \item{replacement}{\code{character(1)}
 Replacement string for altering the output file path based on the \code{pattern}.}
+
+\item{ms1_half_window_size}{\code{integer(1)}
+Half window size for smoothing MS1 spectra.
+Larger values apply stronger smoothing.
+IGNORED FOR NOW.
+
+Default: \code{4L}.}
 
 \item{ms1_min_peaks}{\code{integer(1)}
 Minimum number of peaks required to retain an MS1 spectrum.
@@ -56,22 +62,16 @@ Default: \code{0}.}
 Method for refining m/z values after MS1 peak picking.
 Available options:
 \itemize{
-\item \code{"descendPeak"}: Refines peaks by descending intensity.
 \item \code{"kNeighbors"}: Refines using nearest neighbors.
+\item \code{"descendPeak"}: Refines peaks by descending intensity.
 \item \code{"none"}: No refinement applied.
 }
 
-Default: \code{"descendPeak"}.}
+Default: \code{"kNeighbors"}.}
 
 \item{ms1_signal_percentage}{\code{numeric(1)}
 Minimum signal percentage (relative to the maximum signal) for retaining MS1 peaks in centroid calculation.
 Default: \code{33}.}
-
-\item{ms1_smooth_window}{\code{integer(1)}
-Half window size for smoothing MS1 spectra.
-Larger values apply stronger smoothing.
-
-Default: \code{6L}.}
 
 \item{ms2_noise_estimator}{\code{character(1)}
 Noise estimation method for MS2 spectra.
@@ -91,21 +91,16 @@ Default: \code{0}.}
 Method for refining m/z values after MS2 peak picking.
 Available options:
 \itemize{
-\item \code{"descendPeak"}: Refines peaks by descending intensity.
 \item \code{"kNeighbors"}: Refines using nearest neighbors.
+\item \code{"descendPeak"}: Refines peaks by descending intensity.
 \item \code{"none"}: No refinement applied.
 }
 
-Default: \code{"descendPeak"}.}
+Default: \code{"kNeighbors"}.}
 
 \item{ms2_signal_percentage}{\code{numeric(1)}
 Minimum signal percentage (relative to the maximum signal) for retaining MS2 peaks in centroid calculation.
 Default: \code{50}.}
-
-\item{ms2_smooth_window}{\code{integer(1)}
-Half window size for smoothing MS2 spectra.
-Larger values apply stronger smoothing.
-Default: \code{4L}.}
 }
 \value{
 \code{logical(1)}

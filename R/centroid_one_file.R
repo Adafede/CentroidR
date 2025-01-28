@@ -11,6 +11,12 @@
 #'   Regular expression pattern to match in the input file path, useful for modifying the output file path.
 #' @param replacement `character(1)`
 #'   Replacement string for altering the output file path based on the `pattern`.
+#' @param ms1_half_window_size `integer(1)`
+#'   Half window size for smoothing MS1 spectra.
+#'   Larger values apply stronger smoothing.
+#'   IGNORED FOR NOW.
+#'
+#'   Default: `4L`.
 #' @param ms1_min_peaks `integer(1)`
 #'   Minimum number of peaks required to retain an MS1 spectrum.
 #'   Spectra with fewer peaks than this threshold are discarded.
@@ -29,19 +35,14 @@
 #' @param ms1_refine_mz `character(1)`
 #'   Method for refining m/z values after MS1 peak picking.
 #'   Available options:
-#'   - `"descendPeak"`: Refines peaks by descending intensity.
 #'   - `"kNeighbors"`: Refines using nearest neighbors.
+#'   - `"descendPeak"`: Refines peaks by descending intensity.
 #'   - `"none"`: No refinement applied.
 #'
-#'   Default: `"descendPeak"`.
+#'   Default: `"kNeighbors"`.
 #' @param ms1_signal_percentage `numeric(1)`
 #'   Minimum signal percentage (relative to the maximum signal) for retaining MS1 peaks in centroid calculation.
 #'   Default: `33`.
-#' @param ms1_smooth_window `integer(1)`
-#'   Half window size for smoothing MS1 spectra.
-#'   Larger values apply stronger smoothing.
-#'
-#'   Default: `6L`.
 #' @param ms2_noise_estimator `character(1)`
 #'   Noise estimation method for MS2 spectra.
 #'   Options:
@@ -55,18 +56,14 @@
 #' @param ms2_refine_mz `character(1)`
 #'   Method for refining m/z values after MS2 peak picking.
 #'   Available options:
-#'   - `"descendPeak"`: Refines peaks by descending intensity.
 #'   - `"kNeighbors"`: Refines using nearest neighbors.
+#'   - `"descendPeak"`: Refines peaks by descending intensity.
 #'   - `"none"`: No refinement applied.
 #'
-#'   Default: `"descendPeak"`.
+#'   Default: `"kNeighbors"`.
 #' @param ms2_signal_percentage `numeric(1)`
 #'   Minimum signal percentage (relative to the maximum signal) for retaining MS2 peaks in centroid calculation.
 #'   Default: `50`.
-#' @param ms2_smooth_window `integer(1)`
-#'   Half window size for smoothing MS2 spectra.
-#'   Larger values apply stronger smoothing.
-#'   Default: `4L`.
 #'
 #' @return `logical(1)`
 #'   Returns `TRUE` if centroiding was successful; otherwise, returns `FALSE`.
@@ -81,17 +78,16 @@
 centroid_one_file <- function(file,
                               pattern,
                               replacement,
+                              ms1_half_window_size = 4L,
                               ms1_min_peaks = 1000,
-                              ms1_noise_estimator = c("SuperSmoother", "MAD"),
+                              ms1_noise_estimator = "SuperSmoother",
                               ms1_peak_snr = 0,
-                              ms1_refine_mz = c("descendPeak", "kNeighbors", "none"),
+                              ms1_refine_mz = "kNeighbors",
                               ms1_signal_percentage = 33,
-                              ms1_smooth_window = 6L,
-                              ms2_noise_estimator = c("SuperSmoother", "MAD"),
+                              ms2_noise_estimator = "SuperSmoother",
                               ms2_peak_snr = 0,
-                              ms2_refine_mz = c("descendPeak", "kNeighbors", "none"),
-                              ms2_signal_percentage = 50,
-                              ms2_smooth_window = 4L) {
+                              ms2_refine_mz = "kNeighbors",
+                              ms2_signal_percentage = 50) {
   # Setup logger
   outf <- sub(
     pattern = pattern,
@@ -122,19 +118,16 @@ centroid_one_file <- function(file,
 
     message("Processing mzML file: ", file)
     message("Replacing pattern: ", pattern, " with ", replacement)
-    # message("Smooth method: ", smooth_method)
     message("MS1 minimum peaks: ", ms1_min_peaks)
+    # message("MS1 half window size: ", ms1_half_window_size)
     message("MS1 noise estimator: ", ms1_noise_estimator)
     message("MS1 peak SNR: ", ms1_peak_snr)
     message("MS1 Refine m/z: ", ms1_refine_mz)
     message("MS1 signal percentage: ", ms1_signal_percentage)
-    message("MS1 Smoothing window: ", ms1_smooth_window)
     message("MS2 noise estimator: ", ms2_noise_estimator)
     message("MS2 peak SNR: ", ms2_peak_snr)
     message("MS2 Refine m/z: ", ms2_refine_mz)
     message("MS2 signal percentage: ", ms2_signal_percentage)
-    message("MS2 Smoothing window: ", ms2_smooth_window)
-
 
     tryCatch(
       {
@@ -151,12 +144,8 @@ centroid_one_file <- function(file,
           # Process MS1 and MS2 data separately
           if (length(ms_levels) > 1) {
             ms_data <- ms_data |>
-              ## NOTE: Removed for now
-              # MSnbase::smooth(
-              #   method = smooth_method,
-              #   halfWindowSize = smooth_window,
-              #   msLevel. = 1L
-              # ) |>
+              ## COMMENT: Removed for now
+              # MSnbase::smooth(halfWindowSize = ms1_half_window_size, msLevel. = 1L) |>
               MSnbase::pickPeaks(
                 method = ms1_noise_estimator,
                 refineMz = ms1_refine_mz,
@@ -183,8 +172,8 @@ centroid_one_file <- function(file,
 
             ms_data <- ms_data |>
               MSnbase::combineSpectraMovingWindow(timeDomain = TRUE) |>
-              ## NOTE: Removed for now
-              # MSnbase::smooth(method = smooth_method, halfWindowSize = smooth_window) |>
+              ## COMMENT: Removed for now
+              # MSnbase::smooth(halfWindowSize = ms1_half_window_size) |>
               MSnbase::pickPeaks(refineMz = refine_mz, signalPercentage = ms1_signal_percentage)
           }
           # Write centroided data to output file

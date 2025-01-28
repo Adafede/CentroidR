@@ -2,51 +2,124 @@
 % Please edit documentation in R/centroid_one_file.R
 \name{centroid_one_file}
 \alias{centroid_one_file}
-\title{Centroid an mzML file with Configurable Peak Picking Parameters}
+\title{Centroid an mzML file with configurable parameters}
 \usage{
 centroid_one_file(
   file,
   pattern,
   replacement,
-  smooth_method = "SavitzkyGolay",
-  smooth_window = 6L,
-  refine_mz = "descendPeak",
-  ms1_peak_snr = 1L,
+  ms1_min_peaks = 1000,
+  ms1_noise_estimator = c("SuperSmoother", "MAD"),
+  ms1_peak_snr = 0,
+  ms1_refine_mz = c("descendPeak", "kNeighbors", "none"),
   ms1_signal_percentage = 33,
-  ms2_peak_snr = 1L,
+  ms1_smooth_window = 6L,
+  ms2_noise_estimator = c("SuperSmoother", "MAD"),
+  ms2_peak_snr = 0,
+  ms2_refine_mz = c("descendPeak", "kNeighbors", "none"),
   ms2_signal_percentage = 50,
-  min_peaks = 1000
+  ms2_smooth_window = 4L
 )
 }
 \arguments{
-\item{file}{Path to the input mzML file}
+\item{file}{\code{character(1)}
+Path to the input mzML file.
+The file must be accessible and in valid mzML format.}
 
-\item{pattern}{Pattern to replace in file path}
+\item{pattern}{\code{character(1)}
+Regular expression pattern to match in the input file path, useful for modifying the output file path.}
 
-\item{replacement}{Replacement string for output path}
+\item{replacement}{\code{character(1)}
+Replacement string for altering the output file path based on the \code{pattern}.}
 
-\item{smooth_method}{Smoothing method for spectra}
+\item{ms1_min_peaks}{\code{integer(1)}
+Minimum number of peaks required to retain an MS1 spectrum.
+Spectra with fewer peaks than this threshold are discarded.
 
-\item{smooth_window}{Half window size for smoothing}
+Default: \code{1000}.}
 
-\item{refine_mz}{Refining method}
+\item{ms1_noise_estimator}{\code{character(1)}
+Noise estimation method for MS1 spectra. Available options:
+\itemize{
+\item \code{"SuperSmoother"}: Smoothing method from the \code{supsmu} function.
+\item \code{"MAD"}: Median Absolute Deviation
+}
 
-\item{ms1_peak_snr}{Signal-to-noise ratio for MS1 peak picking}
+Default: \code{"SuperSmoother"}.}
 
-\item{ms1_signal_percentage}{Signal percentage for MS1 peak refinement}
+\item{ms1_peak_snr}{\code{numeric(1)}
+Signal-to-noise ratio threshold for MS1 peak picking.
+Peaks below this threshold will be ignored.
+Default: \code{0}.}
 
-\item{ms2_peak_snr}{Signal-to-noise ratio for MS2 peak picking}
+\item{ms1_refine_mz}{\code{character(1)}
+Method for refining m/z values after MS1 peak picking.
+Available options:
+\itemize{
+\item \code{"descendPeak"}: Refines peaks by descending intensity.
+\item \code{"kNeighbors"}: Refines using nearest neighbors.
+\item \code{"none"}: No refinement applied.
+}
 
-\item{ms2_signal_percentage}{Signal percentage for MS2 peak refinement}
+Default: \code{"descendPeak"}.}
 
-\item{min_peaks}{Minimum number of peaks to retain a spectrum}
+\item{ms1_signal_percentage}{\code{numeric(1)}
+Minimum signal percentage (relative to the maximum signal) for retaining MS1 peaks in centroid calculation.
+Default: \code{33}.}
+
+\item{ms1_smooth_window}{\code{integer(1)}
+Half window size for smoothing MS1 spectra.
+Larger values apply stronger smoothing.
+
+Default: \code{6L}.}
+
+\item{ms2_noise_estimator}{\code{character(1)}
+Noise estimation method for MS2 spectra.
+Options:
+\itemize{
+\item \code{"SuperSmoother"}: Smoothing-based estimator.
+\item \code{"MAD"}: Median Absolute Deviation
+}
+
+Default: \code{"SuperSmoother"}.}
+
+\item{ms2_peak_snr}{\code{numeric(1)}
+Signal-to-noise ratio threshold for MS2 peak picking.
+Default: \code{0}.}
+
+\item{ms2_refine_mz}{\code{character(1)}
+Method for refining m/z values after MS2 peak picking.
+Available options:
+\itemize{
+\item \code{"descendPeak"}: Refines peaks by descending intensity.
+\item \code{"kNeighbors"}: Refines using nearest neighbors.
+\item \code{"none"}: No refinement applied.
+}
+
+Default: \code{"descendPeak"}.}
+
+\item{ms2_signal_percentage}{\code{numeric(1)}
+Minimum signal percentage (relative to the maximum signal) for retaining MS2 peaks in centroid calculation.
+Default: \code{50}.}
+
+\item{ms2_smooth_window}{\code{integer(1)}
+Half window size for smoothing MS2 spectra.
+Larger values apply stronger smoothing.
+Default: \code{4L}.}
 }
 \value{
-Logical indicating success of centroiding
+\code{logical(1)}
+Returns \code{TRUE} if centroiding was successful; otherwise, returns \code{FALSE}.
 }
 \description{
-Centroid an mzML file with Configurable Peak Picking Parameters
+This function processes an mzML file for centroiding, providing detailed controls for
+peak picking, smoothing, and noise estimation. It allows fine-tuning of MS1 and MS2
+peak detection, optimizing spectral data analysis for different experimental needs.
+}
+\details{
+This function processes both MS1 and MS2 data, applying user-defined smoothing, peak-picking, and noise estimation methods.
+The centroiding is tailored according to specific experimental requirements, with file path customization available via \code{pattern} and \code{replacement}.
 }
 \author{
-Johannes Rainer
+Johannes Rainer, Adriano Rutz
 }

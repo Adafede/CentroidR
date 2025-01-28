@@ -9,7 +9,7 @@ try_centroid_one_file(file, pattern, replacement, ...)
 \arguments{
 \item{file}{Path to the input mzML file}
 
-\item{pattern}{Pattern to replace in file path}
+\item{pattern}{Pattern to replace in the file path}
 
 \item{replacement}{Replacement string for output path}
 

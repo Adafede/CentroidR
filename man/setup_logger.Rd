@@ -7,9 +7,9 @@
 setup_logger(dir = Sys.getenv("HOME"), filename = "centroiding.log")
 }
 \arguments{
-\item{dir}{Directory. Defaults to HOME}
+\item{dir}{Directory for saving the log file. Defaults to the user's output directory.}
 
-\item{filename}{Filename. Defaults to centroiding.log}
+\item{filename}{Filename for the log file. Default: \code{"centroiding.log"}.}
 }
 \description{
 Setup Logging for Centroiding Process

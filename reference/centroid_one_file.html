@@ -55,17 +55,16 @@ peak detection, optimizing spectral data analysis for different experimental nee
 <span>  <span class="va">file</span>,</span>
 <span>  <span class="va">pattern</span>,</span>
 <span>  <span class="va">replacement</span>,</span>
+<span>  ms1_half_window_size <span class="op">=</span> <span class="fl">4L</span>,</span>
 <span>  ms1_min_peaks <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  ms1_noise_estimator <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SuperSmoother"</span>, <span class="st">"MAD"</span><span class="op">)</span>,</span>
+<span>  ms1_noise_estimator <span class="op">=</span> <span class="st">"SuperSmoother"</span>,</span>
 <span>  ms1_peak_snr <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  ms1_refine_mz <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"descendPeak"</span>, <span class="st">"kNeighbors"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  ms1_refine_mz <span class="op">=</span> <span class="st">"kNeighbors"</span>,</span>
 <span>  ms1_signal_percentage <span class="op">=</span> <span class="fl">33</span>,</span>
-<span>  ms1_smooth_window <span class="op">=</span> <span class="fl">6L</span>,</span>
-<span>  ms2_noise_estimator <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SuperSmoother"</span>, <span class="st">"MAD"</span><span class="op">)</span>,</span>
+<span>  ms2_noise_estimator <span class="op">=</span> <span class="st">"SuperSmoother"</span>,</span>
 <span>  ms2_peak_snr <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  ms2_refine_mz <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"descendPeak"</span>, <span class="st">"kNeighbors"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
-<span>  ms2_signal_percentage <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>  ms2_smooth_window <span class="op">=</span> <span class="fl">4L</span></span>
+<span>  ms2_refine_mz <span class="op">=</span> <span class="st">"kNeighbors"</span>,</span>
+<span>  ms2_signal_percentage <span class="op">=</span> <span class="fl">50</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -87,6 +86,14 @@ Regular expression pattern to match in the input file path, useful for modifying
 <dt id="arg-replacement">replacement<a class="anchor" aria-label="anchor" href="#arg-replacement"></a></dt>
 <dd><p><code>character(1)</code>
 Replacement string for altering the output file path based on the <code>pattern</code>.</p></dd>
+
+
+<dt id="arg-ms-half-window-size">ms1_half_window_size<a class="anchor" aria-label="anchor" href="#arg-ms-half-window-size"></a></dt>
+<dd><p><code>integer(1)</code>
+Half window size for smoothing MS1 spectra.
+Larger values apply stronger smoothing.
+IGNORED FOR NOW.</p>
+<p>Default: <code>4L</code>.</p></dd>
 
 
 <dt id="arg-ms-min-peaks">ms1_min_peaks<a class="anchor" aria-label="anchor" href="#arg-ms-min-peaks"></a></dt>
@@ -113,23 +120,16 @@ Default: <code>0</code>.</p></dd>
 <dt id="arg-ms-refine-mz">ms1_refine_mz<a class="anchor" aria-label="anchor" href="#arg-ms-refine-mz"></a></dt>
 <dd><p><code>character(1)</code>
 Method for refining m/z values after MS1 peak picking.
-Available options:</p><ul><li><p><code>"descendPeak"</code>: Refines peaks by descending intensity.</p></li>
-<li><p><code>"kNeighbors"</code>: Refines using nearest neighbors.</p></li>
+Available options:</p><ul><li><p><code>"kNeighbors"</code>: Refines using nearest neighbors.</p></li>
+<li><p><code>"descendPeak"</code>: Refines peaks by descending intensity.</p></li>
 <li><p><code>"none"</code>: No refinement applied.</p></li>
-</ul><p>Default: <code>"descendPeak"</code>.</p></dd>
+</ul><p>Default: <code>"kNeighbors"</code>.</p></dd>
 
 
 <dt id="arg-ms-signal-percentage">ms1_signal_percentage<a class="anchor" aria-label="anchor" href="#arg-ms-signal-percentage"></a></dt>
 <dd><p><code>numeric(1)</code>
 Minimum signal percentage (relative to the maximum signal) for retaining MS1 peaks in centroid calculation.
 Default: <code>33</code>.</p></dd>
-
-
-<dt id="arg-ms-smooth-window">ms1_smooth_window<a class="anchor" aria-label="anchor" href="#arg-ms-smooth-window"></a></dt>
-<dd><p><code>integer(1)</code>
-Half window size for smoothing MS1 spectra.
-Larger values apply stronger smoothing.</p>
-<p>Default: <code>6L</code>.</p></dd>
 
 
 <dt id="arg-ms-noise-estimator">ms2_noise_estimator<a class="anchor" aria-label="anchor" href="#arg-ms-noise-estimator"></a></dt>
@@ -149,23 +149,16 @@ Default: <code>0</code>.</p></dd>
 <dt id="arg-ms-refine-mz">ms2_refine_mz<a class="anchor" aria-label="anchor" href="#arg-ms-refine-mz"></a></dt>
 <dd><p><code>character(1)</code>
 Method for refining m/z values after MS2 peak picking.
-Available options:</p><ul><li><p><code>"descendPeak"</code>: Refines peaks by descending intensity.</p></li>
-<li><p><code>"kNeighbors"</code>: Refines using nearest neighbors.</p></li>
+Available options:</p><ul><li><p><code>"kNeighbors"</code>: Refines using nearest neighbors.</p></li>
+<li><p><code>"descendPeak"</code>: Refines peaks by descending intensity.</p></li>
 <li><p><code>"none"</code>: No refinement applied.</p></li>
-</ul><p>Default: <code>"descendPeak"</code>.</p></dd>
+</ul><p>Default: <code>"kNeighbors"</code>.</p></dd>
 
 
 <dt id="arg-ms-signal-percentage">ms2_signal_percentage<a class="anchor" aria-label="anchor" href="#arg-ms-signal-percentage"></a></dt>
 <dd><p><code>numeric(1)</code>
 Minimum signal percentage (relative to the maximum signal) for retaining MS2 peaks in centroid calculation.
 Default: <code>50</code>.</p></dd>
-
-
-<dt id="arg-ms-smooth-window">ms2_smooth_window<a class="anchor" aria-label="anchor" href="#arg-ms-smooth-window"></a></dt>
-<dd><p><code>integer(1)</code>
-Half window size for smoothing MS2 spectra.
-Larger values apply stronger smoothing.
-Default: <code>4L</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

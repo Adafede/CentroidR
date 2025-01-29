@@ -17,6 +17,10 @@ coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.
 
 Repository to centroid profile spectra.
 
+This repository is experimental. Use it at your own risks. Inspired from
+the original work at
+<https://github.com/EuracBiomedicalResearch/batch_centroid>
+
 ## Requirements
 
 Here is what you *minimally* need:

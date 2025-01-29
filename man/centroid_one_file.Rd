@@ -8,16 +8,11 @@ centroid_one_file(
   file,
   pattern,
   replacement,
-  ms1_half_window_size = 4L,
-  ms1_min_peaks = 1000,
-  ms1_noise_estimator = "SuperSmoother",
-  ms1_peak_snr = 0,
-  ms1_refine_mz = "kNeighbors",
-  ms1_signal_percentage = 33,
-  ms2_noise_estimator = "SuperSmoother",
-  ms2_peak_snr = 0,
-  ms2_refine_mz = "kNeighbors",
-  ms2_signal_percentage = 50
+  mz_tol_da = 0,
+  mz_tol_ppm = 20,
+  mz_fun = base::mean,
+  int_fun = base::sum,
+  mz_weighted = TRUE
 )
 }
 \arguments{
@@ -31,76 +26,29 @@ Regular expression pattern to match in the input file path, useful for modifying
 \item{replacement}{\code{character(1)}
 Replacement string for altering the output file path based on the \code{pattern}.}
 
-\item{ms1_half_window_size}{\code{integer(1)}
-Half window size for smoothing MS1 spectra.
-Larger values apply stronger smoothing.
-IGNORED FOR NOW.
+\item{mz_tol_da}{\code{numeric(1)}
+m/z tolerance in Dalton.
 
-Default: \code{4L}.}
-
-\item{ms1_min_peaks}{\code{integer(1)}
-Minimum number of peaks required to retain an MS1 spectrum.
-Spectra with fewer peaks than this threshold are discarded.
-
-Default: \code{1000}.}
-
-\item{ms1_noise_estimator}{\code{character(1)}
-Noise estimation method for MS1 spectra. Available options:
-\itemize{
-\item \code{"SuperSmoother"}: Smoothing method from the \code{supsmu} function.
-\item \code{"MAD"}: Median Absolute Deviation
-}
-
-Default: \code{"SuperSmoother"}.}
-
-\item{ms1_peak_snr}{\code{numeric(1)}
-Signal-to-noise ratio threshold for MS1 peak picking.
-Peaks below this threshold will be ignored.
 Default: \code{0}.}
 
-\item{ms1_refine_mz}{\code{character(1)}
-Method for refining m/z values after MS1 peak picking.
-Available options:
-\itemize{
-\item \code{"kNeighbors"}: Refines using nearest neighbors.
-\item \code{"descendPeak"}: Refines peaks by descending intensity.
-\item \code{"none"}: No refinement applied.
-}
+\item{mz_tol_ppm}{\code{numeric(1)}
+m/z tolerance in ppm.
 
-Default: \code{"kNeighbors"}.}
+Default: \code{20}.}
 
-\item{ms1_signal_percentage}{\code{numeric(1)}
-Minimum signal percentage (relative to the maximum signal) for retaining MS1 peaks in centroid calculation.
-Default: \code{33}.}
+\item{mz_fun}{Function to aggregate m/z values for all mass peaks within each peak group into a single m/z value.
+This parameter is ignored if weighted = TRUE (the default).
 
-\item{ms2_noise_estimator}{\code{character(1)}
-Noise estimation method for MS2 spectra.
-Options:
-\itemize{
-\item \code{"SuperSmoother"}: Smoothing-based estimator.
-\item \code{"MAD"}: Median Absolute Deviation
-}
+Default: \code{base::mean}.}
 
-Default: \code{"SuperSmoother"}.}
+\item{int_fun}{Function to aggregate intensities for all peaks in each peak group into a single intensity value.
 
-\item{ms2_peak_snr}{\code{numeric(1)}
-Signal-to-noise ratio threshold for MS2 peak picking.
-Default: \code{0}.}
+Default: \code{base::sum}.}
 
-\item{ms2_refine_mz}{\code{character(1)}
-Method for refining m/z values after MS2 peak picking.
-Available options:
-\itemize{
-\item \code{"kNeighbors"}: Refines using nearest neighbors.
-\item \code{"descendPeak"}: Refines peaks by descending intensity.
-\item \code{"none"}: No refinement applied.
-}
+\item{mz_weighted}{\code{logical(1)}
+Boolean whether m/z values of peaks within each peak group should be aggregated into a single m/z value using an intensity-weighted mean.
 
-Default: \code{"kNeighbors"}.}
-
-\item{ms2_signal_percentage}{\code{numeric(1)}
-Minimum signal percentage (relative to the maximum signal) for retaining MS2 peaks in centroid calculation.
-Default: \code{50}.}
+Default: \code{TRUE}.}
 }
 \value{
 \code{logical(1)}

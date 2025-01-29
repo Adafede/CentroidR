@@ -55,16 +55,11 @@ peak detection, optimizing spectral data analysis for different experimental nee
 <span>  <span class="va">file</span>,</span>
 <span>  <span class="va">pattern</span>,</span>
 <span>  <span class="va">replacement</span>,</span>
-<span>  ms1_half_window_size <span class="op">=</span> <span class="fl">4L</span>,</span>
-<span>  ms1_min_peaks <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  ms1_noise_estimator <span class="op">=</span> <span class="st">"SuperSmoother"</span>,</span>
-<span>  ms1_peak_snr <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  ms1_refine_mz <span class="op">=</span> <span class="st">"kNeighbors"</span>,</span>
-<span>  ms1_signal_percentage <span class="op">=</span> <span class="fl">33</span>,</span>
-<span>  ms2_noise_estimator <span class="op">=</span> <span class="st">"SuperSmoother"</span>,</span>
-<span>  ms2_peak_snr <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  ms2_refine_mz <span class="op">=</span> <span class="st">"kNeighbors"</span>,</span>
-<span>  ms2_signal_percentage <span class="op">=</span> <span class="fl">50</span></span>
+<span>  mz_tol_da <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  mz_tol_ppm <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  mz_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span>,</span>
+<span>  int_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span>,</span>
+<span>  mz_weighted <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -88,77 +83,33 @@ Regular expression pattern to match in the input file path, useful for modifying
 Replacement string for altering the output file path based on the <code>pattern</code>.</p></dd>
 
 
-<dt id="arg-ms-half-window-size">ms1_half_window_size<a class="anchor" aria-label="anchor" href="#arg-ms-half-window-size"></a></dt>
-<dd><p><code>integer(1)</code>
-Half window size for smoothing MS1 spectra.
-Larger values apply stronger smoothing.
-IGNORED FOR NOW.</p>
-<p>Default: <code>4L</code>.</p></dd>
-
-
-<dt id="arg-ms-min-peaks">ms1_min_peaks<a class="anchor" aria-label="anchor" href="#arg-ms-min-peaks"></a></dt>
-<dd><p><code>integer(1)</code>
-Minimum number of peaks required to retain an MS1 spectrum.
-Spectra with fewer peaks than this threshold are discarded.</p>
-<p>Default: <code>1000</code>.</p></dd>
-
-
-<dt id="arg-ms-noise-estimator">ms1_noise_estimator<a class="anchor" aria-label="anchor" href="#arg-ms-noise-estimator"></a></dt>
-<dd><p><code>character(1)</code>
-Noise estimation method for MS1 spectra. Available options:</p><ul><li><p><code>"SuperSmoother"</code>: Smoothing method from the <code>supsmu</code> function.</p></li>
-<li><p><code>"MAD"</code>: Median Absolute Deviation</p></li>
-</ul><p>Default: <code>"SuperSmoother"</code>.</p></dd>
-
-
-<dt id="arg-ms-peak-snr">ms1_peak_snr<a class="anchor" aria-label="anchor" href="#arg-ms-peak-snr"></a></dt>
+<dt id="arg-mz-tol-da">mz_tol_da<a class="anchor" aria-label="anchor" href="#arg-mz-tol-da"></a></dt>
 <dd><p><code>numeric(1)</code>
-Signal-to-noise ratio threshold for MS1 peak picking.
-Peaks below this threshold will be ignored.
-Default: <code>0</code>.</p></dd>
+m/z tolerance in Dalton.</p>
+<p>Default: <code>0</code>.</p></dd>
 
 
-<dt id="arg-ms-refine-mz">ms1_refine_mz<a class="anchor" aria-label="anchor" href="#arg-ms-refine-mz"></a></dt>
-<dd><p><code>character(1)</code>
-Method for refining m/z values after MS1 peak picking.
-Available options:</p><ul><li><p><code>"kNeighbors"</code>: Refines using nearest neighbors.</p></li>
-<li><p><code>"descendPeak"</code>: Refines peaks by descending intensity.</p></li>
-<li><p><code>"none"</code>: No refinement applied.</p></li>
-</ul><p>Default: <code>"kNeighbors"</code>.</p></dd>
-
-
-<dt id="arg-ms-signal-percentage">ms1_signal_percentage<a class="anchor" aria-label="anchor" href="#arg-ms-signal-percentage"></a></dt>
+<dt id="arg-mz-tol-ppm">mz_tol_ppm<a class="anchor" aria-label="anchor" href="#arg-mz-tol-ppm"></a></dt>
 <dd><p><code>numeric(1)</code>
-Minimum signal percentage (relative to the maximum signal) for retaining MS1 peaks in centroid calculation.
-Default: <code>33</code>.</p></dd>
+m/z tolerance in ppm.</p>
+<p>Default: <code>20</code>.</p></dd>
 
 
-<dt id="arg-ms-noise-estimator">ms2_noise_estimator<a class="anchor" aria-label="anchor" href="#arg-ms-noise-estimator"></a></dt>
-<dd><p><code>character(1)</code>
-Noise estimation method for MS2 spectra.
-Options:</p><ul><li><p><code>"SuperSmoother"</code>: Smoothing-based estimator.</p></li>
-<li><p><code>"MAD"</code>: Median Absolute Deviation</p></li>
-</ul><p>Default: <code>"SuperSmoother"</code>.</p></dd>
+<dt id="arg-mz-fun">mz_fun<a class="anchor" aria-label="anchor" href="#arg-mz-fun"></a></dt>
+<dd><p>Function to aggregate m/z values for all mass peaks within each peak group into a single m/z value.
+This parameter is ignored if weighted = TRUE (the default).</p>
+<p>Default: <code><a href="https://rdrr.io/r/base/mean.html" class="external-link">base::mean</a></code>.</p></dd>
 
 
-<dt id="arg-ms-peak-snr">ms2_peak_snr<a class="anchor" aria-label="anchor" href="#arg-ms-peak-snr"></a></dt>
-<dd><p><code>numeric(1)</code>
-Signal-to-noise ratio threshold for MS2 peak picking.
-Default: <code>0</code>.</p></dd>
+<dt id="arg-int-fun">int_fun<a class="anchor" aria-label="anchor" href="#arg-int-fun"></a></dt>
+<dd><p>Function to aggregate intensities for all peaks in each peak group into a single intensity value.</p>
+<p>Default: <code><a href="https://rdrr.io/r/base/sum.html" class="external-link">base::sum</a></code>.</p></dd>
 
 
-<dt id="arg-ms-refine-mz">ms2_refine_mz<a class="anchor" aria-label="anchor" href="#arg-ms-refine-mz"></a></dt>
-<dd><p><code>character(1)</code>
-Method for refining m/z values after MS2 peak picking.
-Available options:</p><ul><li><p><code>"kNeighbors"</code>: Refines using nearest neighbors.</p></li>
-<li><p><code>"descendPeak"</code>: Refines peaks by descending intensity.</p></li>
-<li><p><code>"none"</code>: No refinement applied.</p></li>
-</ul><p>Default: <code>"kNeighbors"</code>.</p></dd>
-
-
-<dt id="arg-ms-signal-percentage">ms2_signal_percentage<a class="anchor" aria-label="anchor" href="#arg-ms-signal-percentage"></a></dt>
-<dd><p><code>numeric(1)</code>
-Minimum signal percentage (relative to the maximum signal) for retaining MS2 peaks in centroid calculation.
-Default: <code>50</code>.</p></dd>
+<dt id="arg-mz-weighted">mz_weighted<a class="anchor" aria-label="anchor" href="#arg-mz-weighted"></a></dt>
+<dd><p><code>logical(1)</code>
+Boolean whether m/z values of peaks within each peak group should be aggregated into a single m/z value using an intensity-weighted mean.</p>
+<p>Default: <code>TRUE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

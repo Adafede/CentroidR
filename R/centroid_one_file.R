@@ -105,6 +105,15 @@ centroid_one_file <- function(file,
         sp_cen |>
           Spectra::export(file = outf, backend = Spectra::MsBackendMzR())
 
+        ## Restore filename in mzML
+        filename <- basename(outf)
+        readLines(outf) |>
+          gsub(
+            pattern = "<run id=\"Experiment_1\"",
+            replacement = paste0("<run id=\"", filename, "\"")
+          ) |>
+          writeLines(outf)
+
         logger::log_info("Successfully centroided: {basename(file)}")
         message("Centroiding completed for: ", file)
         return(TRUE)

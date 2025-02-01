@@ -27,7 +27,7 @@ Imports:
     optparse (>= 1.7.5),
     Spectra (>= 1.12.0)
 Remotes:
-    sneumann/mzR
+    bioc/mzR
 Suggests: 
     R.utils,
     testthat

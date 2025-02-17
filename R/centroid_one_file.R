@@ -11,22 +11,14 @@
 #'   Regular expression pattern to match in the input file path, useful for modifying the output file path.
 #' @param replacement `character(1)`
 #'   Replacement string for altering the output file path based on the `pattern`.
-#' @param mz_tol_da_ms1 `numeric(1)`
-#'   m/z tolerance in Dalton (ms1).
+#' @param mz_tol_da `numeric(1)`
+#'   m/z tolerance in Dalton.
 #'
 #'   Default: `0`.
-#' @param mz_tol_da_ms2 `numeric(1)`
-#'   m/z tolerance in Dalton (ms2).
-#'
-#'   Default: `0`.
-#' @param mz_tol_ppm_ms1 `numeric(1)`
-#'   m/z tolerance in ppm (ms1).
+#' @param mz_tol_ppm `numeric(1)`
+#'   m/z tolerance in ppm.
 #'
 #'   Default: `5`.
-#' @param mz_tol_ppm_ms2 `numeric(1)`
-#'   m/z tolerance in ppm (ms2).
-#'
-#'   Default: `20`.
 #' @param mz_fun
 #'   Function to aggregate m/z values for all mass peaks within each peak group into a single m/z value.
 #'   This parameter is ignored if weighted = TRUE (the default).
@@ -54,10 +46,8 @@
 centroid_one_file <- function(file,
                               pattern,
                               replacement,
-                              mz_tol_da_ms1 = 0,
-                              mz_tol_da_ms2 = 0,
-                              mz_tol_ppm_ms1 = 5,
-                              mz_tol_ppm_ms2 = 20,
+                              mz_tol_da = 0,
+                              mz_tol_ppm = 5,
                               mz_fun = base::mean,
                               int_fun = base::sum,
                               mz_weighted = TRUE) {
@@ -88,10 +78,8 @@ centroid_one_file <- function(file,
 
     message("Processing mzML file: ", file)
     message("Replacing pattern: ", pattern, " with ", replacement)
-    message("m/z tolerance in Dalton (MS1): ", mz_tol_da_ms1)
-    message("m/z tolerance in Dalton (MS2): ", mz_tol_da_ms2)
-    message("m/z tolerance in ppm (MS1): ", mz_tol_ppm_ms1)
-    message("m/z tolerance in ppm (MS2): ", mz_tol_ppm_ms2)
+    message("m/z tolerance in Dalton: ", mz_tol_da)
+    message("m/z tolerance in ppm: ", mz_tol_ppm)
     message("Intensity function: ", int_fun |> deparse())
     message("m/z function: ", mz_fun |> deparse())
     message("m/z weighted: ", mz_weighted)
@@ -104,22 +92,13 @@ centroid_one_file <- function(file,
         ## "Centroiding"
         sp_cen <- sp |>
           Spectra::combinePeaks(
-            tolerance = mz_tol_da_ms1,
-            ppm = mz_tol_ppm_ms1,
+            tolerance = mz_tol_da,
+            ppm = mz_tol_ppm,
             intensityFun = int_fun,
             mzFun = mz_fun,
-            weighted = mz_weighted,
-            msLevel. = 1L
+            weighted = mz_weighted
           )
-        sp_cen <- sp_cen |>
-          Spectra::combinePeaks(
-            tolerance = mz_tol_da_ms2,
-            ppm = mz_tol_ppm_ms2,
-            intensityFun = int_fun,
-            mzFun = mz_fun,
-            weighted = mz_weighted,
-            msLevel. = 2L
-          )
+
         ## COMMENT: Feels dirty but works
         sp_cen@backend@spectraData$centroided <- TRUE
 

@@ -24,17 +24,31 @@ parser <- optparse::OptionParser() |>
     metavar = "character"
   ) |>
   optparse::add_option(
-    opt_str = "--ms-tol-da",
+    opt_str = "--ms-tol-da-ms1",
     type = "numeric",
-    default = 0,
-    help = " m/z tolerance in Dalton. (default: 0)",
+    default = 0.002,
+    help = " m/z tolerance in Dalton (ms1). (default: 0.002)",
     metavar = "numeric"
   ) |>
   optparse::add_option(
-    opt_str = "--ms-tol-ppm",
+    opt_str = "--ms-tol-da-ms2",
+    type = "numeric",
+    default = 0.005,
+    help = " m/z tolerance in Dalton (ms2). (default: 0.005)",
+    metavar = "numeric"
+  ) |>
+  optparse::add_option(
+    opt_str = "--ms-tol-ppm-ms1",
     type = "numeric",
     default = 5,
-    help = " m/z tolerance in ppm. (default: 5)",
+    help = " m/z tolerance in ppm (ms1). (default: 5)",
+    metavar = "numeric"
+  ) |>
+  optparse::add_option(
+    opt_str = "--ms-tol-ppm-ms2",
+    type = "numeric",
+    default = 10,
+    help = " m/z tolerance in ppm (ms2). (default: 10)",
     metavar = "numeric"
   ) |>
   optparse::add_option(
@@ -74,8 +88,10 @@ CentroidR::centroid_one_file(
   file = opt$file,
   pattern = opt$pattern,
   replacement = opt$replacement,
-  mz_tol_da = opt$`mz-tol-da` %||% 0,
-  mz_tol_ppm = opt$`mz-tol-ppm` %||% 5,
+  mz_tol_da_ms1 = opt$`mz-tol-da-ms1` %||% 0.002,
+  mz_tol_da_ms2 = opt$`mz-tol-da-ms2` %||% 0.005,
+  mz_tol_ppm_ms1 = opt$`mz-tol-ppm-ms1` %||% 5,
+  mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 10,
   mz_fun = opt$`mz-fun` |> match.fun() %||% base::mean,
   int_fun = opt$`int-fun` |> match.fun() %||% base::sum,
   mz_weighted = opt$`mz-weigthed` %||% TRUE

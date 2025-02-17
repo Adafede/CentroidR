@@ -2,7 +2,7 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "CentroidR",
-  "description": "CentroidR provides the infrastructure to centroid profile spectra",
+  "description": "CentroidR provides the infrastructure to centroid profile spectra.",
   "name": "CentroidR: CentroidR",
   "relatedLink": "https://adafede.github.io/CentroidR",
   "codeRepository": "https://github.com/adafede/CentroidR",
@@ -97,7 +97,7 @@
         "name": "Bioconductor",
         "url": "https://www.bioconductor.org"
       },
-      "sameAs": "https://github.com/sneumann/mzR"
+      "sameAs": "https://github.com/bioc/mzR"
     },
     "4": {
       "@type": "SoftwareApplication",
@@ -128,7 +128,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra"],
-  "fileSize": "18.691KB",
+  "fileSize": "18.633KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

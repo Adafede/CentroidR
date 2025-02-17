@@ -75,6 +75,15 @@ docker pull adafede/centroidr
   Rscript centroiding.R --file "home/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
 
+To see all parameters
+
+``` bash
+ docker run --rm \
+   -v path_to_your:/home \
+  adafede/centroidr \
+  Rscript centroiding.R --help
+```
+
 ## Main Citations
 
 TODO

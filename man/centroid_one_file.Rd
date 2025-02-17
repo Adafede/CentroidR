@@ -8,8 +8,10 @@ centroid_one_file(
   file,
   pattern,
   replacement,
-  mz_tol_da = 0,
-  mz_tol_ppm = 5,
+  mz_tol_da_ms1 = 0.002,
+  mz_tol_da_ms2 = 0.005,
+  mz_tol_ppm_ms1 = 5,
+  mz_tol_ppm_ms2 = 10,
   mz_fun = base::mean,
   int_fun = base::sum,
   mz_weighted = TRUE
@@ -26,15 +28,25 @@ Regular expression pattern to match in the input file path, useful for modifying
 \item{replacement}{\code{character(1)}
 Replacement string for altering the output file path based on the \code{pattern}.}
 
-\item{mz_tol_da}{\code{numeric(1)}
-m/z tolerance in Dalton.
+\item{mz_tol_da_ms1}{\code{numeric(1)}
+m/z tolerance in Dalton (ms1).
 
-Default: \code{0}.}
+Default: \code{0.002}.}
 
-\item{mz_tol_ppm}{\code{numeric(1)}
-m/z tolerance in ppm.
+\item{mz_tol_da_ms2}{\code{numeric(1)}
+m/z tolerance in Dalton (ms2).
+
+Default: \code{0.005}.}
+
+\item{mz_tol_ppm_ms1}{\code{numeric(1)}
+m/z tolerance in ppm (ms1).
 
 Default: \code{5}.}
+
+\item{mz_tol_ppm_ms2}{\code{numeric(1)}
+m/z tolerance in ppm (ms2).
+
+Default: \code{10}.}
 
 \item{mz_fun}{Function to aggregate m/z values for all mass peaks within each peak group into a single m/z value.
 This parameter is ignored if weighted = TRUE (the default).

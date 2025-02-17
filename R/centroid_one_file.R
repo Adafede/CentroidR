@@ -88,8 +88,10 @@ centroid_one_file <- function(file,
 
     message("Processing mzML file: ", file)
     message("Replacing pattern: ", pattern, " with ", replacement)
-    message("m/z tolerance in Dalton: ", mz_tol_da)
-    message("m/z tolerance in ppm: ", mz_tol_ppm)
+    message("m/z tolerance in Dalton (MS1): ", mz_tol_da_ms1)
+    message("m/z tolerance in Dalton (MS2): ", mz_tol_da_ms2)
+    message("m/z tolerance in ppm (MS1): ", mz_tol_ppm_ms1)
+    message("m/z tolerance in ppm (MS2): ", mz_tol_ppm_ms2)
     message("Intensity function: ", int_fun |> deparse())
     message("m/z function: ", mz_fun |> deparse())
     message("m/z weighted: ", mz_weighted)

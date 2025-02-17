@@ -6,7 +6,7 @@
 \alias{CentroidR-package}
 \title{CentroidR: CentroidR}
 \description{
-CentroidR provides the infrastructure to centroid profile spectra
+CentroidR provides the infrastructure to centroid profile spectra.
 }
 \seealso{
 Useful links:

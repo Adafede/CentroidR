@@ -8,8 +8,10 @@ centroid_one_file(
   file,
   pattern,
   replacement,
-  mz_tol_da = 0,
-  mz_tol_ppm = 20,
+  mz_tol_da_ms1 = 0,
+  mz_tol_da_ms2 = 0,
+  mz_tol_ppm_ms1 = 5,
+  mz_tol_ppm_ms2 = 20,
   mz_fun = base::mean,
   int_fun = base::sum,
   mz_weighted = TRUE
@@ -26,13 +28,23 @@ Regular expression pattern to match in the input file path, useful for modifying
 \item{replacement}{\code{character(1)}
 Replacement string for altering the output file path based on the \code{pattern}.}
 
-\item{mz_tol_da}{\code{numeric(1)}
-m/z tolerance in Dalton.
+\item{mz_tol_da_ms1}{\code{numeric(1)}
+m/z tolerance in Dalton (ms1).
 
 Default: \code{0}.}
 
-\item{mz_tol_ppm}{\code{numeric(1)}
-m/z tolerance in ppm.
+\item{mz_tol_da_ms2}{\code{numeric(1)}
+m/z tolerance in Dalton (ms2).
+
+Default: \code{0}.}
+
+\item{mz_tol_ppm_ms1}{\code{numeric(1)}
+m/z tolerance in ppm (ms1).
+
+Default: \code{5}.}
+
+\item{mz_tol_ppm_ms2}{\code{numeric(1)}
+m/z tolerance in ppm (ms2).
 
 Default: \code{20}.}
 

@@ -2,23 +2,23 @@
 % Please edit documentation in R/centroid_one_file.R
 \name{try_centroid_one_file}
 \alias{try_centroid_one_file}
-\title{Wrapper for centroiding with additional error handling and flexible parameters}
+\title{Wrapper for centroiding with error handling}
 \usage{
 try_centroid_one_file(file, pattern, replacement, ...)
 }
 \arguments{
-\item{file}{Path to the input mzML file}
+\item{file}{Path to the input mzML file.}
 
-\item{pattern}{Pattern to replace in the file path}
+\item{pattern}{Pattern for modifying the file path.}
 
-\item{replacement}{Replacement string for output path}
+\item{replacement}{Replacement string for output path.}
 
-\item{...}{Additional parameters to pass to centroid_one_file}
+\item{...}{Additional parameters to pass to \code{centroid_one_file}.}
 }
 \value{
-Logical indicating success of processing
+Logical indicating success (\code{TRUE}) or failure (\code{FALSE}).
 }
 \description{
-Wrapper for centroiding with additional error handling and flexible parameters
+Wrapper for centroiding with error handling
 }
 \keyword{internal}

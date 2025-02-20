@@ -8,6 +8,8 @@ centroid_one_file(
   file,
   pattern,
   replacement,
+  min_datapoints_ms1 = 2L,
+  min_datapoints_ms2 = 1L,
   mz_tol_da_ms1 = 0.002,
   mz_tol_da_ms2 = 0.005,
   mz_tol_ppm_ms1 = 5,
@@ -19,61 +21,54 @@ centroid_one_file(
 }
 \arguments{
 \item{file}{\code{character(1)}
-Path to the input mzML file.
-The file must be accessible and in valid mzML format.}
+Path to the input mzML file. Must be a valid, accessible mzML format file.}
 
 \item{pattern}{\code{character(1)}
-Regular expression pattern to match in the input file path, useful for modifying the output file path.}
+Regular expression pattern to match in the input file path, used for modifying the output file path.}
 
 \item{replacement}{\code{character(1)}
 Replacement string for altering the output file path based on the \code{pattern}.}
 
-\item{mz_tol_da_ms1}{\code{numeric(1)}
-m/z tolerance in Dalton (ms1).
+\item{min_datapoints_ms1}{\code{integer(1)} (default: \code{2L})
+Minimum datapoints to be considered for MS1 data.}
 
-Default: \code{0.002}.}
+\item{min_datapoints_ms2}{\code{integer(1)} (default: \code{1L})
+Minimum datapoints to be considered for MS2 data.}
 
-\item{mz_tol_da_ms2}{\code{numeric(1)}
-m/z tolerance in Dalton (ms2).
+\item{mz_tol_da_ms1}{\code{numeric(1)} (default: \code{0.002})
+m/z tolerance in Daltons for MS1 data.}
 
-Default: \code{0.005}.}
+\item{mz_tol_da_ms2}{\code{numeric(1)} (default: \code{0.005})
+m/z tolerance in Daltons for MS2 data.}
 
-\item{mz_tol_ppm_ms1}{\code{numeric(1)}
-m/z tolerance in ppm (ms1).
+\item{mz_tol_ppm_ms1}{\code{numeric(1)} (default: \code{5})
+m/z tolerance in parts per million (ppm) for MS1.}
 
-Default: \code{5}.}
+\item{mz_tol_ppm_ms2}{\code{numeric(1)} (default: \code{10})
+m/z tolerance in parts per million (ppm) for MS2.}
 
-\item{mz_tol_ppm_ms2}{\code{numeric(1)}
-m/z tolerance in ppm (ms2).
+\item{mz_fun}{\code{function} (default: \code{base::mean})
+Function to aggregate m/z values within each peak group.
+Ignored if \code{mz_weighted = TRUE}.}
 
-Default: \code{10}.}
+\item{int_fun}{\code{function} (default: \code{base::sum})
+Function to aggregate peak intensities within each peak group.}
 
-\item{mz_fun}{Function to aggregate m/z values for all mass peaks within each peak group into a single m/z value.
-This parameter is ignored if weighted = TRUE (the default).
-
-Default: \code{base::mean}.}
-
-\item{int_fun}{Function to aggregate intensities for all peaks in each peak group into a single intensity value.
-
-Default: \code{base::sum}.}
-
-\item{mz_weighted}{\code{logical(1)}
-Boolean whether m/z values of peaks within each peak group should be aggregated into a single m/z value using an intensity-weighted mean.
-
-Default: \code{TRUE}.}
+\item{mz_weighted}{\code{logical(1)} (default: \code{TRUE})
+If \code{TRUE}, uses intensity-weighted mean for m/z value aggregation.}
 }
 \value{
 \code{logical(1)}
-Returns \code{TRUE} if centroiding was successful; otherwise, returns \code{FALSE}.
+Returns \code{TRUE} if centroiding was successful, otherwise \code{FALSE}.
 }
 \description{
-This function processes an mzML file for centroiding, providing detailed controls for
-peak picking, smoothing, and noise estimation. It allows fine-tuning of MS1 and MS2
-peak detection, optimizing spectral data analysis for different experimental needs.
+This function processes an mzML file to apply centroiding with detailed controls
+for peak picking, smoothing, and noise estimation. It allows fine-tuning of MS1 and MS2
+peak detection, optimizing spectral data analysis for various experimental needs.
 }
 \details{
-This function processes both MS1 and MS2 data, applying user-defined smoothing, peak-picking, and noise estimation methods.
-The centroiding is tailored according to specific experimental requirements, with file path customization available via \code{pattern} and \code{replacement}.
+The function processes both MS1 and MS2 data with user-defined smoothing, peak-picking, and noise estimation.
+File path modifications are supported via \code{pattern} and \code{replacement}.
 }
 \author{
 Johannes Rainer, Adriano Rutz

@@ -12,7 +12,7 @@
 #'   Replacement string for altering the output file path based on the `pattern`.
 #' @param min_datapoints_ms1 `integer(1)` (default: `2L`)
 #'   Minimum datapoints to be considered for MS1 data.
-#' @param min_datapoints_ms2 `integer(1)` (default: `1L`)
+#' @param min_datapoints_ms2 `integer(1)` (default: `2L`)
 #'   Minimum datapoints to be considered for MS2 data.
 #' @param mz_tol_da_ms1 `numeric(1)` (default: `0.002`)
 #'   m/z tolerance in Daltons for MS1 data.
@@ -44,7 +44,7 @@ centroid_one_file <- function(file,
                               pattern,
                               replacement,
                               min_datapoints_ms1 = 2L,
-                              min_datapoints_ms2 = 1L,
+                              min_datapoints_ms2 = 2L,
                               mz_tol_da_ms1 = 0.002,
                               mz_tol_da_ms2 = 0.005,
                               mz_tol_ppm_ms1 = 5,

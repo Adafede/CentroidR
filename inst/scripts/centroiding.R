@@ -34,7 +34,7 @@ parser <- optparse::OptionParser() |>
     opt_str = "--min-datapoints-ms2",
     type = "integer",
     default = 1L,
-    help = " minimum datapoints (ms2). (default: 1L)",
+    help = " minimum datapoints (ms2). (default: 2L)",
     metavar = "integer"
   ) |>
   optparse::add_option(
@@ -103,7 +103,7 @@ CentroidR::centroid_one_file(
   pattern = opt$pattern,
   replacement = opt$replacement,
   min_datapoints_ms1 = opt$`min-datapoints-ms1` %||% 2L,
-  min_datapoints_ms2 = opt$`min-datapoints-ms2` %||% 1L,
+  min_datapoints_ms2 = opt$`min-datapoints-ms2` %||% 2L,
   mz_tol_da_ms1 = opt$`mz-tol-da-ms1` %||% 0.002,
   mz_tol_da_ms2 = opt$`mz-tol-da-ms2` %||% 0.005,
   mz_tol_ppm_ms1 = opt$`mz-tol-ppm-ms1` %||% 5,

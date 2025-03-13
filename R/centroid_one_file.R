@@ -25,7 +25,7 @@
 #' @param mz_fun `function` (default: `base::mean`)
 #'   Function to aggregate m/z values within each peak group.
 #'   Ignored if `mz_weighted = TRUE`.
-#' @param int_fun `function` (default: `base::sum`)
+#' @param int_fun `function` (default: `base::max`)
 #'   Function to aggregate peak intensities within each peak group.
 #' @param mz_weighted `logical(1)` (default: `TRUE`)
 #'   If `TRUE`, uses intensity-weighted mean for m/z value aggregation.
@@ -52,6 +52,7 @@ centroid_one_file <- function(file,
                               mz_fun = base::mean,
                               int_fun = base::sum,
                               mz_weighted = TRUE) {
+                              int_fun = base::max,
   # Construct output file path
   outf <- sub(
     pattern = pattern,

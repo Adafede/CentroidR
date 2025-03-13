@@ -17,6 +17,7 @@ centroid_one_file(
   mz_fun = base::mean,
   int_fun = base::sum,
   mz_weighted = TRUE
+  int_fun = base::max,
 )
 }
 \arguments{

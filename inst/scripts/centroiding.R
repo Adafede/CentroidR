@@ -110,5 +110,5 @@ CentroidR::centroid_one_file(
   mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 10,
   mz_fun = opt$`mz-fun` |> match.fun() %||% base::mean,
   int_fun = opt$`int-fun` |> match.fun() %||% base::sum,
-  mz_weighted = opt$`mz-weigthed` %||% TRUE
+  mz_weighted = opt$`mz-weighted` %||% TRUE
 )

@@ -9,15 +9,15 @@ centroid_one_file(
   pattern,
   replacement,
   min_datapoints_ms1 = 2L,
-  min_datapoints_ms2 = 1L,
+  min_datapoints_ms2 = 2L,
   mz_tol_da_ms1 = 0.002,
   mz_tol_da_ms2 = 0.005,
   mz_tol_ppm_ms1 = 5,
   mz_tol_ppm_ms2 = 10,
   mz_fun = base::mean,
-  int_fun = base::sum,
-  mz_weighted = TRUE
   int_fun = base::max,
+  mz_weighted = TRUE,
+  time_domain = TRUE
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ Replacement string for altering the output file path based on the \code{pattern}
 \item{min_datapoints_ms1}{\code{integer(1)} (default: \code{2L})
 Minimum datapoints to be considered for MS1 data.}
 
-\item{min_datapoints_ms2}{\code{integer(1)} (default: \code{1L})
+\item{min_datapoints_ms2}{\code{integer(1)} (default: \code{2L})
 Minimum datapoints to be considered for MS2 data.}
 
 \item{mz_tol_da_ms1}{\code{numeric(1)} (default: \code{0.002})
@@ -52,11 +52,14 @@ m/z tolerance in parts per million (ppm) for MS2.}
 Function to aggregate m/z values within each peak group.
 Ignored if \code{mz_weighted = TRUE}.}
 
-\item{int_fun}{\code{function} (default: \code{base::sum})
+\item{int_fun}{\code{function} (default: \code{base::max})
 Function to aggregate peak intensities within each peak group.}
 
 \item{mz_weighted}{\code{logical(1)} (default: \code{TRUE})
 If \code{TRUE}, uses intensity-weighted mean for m/z value aggregation.}
+
+\item{time_domain}{\code{logical(1)} (default: \code{TRUE})
+If \code{TRUE}, uses square root for m/z weighting (TRUE for TOF).}
 }
 \value{
 \code{logical(1)}

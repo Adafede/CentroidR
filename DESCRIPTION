@@ -23,6 +23,7 @@ Depends:
     R (>= 4.3.0)
 Imports:
     logger (>= 0.4.0),
+    MsCoreUtils (>= 1.14.1),
     mzR (>= 2.36.0),
     optparse (>= 1.7.5),
     Spectra (>= 1.12.0)

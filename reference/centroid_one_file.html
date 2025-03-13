@@ -56,14 +56,15 @@ peak detection, optimizing spectral data analysis for various experimental needs
 <span>  <span class="va">pattern</span>,</span>
 <span>  <span class="va">replacement</span>,</span>
 <span>  min_datapoints_ms1 <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span>  min_datapoints_ms2 <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  min_datapoints_ms2 <span class="op">=</span> <span class="fl">2L</span>,</span>
 <span>  mz_tol_da_ms1 <span class="op">=</span> <span class="fl">0.002</span>,</span>
 <span>  mz_tol_da_ms2 <span class="op">=</span> <span class="fl">0.005</span>,</span>
 <span>  mz_tol_ppm_ms1 <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  mz_tol_ppm_ms2 <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  mz_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span>,</span>
-<span>  int_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span>,</span>
-<span>  mz_weighted <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  int_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span>,</span>
+<span>  mz_weighted <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  time_domain <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,7 +93,7 @@ Minimum datapoints to be considered for MS1 data.</p></dd>
 
 
 <dt id="arg-min-datapoints-ms-">min_datapoints_ms2<a class="anchor" aria-label="anchor" href="#arg-min-datapoints-ms-"></a></dt>
-<dd><p><code>integer(1)</code> (default: <code>1L</code>)
+<dd><p><code>integer(1)</code> (default: <code>2L</code>)
 Minimum datapoints to be considered for MS2 data.</p></dd>
 
 
@@ -123,13 +124,18 @@ Ignored if <code>mz_weighted = TRUE</code>.</p></dd>
 
 
 <dt id="arg-int-fun">int_fun<a class="anchor" aria-label="anchor" href="#arg-int-fun"></a></dt>
-<dd><p><code>function</code> (default: <code><a href="https://rdrr.io/r/base/sum.html" class="external-link">base::sum</a></code>)
+<dd><p><code>function</code> (default: <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">base::max</a></code>)
 Function to aggregate peak intensities within each peak group.</p></dd>
 
 
 <dt id="arg-mz-weighted">mz_weighted<a class="anchor" aria-label="anchor" href="#arg-mz-weighted"></a></dt>
 <dd><p><code>logical(1)</code> (default: <code>TRUE</code>)
 If <code>TRUE</code>, uses intensity-weighted mean for m/z value aggregation.</p></dd>
+
+
+<dt id="arg-time-domain">time_domain<a class="anchor" aria-label="anchor" href="#arg-time-domain"></a></dt>
+<dd><p><code>logical(1)</code> (default: <code>TRUE</code>)
+If <code>TRUE</code>, uses square root for m/z weighting (TRUE for TOF).</p></dd>
 
 </dl></div>
     <div class="section level2">

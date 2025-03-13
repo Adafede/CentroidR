@@ -75,8 +75,8 @@ parser <- optparse::OptionParser() |>
   optparse::add_option(
     opt_str = "--int-fun",
     type = "character",
-    default = "sum",
-    help = "Function to aggregate intensity values. (default: `sum`)",
+    default = "max",
+    help = "Function to aggregate intensity values. (default: `max`)",
     metavar = "character"
   ) |>
   optparse::add_option(
@@ -111,4 +111,5 @@ CentroidR::centroid_one_file(
   mz_fun = opt$`mz-fun` |> match.fun() %||% base::mean,
   int_fun = opt$`int-fun` |> match.fun() %||% base::sum,
   mz_weighted = opt$`mz-weighted` %||% TRUE
+  int_fun = opt$`int-fun` |> match.fun() %||% base::max,
 )

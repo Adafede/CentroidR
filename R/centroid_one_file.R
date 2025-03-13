@@ -29,6 +29,8 @@
 #'   Function to aggregate peak intensities within each peak group.
 #' @param mz_weighted `logical(1)` (default: `TRUE`)
 #'   If `TRUE`, uses intensity-weighted mean for m/z value aggregation.
+#' @param time_domain `logical(1)` (default: `TRUE`)
+#'   If `TRUE`, uses square root for m/z weighting (TRUE for TOF).
 #'
 #' @return `logical(1)`
 #'   Returns `TRUE` if centroiding was successful, otherwise `FALSE`.
@@ -50,9 +52,60 @@ centroid_one_file <- function(file,
                               mz_tol_ppm_ms1 = 5,
                               mz_tol_ppm_ms2 = 10,
                               mz_fun = base::mean,
-                              int_fun = base::sum,
-                              mz_weighted = TRUE) {
                               int_fun = base::max,
+                              mz_weighted = TRUE,
+                              time_domain = TRUE) {
+  ## This was copied from the Spectra package to be able to access `timeDomain`
+  .peaks_combine <- function(x, ppm = 20, tolerance = 0,
+                             intensityFun = base::mean, mzFun = base::mean,
+                             weighted = TRUE, spectrumMsLevel,
+                             msLevel = spectrumMsLevel, timeDomain = FALSE, ...) {
+    if (!spectrumMsLevel %in% msLevel || !length(x)) {
+      return(x)
+    }
+
+    # Apply the sqrt transformation if timeDomain is TRUE
+    if (timeDomain) {
+      grps <- MsCoreUtils::group(sqrt(x[, "mz"]), tolerance = tolerance, ppm = ppm)
+    } else {
+      grps <- MsCoreUtils::group(x[, "mz"], tolerance = tolerance, ppm = ppm)
+    }
+
+    lg <- length(grps)
+    if (grps[lg] == lg) {
+      return(x)
+    }
+
+    mzs <- split(x[, "mz"], grps)
+    ints <- split(x[, "intensity"], grps)
+
+    if (weighted) {
+      mzs <- unlist(mapply(
+        mzs, ints,
+        FUN = function(m, i) weighted.mean(m, i + 1),
+        SIMPLIFY = FALSE, USE.NAMES = FALSE
+      ), use.names = FALSE)
+    } else {
+      mzs <- MsCoreUtils::vapply1d(mzs, mzFun)
+    }
+
+    ints <- MsCoreUtils::vapply1d(ints, intensityFun)
+
+    if (ncol(x) > 2) {
+      lst <- lapply(x[!colnames(x) %in% c("mz", "intensity")], function(z) {
+        z <- lapply(split(z, grps), unique)
+        z[lengths(z) > 1] <- NA
+        unlist(z, use.names = FALSE, recursive = FALSE)
+      })
+      do.call(
+        cbind.data.frame,
+        c(list(mz = mzs, intensity = ints), lst)
+      )
+    } else {
+      cbind(mz = mzs, intensity = ints)
+    }
+  }
+
   # Construct output file path
   outf <- sub(
     pattern = pattern,
@@ -95,7 +148,8 @@ centroid_one_file <- function(file,
     "m/z tolerance (ppm, MS2)" = mz_tol_ppm_ms2,
     "m/z function" = deparse(mz_fun),
     "Intensity function" = deparse(int_fun),
-    "m/z weighted" = mz_weighted
+    "m/z weighted" = mz_weighted,
+    "Time domain" = time_domain
   )
   lapply(
     X = names(params),
@@ -127,20 +181,24 @@ centroid_one_file <- function(file,
 
       # Perform centroiding for MS1 and MS2 levels
       sp_cen <- sp |>
-        Spectra::combinePeaks(
+        Spectra::addProcessing(
+          .peaks_combine,
           tolerance = mz_tol_da_ms1,
           ppm = mz_tol_ppm_ms1,
           intensityFun = custom_int_fun_ms1,
           mzFun = mz_fun,
           weighted = mz_weighted,
+          timeDomain = time_domain,
           msLevel. = 1L
         ) |>
-        Spectra::combinePeaks(
-          tolerance = mz_tol_da_ms2,
-          ppm = mz_tol_ppm_ms2,
-          intensityFun = custom_int_fun_ms2,
+        Spectra::addProcessing(
+          .peaks_combine,
+          tolerance = mz_tol_da_ms1,
+          ppm = mz_tol_ppm_ms1,
+          intensityFun = custom_int_fun_ms1,
           mzFun = mz_fun,
           weighted = mz_weighted,
+          timeDomain = time_domain,
           msLevel. = 2L
         ) |>
         Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>

@@ -85,6 +85,13 @@ parser <- optparse::OptionParser() |>
     default = TRUE,
     help = "Boolean whether m/z values of peaks within each peak group should be aggregated into a single m/z value using an intensity-weighted mean. (default: TRUE)",
     metavar = "logical"
+  ) |>
+  optparse::add_option(
+    opt_str = "--time-domain",
+    type = "logical",
+    default = TRUE,
+    help = "Boolean logical(1) whether grouping of mass peaks is performed on the m/z values (timeDomain = FALSE) or on sqrt(mz) (timeDomain = TRUE). (default: TRUE)",
+    metavar = "logical"
   )
 
 # Parse the command-line arguments
@@ -109,7 +116,7 @@ CentroidR::centroid_one_file(
   mz_tol_ppm_ms1 = opt$`mz-tol-ppm-ms1` %||% 5,
   mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 10,
   mz_fun = opt$`mz-fun` |> match.fun() %||% base::mean,
-  int_fun = opt$`int-fun` |> match.fun() %||% base::sum,
-  mz_weighted = opt$`mz-weighted` %||% TRUE
   int_fun = opt$`int-fun` |> match.fun() %||% base::max,
+  mz_weighted = opt$`mz-weighted` %||% TRUE,
+  time_domain = opt$`time-domain` %||% TRUE,
 )

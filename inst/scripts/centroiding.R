@@ -76,22 +76,29 @@ parser <- optparse::OptionParser() |>
     opt_str = "--int-fun",
     type = "character",
     default = "max",
-    help = "Function to aggregate intensity values. (default: `max`)",
+    help = " Function to aggregate intensity values. (default: `max`)",
     metavar = "character"
   ) |>
   optparse::add_option(
     opt_str = "--mz-weighted",
     type = "logical",
     default = TRUE,
-    help = "Boolean whether m/z values of peaks within each peak group should be aggregated into a single m/z value using an intensity-weighted mean. (default: TRUE)",
+    help = " Boolean whether m/z values of peaks within each peak group should be aggregated into a single m/z value using an intensity-weighted mean. (default: TRUE)",
     metavar = "logical"
   ) |>
   optparse::add_option(
     opt_str = "--time-domain",
     type = "logical",
     default = TRUE,
-    help = "Boolean logical(1) whether grouping of mass peaks is performed on the m/z values (timeDomain = FALSE) or on sqrt(mz) (timeDomain = TRUE). (default: TRUE)",
+    help = " Boolean logical(1) whether grouping of mass peaks is performed on the m/z values (timeDomain = FALSE) or on sqrt(mz) (timeDomain = TRUE). (default: TRUE)",
     metavar = "logical"
+  ) |>
+  optparse::add_option(
+    opt_str = "--intensity-exponent",
+    type = "numeric",
+    default = 3,
+    help = " Exponent to apply to the intensities when weighting m/z. (default: 3)",
+    metavar = "numeric"
   )
 
 # Parse the command-line arguments
@@ -119,4 +126,5 @@ CentroidR::centroid_one_file(
   int_fun = opt$`int-fun` |> match.fun() %||% base::max,
   mz_weighted = opt$`mz-weighted` %||% TRUE,
   time_domain = opt$`time-domain` %||% TRUE,
+  intensity_exponent = opt$`intensity-exponent` %||% 3,
 )

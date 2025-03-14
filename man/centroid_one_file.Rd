@@ -8,7 +8,7 @@ centroid_one_file(
   file,
   pattern,
   replacement,
-  min_datapoints_ms1 = 2L,
+  min_datapoints_ms1 = 5L,
   min_datapoints_ms2 = 2L,
   mz_tol_da_ms1 = 0.002,
   mz_tol_da_ms2 = 0.005,
@@ -31,7 +31,7 @@ Regular expression pattern to match in the input file path, used for modifying t
 \item{replacement}{\code{character(1)}
 Replacement string for altering the output file path based on the \code{pattern}.}
 
-\item{min_datapoints_ms1}{\code{integer(1)} (default: \code{2L})
+\item{min_datapoints_ms1}{\code{integer(1)} (default: \code{5L})
 Minimum datapoints to be considered for MS1 data.}
 
 \item{min_datapoints_ms2}{\code{integer(1)} (default: \code{2L})

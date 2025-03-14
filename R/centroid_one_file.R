@@ -10,7 +10,7 @@
 #'   Regular expression pattern to match in the input file path, used for modifying the output file path.
 #' @param replacement `character(1)`
 #'   Replacement string for altering the output file path based on the `pattern`.
-#' @param min_datapoints_ms1 `integer(1)` (default: `2L`)
+#' @param min_datapoints_ms1 `integer(1)` (default: `5L`)
 #'   Minimum datapoints to be considered for MS1 data.
 #' @param min_datapoints_ms2 `integer(1)` (default: `2L`)
 #'   Minimum datapoints to be considered for MS2 data.
@@ -47,7 +47,7 @@
 centroid_one_file <- function(file,
                               pattern,
                               replacement,
-                              min_datapoints_ms1 = 2L,
+                              min_datapoints_ms1 = 5L,
                               min_datapoints_ms2 = 2L,
                               mz_tol_da_ms1 = 0.002,
                               mz_tol_da_ms2 = 0.005,

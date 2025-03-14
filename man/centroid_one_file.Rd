@@ -17,7 +17,8 @@ centroid_one_file(
   mz_fun = base::mean,
   int_fun = base::max,
   mz_weighted = TRUE,
-  time_domain = TRUE
+  time_domain = TRUE,
+  intensity_exponent = 3
 )
 }
 \arguments{
@@ -60,6 +61,9 @@ If \code{TRUE}, uses intensity-weighted mean for m/z value aggregation.}
 
 \item{time_domain}{\code{logical(1)} (default: \code{TRUE})
 If \code{TRUE}, uses square root for m/z weighting (TRUE for TOF).}
+
+\item{intensity_exponent}{\code{numeric(1)} (default: \code{3})
+If \code{mz_weighted=TRUE}, the exponent of the intensity for m/z weighting.}
 }
 \value{
 \code{logical(1)}

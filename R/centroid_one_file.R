@@ -31,6 +31,8 @@
 #'   If `TRUE`, uses intensity-weighted mean for m/z value aggregation.
 #' @param time_domain `logical(1)` (default: `TRUE`)
 #'   If `TRUE`, uses square root for m/z weighting (TRUE for TOF).
+#' @param intensity_exponent `numeric(1)` (default: `3`)
+#'   If `mz_weighted=TRUE`, the exponent of the intensity for m/z weighting.
 #'
 #' @return `logical(1)`
 #'   Returns `TRUE` if centroiding was successful, otherwise `FALSE`.
@@ -54,7 +56,8 @@ centroid_one_file <- function(file,
                               mz_fun = base::mean,
                               int_fun = base::max,
                               mz_weighted = TRUE,
-                              time_domain = TRUE) {
+                              time_domain = TRUE,
+                              intensity_exponent = 3) {
   ## This was copied from the Spectra package to be able to access `timeDomain`
   .peaks_combine <- function(x, ppm = 20, tolerance = 0,
                              intensityFun = base::mean, mzFun = base::mean,
@@ -82,7 +85,7 @@ centroid_one_file <- function(file,
     if (weighted) {
       mzs <- unlist(mapply(
         mzs, ints,
-        FUN = function(m, i) weighted.mean(m, i + 1),
+        FUN = function(m, i) stats::weighted.mean(m, i^intensity_exponent + 1),
         SIMPLIFY = FALSE, USE.NAMES = FALSE
       ), use.names = FALSE)
     } else {

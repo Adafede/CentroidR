@@ -64,7 +64,8 @@ peak detection, optimizing spectral data analysis for various experimental needs
 <span>  mz_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span>,</span>
 <span>  int_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span>,</span>
 <span>  mz_weighted <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  time_domain <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  time_domain <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  intensity_exponent <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -136,6 +137,11 @@ If <code>TRUE</code>, uses intensity-weighted mean for m/z value aggregation.</p
 <dt id="arg-time-domain">time_domain<a class="anchor" aria-label="anchor" href="#arg-time-domain"></a></dt>
 <dd><p><code>logical(1)</code> (default: <code>TRUE</code>)
 If <code>TRUE</code>, uses square root for m/z weighting (TRUE for TOF).</p></dd>
+
+
+<dt id="arg-intensity-exponent">intensity_exponent<a class="anchor" aria-label="anchor" href="#arg-intensity-exponent"></a></dt>
+<dd><p><code>numeric(1)</code> (default: <code>3</code>)
+If <code>mz_weighted=TRUE</code>, the exponent of the intensity for m/z weighting.</p></dd>
 
 </dl></div>
     <div class="section level2">

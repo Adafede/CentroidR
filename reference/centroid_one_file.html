@@ -61,8 +61,10 @@ peak detection, optimizing spectral data analysis for various experimental needs
 <span>  mz_tol_da_ms2 <span class="op">=</span> <span class="fl">0.005</span>,</span>
 <span>  mz_tol_ppm_ms1 <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  mz_tol_ppm_ms2 <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  mz_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span>,</span>
-<span>  int_fun <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span>,</span>
+<span>  mz_fun_ms1 <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span>,</span>
+<span>  mz_fun_ms2 <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span>,</span>
+<span>  int_fun_ms1 <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span>,</span>
+<span>  int_fun_ms2 <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span>,</span>
 <span>  mz_weighted <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  time_domain <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  intensity_exponent <span class="op">=</span> <span class="fl">3</span></span>
@@ -118,15 +120,26 @@ m/z tolerance in parts per million (ppm) for MS1.</p></dd>
 m/z tolerance in parts per million (ppm) for MS2.</p></dd>
 
 
-<dt id="arg-mz-fun">mz_fun<a class="anchor" aria-label="anchor" href="#arg-mz-fun"></a></dt>
+<dt id="arg-mz-fun-ms-">mz_fun_ms1<a class="anchor" aria-label="anchor" href="#arg-mz-fun-ms-"></a></dt>
 <dd><p><code>function</code> (default: <code><a href="https://rdrr.io/r/base/mean.html" class="external-link">base::mean</a></code>)
-Function to aggregate m/z values within each peak group.
+Function to aggregate m/z values within each peak group (MS1).
 Ignored if <code>mz_weighted = TRUE</code>.</p></dd>
 
 
-<dt id="arg-int-fun">int_fun<a class="anchor" aria-label="anchor" href="#arg-int-fun"></a></dt>
+<dt id="arg-mz-fun-ms-">mz_fun_ms2<a class="anchor" aria-label="anchor" href="#arg-mz-fun-ms-"></a></dt>
+<dd><p><code>function</code> (default: <code><a href="https://rdrr.io/r/base/mean.html" class="external-link">base::mean</a></code>)
+Function to aggregate m/z values within each peak group (MS2).
+Ignored if <code>mz_weighted = TRUE</code>.</p></dd>
+
+
+<dt id="arg-int-fun-ms-">int_fun_ms1<a class="anchor" aria-label="anchor" href="#arg-int-fun-ms-"></a></dt>
 <dd><p><code>function</code> (default: <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">base::max</a></code>)
-Function to aggregate peak intensities within each peak group.</p></dd>
+Function to aggregate peak intensities within each peak group (MS1).</p></dd>
+
+
+<dt id="arg-int-fun-ms-">int_fun_ms2<a class="anchor" aria-label="anchor" href="#arg-int-fun-ms-"></a></dt>
+<dd><p><code>function</code> (default: <code><a href="https://rdrr.io/r/base/sum.html" class="external-link">base::sum</a></code>)
+Function to aggregate peak intensities within each peak group (MS2).</p></dd>
 
 
 <dt id="arg-mz-weighted">mz_weighted<a class="anchor" aria-label="anchor" href="#arg-mz-weighted"></a></dt>

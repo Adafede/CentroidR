@@ -66,17 +66,31 @@ parser <- optparse::OptionParser() |>
     metavar = "numeric"
   ) |>
   optparse::add_option(
-    opt_str = "--mz-fun",
+    opt_str = "--mz-fun-ms1",
     type = "character",
     default = "mean",
-    help = "Function to aggregate m/z values. (default: `mean`)",
+    help = "Function to aggregate m/z values (MS1). (default: `mean`)",
     metavar = "character"
   ) |>
   optparse::add_option(
-    opt_str = "--int-fun",
+    opt_str = "--mz-fun-ms2",
+    type = "character",
+    default = "mean",
+    help = "Function to aggregate m/z values (MS2). (default: `mean`)",
+    metavar = "character"
+  ) |>
+  optparse::add_option(
+    opt_str = "--int-fun-ms1",
     type = "character",
     default = "max",
-    help = " Function to aggregate intensity values. (default: `max`)",
+    help = " Function to aggregate intensity values (MS1). (default: `max`)",
+    metavar = "character"
+  ) |>
+  optparse::add_option(
+    opt_str = "--int-fun-ms2",
+    type = "character",
+    default = "max",
+    help = " Function to aggregate intensity values (MS2). (default: `sum`)",
     metavar = "character"
   ) |>
   optparse::add_option(
@@ -122,8 +136,10 @@ CentroidR::centroid_one_file(
   mz_tol_da_ms2 = opt$`mz-tol-da-ms2` %||% 0.005,
   mz_tol_ppm_ms1 = opt$`mz-tol-ppm-ms1` %||% 5,
   mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 10,
-  mz_fun = opt$`mz-fun` |> match.fun() %||% base::mean,
-  int_fun = opt$`int-fun` |> match.fun() %||% base::max,
+  mz_fun_ms1 = opt$`mz-fun-ms1` |> match.fun() %||% base::mean,
+  mz_fun_ms2 = opt$`mz-fun-ms2` |> match.fun() %||% base::mean,
+  int_fun_ms1 = opt$`int-fun-ms1` |> match.fun() %||% base::max,
+  int_fun_ms2 = opt$`int-fun-ms2` |> match.fun() %||% base::sum,
   mz_weighted = opt$`mz-weighted` %||% TRUE,
   time_domain = opt$`time-domain` %||% TRUE,
   intensity_exponent = opt$`intensity-exponent` %||% 3,

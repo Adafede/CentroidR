@@ -22,11 +22,16 @@
 #'   m/z tolerance in parts per million (ppm) for MS1.
 #' @param mz_tol_ppm_ms2 `numeric(1)` (default: `10`)
 #'   m/z tolerance in parts per million (ppm) for MS2.
-#' @param mz_fun `function` (default: `base::mean`)
-#'   Function to aggregate m/z values within each peak group.
+#' @param mz_fun_ms1 `function` (default: `base::mean`)
+#'   Function to aggregate m/z values within each peak group (MS1).
 #'   Ignored if `mz_weighted = TRUE`.
-#' @param int_fun `function` (default: `base::max`)
-#'   Function to aggregate peak intensities within each peak group.
+#' @param mz_fun_ms2 `function` (default: `base::mean`)
+#'   Function to aggregate m/z values within each peak group (MS2).
+#'   Ignored if `mz_weighted = TRUE`.
+#' @param int_fun_ms1 `function` (default: `base::max`)
+#'   Function to aggregate peak intensities within each peak group (MS1).
+#' @param int_fun_ms2 `function` (default: `base::sum`)
+#'   Function to aggregate peak intensities within each peak group (MS2).
 #' @param mz_weighted `logical(1)` (default: `TRUE`)
 #'   If `TRUE`, uses intensity-weighted mean for m/z value aggregation.
 #' @param time_domain `logical(1)` (default: `TRUE`)
@@ -53,8 +58,10 @@ centroid_one_file <- function(file,
                               mz_tol_da_ms2 = 0.005,
                               mz_tol_ppm_ms1 = 5,
                               mz_tol_ppm_ms2 = 10,
-                              mz_fun = base::mean,
-                              int_fun = base::max,
+                              mz_fun_ms1 = base::mean,
+                              mz_fun_ms2 = base::mean,
+                              int_fun_ms1 = base::max,
+                              int_fun_ms2 = base::sum,
                               mz_weighted = TRUE,
                               time_domain = TRUE,
                               intensity_exponent = 3) {
@@ -149,8 +156,10 @@ centroid_one_file <- function(file,
     "m/z tolerance (Da, MS2)" = mz_tol_da_ms2,
     "m/z tolerance (ppm, MS1)" = mz_tol_ppm_ms1,
     "m/z tolerance (ppm, MS2)" = mz_tol_ppm_ms2,
-    "m/z function" = deparse(mz_fun),
-    "Intensity function" = deparse(int_fun),
+    "m/z function (MS1)" = deparse(mz_fun_ms1),
+    "m/z function (MS2)" = deparse(mz_fun_ms2),
+    "Intensity function (MS1)" = deparse(int_fun_ms1),
+    "Intensity function (MS2)" = deparse(int_fun_ms2),
     "m/z weighted" = mz_weighted,
     "Time domain" = time_domain
   )
@@ -162,7 +171,7 @@ centroid_one_file <- function(file,
   )
 
   # Custom intensity aggregation functions
-  custom_int_fun <- function(intensities, min_datapoints) {
+  custom_int_fun <- function(int_fun, intensities, min_datapoints) {
     if (length(intensities[intensities > 0]) >= min_datapoints) {
       int_fun(intensities)
     } else {
@@ -170,10 +179,10 @@ centroid_one_file <- function(file,
     }
   }
   custom_int_fun_ms1 <- function(intensities) {
-    custom_int_fun(intensities, min_datapoints_ms1)
+    custom_int_fun(int_fun_ms1, intensities, min_datapoints_ms1)
   }
   custom_int_fun_ms2 <- function(intensities) {
-    custom_int_fun(intensities, min_datapoints_ms2)
+    custom_int_fun(int_fun_ms2, intensities, min_datapoints_ms2)
   }
 
   # Processing with error handling
@@ -189,7 +198,7 @@ centroid_one_file <- function(file,
           tolerance = mz_tol_da_ms1,
           ppm = mz_tol_ppm_ms1,
           intensityFun = custom_int_fun_ms1,
-          mzFun = mz_fun,
+          mzFun = mz_fun_ms1,
           weighted = mz_weighted,
           timeDomain = time_domain,
           msLevel. = 1L
@@ -199,7 +208,7 @@ centroid_one_file <- function(file,
           tolerance = mz_tol_da_ms1,
           ppm = mz_tol_ppm_ms1,
           intensityFun = custom_int_fun_ms1,
-          mzFun = mz_fun,
+          mzFun = mz_fun_ms2,
           weighted = mz_weighted,
           timeDomain = time_domain,
           msLevel. = 2L

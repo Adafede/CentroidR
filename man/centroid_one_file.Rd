@@ -14,8 +14,10 @@ centroid_one_file(
   mz_tol_da_ms2 = 0.005,
   mz_tol_ppm_ms1 = 5,
   mz_tol_ppm_ms2 = 10,
-  mz_fun = base::mean,
-  int_fun = base::max,
+  mz_fun_ms1 = base::mean,
+  mz_fun_ms2 = base::mean,
+  int_fun_ms1 = base::max,
+  int_fun_ms2 = base::sum,
   mz_weighted = TRUE,
   time_domain = TRUE,
   intensity_exponent = 3
@@ -49,12 +51,19 @@ m/z tolerance in parts per million (ppm) for MS1.}
 \item{mz_tol_ppm_ms2}{\code{numeric(1)} (default: \code{10})
 m/z tolerance in parts per million (ppm) for MS2.}
 
-\item{mz_fun}{\code{function} (default: \code{base::mean})
-Function to aggregate m/z values within each peak group.
+\item{mz_fun_ms1}{\code{function} (default: \code{base::mean})
+Function to aggregate m/z values within each peak group (MS1).
 Ignored if \code{mz_weighted = TRUE}.}
 
-\item{int_fun}{\code{function} (default: \code{base::max})
-Function to aggregate peak intensities within each peak group.}
+\item{mz_fun_ms2}{\code{function} (default: \code{base::mean})
+Function to aggregate m/z values within each peak group (MS2).
+Ignored if \code{mz_weighted = TRUE}.}
+
+\item{int_fun_ms1}{\code{function} (default: \code{base::max})
+Function to aggregate peak intensities within each peak group (MS1).}
+
+\item{int_fun_ms2}{\code{function} (default: \code{base::sum})
+Function to aggregate peak intensities within each peak group (MS2).}
 
 \item{mz_weighted}{\code{logical(1)} (default: \code{TRUE})
 If \code{TRUE}, uses intensity-weighted mean for m/z value aggregation.}

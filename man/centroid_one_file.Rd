@@ -10,7 +10,7 @@ centroid_one_file(
   replacement,
   min_datapoints_ms1 = 5L,
   min_datapoints_ms2 = 2L,
-  mz_tol_da_ms1 = 0.002,
+  mz_tol_da_ms1 = 0.0025,
   mz_tol_da_ms2 = 0.005,
   mz_tol_ppm_ms1 = 5,
   mz_tol_ppm_ms2 = 10,
@@ -39,7 +39,7 @@ Minimum datapoints to be considered for MS1 data.}
 \item{min_datapoints_ms2}{\code{integer(1)} (default: \code{2L})
 Minimum datapoints to be considered for MS2 data.}
 
-\item{mz_tol_da_ms1}{\code{numeric(1)} (default: \code{0.002})
+\item{mz_tol_da_ms1}{\code{numeric(1)} (default: \code{0.0025})
 m/z tolerance in Daltons for MS1 data.}
 
 \item{mz_tol_da_ms2}{\code{numeric(1)} (default: \code{0.005})

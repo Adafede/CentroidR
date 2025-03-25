@@ -14,7 +14,7 @@
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.4.2 (2024-10-31)",
+  "runtimePlatform": "R version 4.4.3 (2025-02-28)",
   "author": [
     {
       "@type": "Person",
@@ -88,6 +88,19 @@
     },
     "3": {
       "@type": "SoftwareApplication",
+      "identifier": "MsCoreUtils",
+      "name": "MsCoreUtils",
+      "version": ">= 1.14.1",
+      "provider": {
+        "@id": "https://www.bioconductor.org",
+        "@type": "Organization",
+        "name": "Bioconductor",
+        "url": "https://www.bioconductor.org"
+      },
+      "sameAs": "https://bioconductor.org/packages/release/bioc/html/MsCoreUtils.html"
+    },
+    "4": {
+      "@type": "SoftwareApplication",
       "identifier": "mzR",
       "name": "mzR",
       "version": ">= 2.36.0",
@@ -99,7 +112,7 @@
       },
       "sameAs": "https://github.com/bioc/mzR"
     },
-    "4": {
+    "5": {
       "@type": "SoftwareApplication",
       "identifier": "optparse",
       "name": "optparse",
@@ -112,7 +125,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=optparse"
     },
-    "5": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
@@ -128,7 +141,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra"],
-  "fileSize": "18.633KB",
+  "fileSize": "25.188KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -153,6 +166,7 @@
       "description": "R package, version 0.0.9000"
     }
   ],
+  "releaseNotes": "https://github.com/adafede/CentroidR/blob/master/NEWS.md",
   "readme": "https://github.com/Adafede/CentroidR/blob/main/README.md",
   "contIntegration": ["https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml", "https://app.codecov.io/gh/adafede/CentroidR"],
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental"

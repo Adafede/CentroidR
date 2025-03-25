@@ -14,7 +14,7 @@
 #'   Minimum datapoints to be considered for MS1 data.
 #' @param min_datapoints_ms2 `integer(1)` (default: `2L`)
 #'   Minimum datapoints to be considered for MS2 data.
-#' @param mz_tol_da_ms1 `numeric(1)` (default: `0.002`)
+#' @param mz_tol_da_ms1 `numeric(1)` (default: `0.0025`)
 #'   m/z tolerance in Daltons for MS1 data.
 #' @param mz_tol_da_ms2 `numeric(1)` (default: `0.005`)
 #'   m/z tolerance in Daltons for MS2 data.
@@ -54,7 +54,7 @@ centroid_one_file <- function(file,
                               replacement,
                               min_datapoints_ms1 = 5L,
                               min_datapoints_ms2 = 2L,
-                              mz_tol_da_ms1 = 0.002,
+                              mz_tol_da_ms1 = 0.0025,
                               mz_tol_da_ms2 = 0.005,
                               mz_tol_ppm_ms1 = 5,
                               mz_tol_ppm_ms2 = 10,
@@ -76,7 +76,10 @@ centroid_one_file <- function(file,
 
     # Apply the sqrt transformation if timeDomain is TRUE
     if (timeDomain) {
-      grps <- MsCoreUtils::group(sqrt(x[, "mz"]), tolerance = tolerance, ppm = ppm)
+      # Adjust the absolute tolerance for sqrt(mz)
+      mz_sqrt <- x[, "mz"] |>
+        sqrt()
+      grps <- MsCoreUtils::group(mz_sqrt, tolerance = tolerance / min(mz_sqrt), ppm = ppm)
     } else {
       grps <- MsCoreUtils::group(x[, "mz"], tolerance = tolerance, ppm = ppm)
     }

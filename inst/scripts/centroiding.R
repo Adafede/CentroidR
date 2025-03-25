@@ -40,8 +40,8 @@ parser <- optparse::OptionParser() |>
   optparse::add_option(
     opt_str = "--ms-tol-da-ms1",
     type = "numeric",
-    default = 0.002,
-    help = " m/z tolerance in Dalton (ms1). (default: 0.002)",
+    default = 0.0025,
+    help = " m/z tolerance in Dalton (ms1). (default: 0.0025)",
     metavar = "numeric"
   ) |>
   optparse::add_option(
@@ -132,7 +132,7 @@ CentroidR::centroid_one_file(
   replacement = opt$replacement,
   min_datapoints_ms1 = opt$`min-datapoints-ms1` %||% 5L,
   min_datapoints_ms2 = opt$`min-datapoints-ms2` %||% 2L,
-  mz_tol_da_ms1 = opt$`mz-tol-da-ms1` %||% 0.002,
+  mz_tol_da_ms1 = opt$`mz-tol-da-ms1` %||% 0.0025,
   mz_tol_da_ms2 = opt$`mz-tol-da-ms2` %||% 0.005,
   mz_tol_ppm_ms1 = opt$`mz-tol-ppm-ms1` %||% 5,
   mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 10,

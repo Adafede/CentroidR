@@ -145,5 +145,5 @@ CentroidR::centroid_one_file(
   int_fun_ms2 = opt$`int-fun-ms2` |> match.fun() %||% base::sum,
   mz_weighted = opt$`mz-weighted` %||% TRUE,
   time_domain = opt$`time-domain` %||% TRUE,
-  intensity_exponent = opt$`intensity-exponent` %||% 3,
+  intensity_exponent = opt$`intensity-exponent` %||% 3
 )

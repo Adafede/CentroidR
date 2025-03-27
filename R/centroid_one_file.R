@@ -49,27 +49,37 @@
 #' @export
 #' @author
 #'   Johannes Rainer, Adriano Rutz
-centroid_one_file <- function(file,
-                              pattern,
-                              replacement,
-                              min_datapoints_ms1 = 5L,
-                              min_datapoints_ms2 = 2L,
-                              mz_tol_da_ms1 = 0.0025,
-                              mz_tol_da_ms2 = 0.005,
-                              mz_tol_ppm_ms1 = 5,
-                              mz_tol_ppm_ms2 = 10,
-                              mz_fun_ms1 = base::mean,
-                              mz_fun_ms2 = base::mean,
-                              int_fun_ms1 = base::max,
-                              int_fun_ms2 = base::sum,
-                              mz_weighted = TRUE,
-                              time_domain = TRUE,
-                              intensity_exponent = 3) {
+centroid_one_file <- function(
+  file,
+  pattern,
+  replacement,
+  min_datapoints_ms1 = 5L,
+  min_datapoints_ms2 = 2L,
+  mz_tol_da_ms1 = 0.0025,
+  mz_tol_da_ms2 = 0.005,
+  mz_tol_ppm_ms1 = 5,
+  mz_tol_ppm_ms2 = 10,
+  mz_fun_ms1 = base::mean,
+  mz_fun_ms2 = base::mean,
+  int_fun_ms1 = base::max,
+  int_fun_ms2 = base::sum,
+  mz_weighted = TRUE,
+  time_domain = TRUE,
+  intensity_exponent = 3
+) {
   ## This was copied from the Spectra package to be able to access `timeDomain`
-  .peaks_combine <- function(x, ppm = 20, tolerance = 0,
-                             intensityFun = base::mean, mzFun = base::mean,
-                             weighted = TRUE, spectrumMsLevel,
-                             msLevel = spectrumMsLevel, timeDomain = FALSE, ...) {
+  .peaks_combine <- function(
+    x,
+    ppm = 20,
+    tolerance = 0,
+    intensityFun = base::mean,
+    mzFun = base::mean,
+    weighted = TRUE,
+    spectrumMsLevel,
+    msLevel = spectrumMsLevel,
+    timeDomain = FALSE,
+    ...
+  ) {
     if (!spectrumMsLevel %in% msLevel || !length(x)) {
       return(x)
     }
@@ -79,7 +89,11 @@ centroid_one_file <- function(file,
       # Adjust the absolute tolerance for sqrt(mz)
       mz_sqrt <- x[, "mz"] |>
         sqrt()
-      grps <- MsCoreUtils::group(mz_sqrt, tolerance = tolerance / min(mz_sqrt), ppm = ppm)
+      grps <- MsCoreUtils::group(
+        mz_sqrt,
+        tolerance = tolerance / min(mz_sqrt),
+        ppm = ppm
+      )
     } else {
       grps <- MsCoreUtils::group(x[, "mz"], tolerance = tolerance, ppm = ppm)
     }
@@ -93,11 +107,17 @@ centroid_one_file <- function(file,
     ints <- split(x[, "intensity"], grps)
 
     if (weighted) {
-      mzs <- unlist(mapply(
-        mzs, ints,
-        FUN = function(m, i) stats::weighted.mean(m, i^intensity_exponent + 1),
-        SIMPLIFY = FALSE, USE.NAMES = FALSE
-      ), use.names = FALSE)
+      mzs <- unlist(
+        mapply(
+          mzs,
+          ints,
+          FUN = function(m, i)
+            stats::weighted.mean(m, i^intensity_exponent + 1),
+          SIMPLIFY = FALSE,
+          USE.NAMES = FALSE
+        ),
+        use.names = FALSE
+      )
     } else {
       mzs <- MsCoreUtils::vapply1d(mzs, mzFun)
     }
@@ -257,7 +277,12 @@ centroid_one_file <- function(file,
 #' @return Logical indicating success (`TRUE`) or failure (`FALSE`).
 #' @keywords internal
 try_centroid_one_file <- function(file, pattern, replacement, ...) {
-  result <- centroid_one_file(file = file, pattern = pattern, replacement = replacement, ...)
+  result <- centroid_one_file(
+    file = file,
+    pattern = pattern,
+    replacement = replacement,
+    ...
+  )
   if (!result) {
     logger::log_error("Failed to process file: {basename(file)}")
   }
@@ -270,8 +295,12 @@ try_centroid_one_file <- function(file, pattern, replacement, ...) {
 #' @param filename Log file name. Default: `"centroiding.log"`.
 #' @return NULL
 #' @keywords internal
-setup_logger <- function(dir = Sys.getenv("HOME"),
-                         filename = "centroiding.log") {
+setup_logger <- function(
+  dir = Sys.getenv("HOME"),
+  filename = "centroiding.log"
+) {
   logger::log_threshold(logger::WARN)
-  logger::log_appender(appender = logger::appender_file(file = file.path(dir, filename)))
+  logger::log_appender(
+    appender = logger::appender_file(file = file.path(dir, filename))
+  )
 }

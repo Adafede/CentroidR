@@ -299,8 +299,10 @@ setup_logger <- function(
   dir = Sys.getenv("HOME"),
   filename = "centroiding.log"
 ) {
-  logger::log_threshold(logger::WARN)
+  logger::log_threshold(logger::TRACE)
   logger::log_appender(
-    appender = logger::appender_file(file = file.path(dir, filename))
+    appender = logger::appender_tee(
+      file = file.path(dir, filename)
+    )
   )
 }

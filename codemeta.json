@@ -90,7 +90,7 @@
       "@type": "SoftwareApplication",
       "identifier": "MsCoreUtils",
       "name": "MsCoreUtils",
-      "version": ">= 1.14.1",
+      "version": ">= 1.18.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -103,7 +103,7 @@
       "@type": "SoftwareApplication",
       "identifier": "mzR",
       "name": "mzR",
-      "version": ">= 2.36.0",
+      "version": ">= 2.40.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -129,7 +129,7 @@
       "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
-      "version": ">= 1.12.0",
+      "version": ">= 1.17.10",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -141,7 +141,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra"],
-  "fileSize": "24.785KB",
+  "fileSize": "24.786KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

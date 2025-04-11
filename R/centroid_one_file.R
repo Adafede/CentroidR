@@ -260,13 +260,24 @@ centroid_one_file <- function(
     {
       logger::log_trace("Starting centroiding process for: {basename(file)}")
 
-      sp <- Spectra::Spectra(file, backend = Spectra::MsBackendMzR())
+      sp <- Spectra::Spectra(file, backend = Spectra::MsBackendMzR()) |>
+        Spectra::dropNaSpectraVariables()
+      sd <- sp |>
+        Spectra::spectraData()
+      sp@backend@spectraData <- sd |>
+        purrr::discard(.x = sd, .p = ~ all(is.na(.x) | .x == 0))
+      rm(sd)
 
       # TODO see if expose of not
       # Batch processing
       batch_size <- 1000L
       n <- length(sp)
       batch_starts <- seq(1L, n, by = batch_size)
+
+      tmp_batch_dir <- file.path(outd, "tmp")
+      if (!dir.exists(tmp_batch_dir)) {
+        dir.create(tmp_batch_dir, recursive = TRUE)
+      }
 
       temp_files <- purrr::imap_chr(batch_starts, function(start_idx, i) {
         idx <- start_idx:min(start_idx + batch_size - 1L, n)
@@ -289,7 +300,7 @@ centroid_one_file <- function(
         )
         # COMMENT: Feels dirty but works
         result@backend@spectraData$centroided <- TRUE
-        temp_file <- tempfile(fileext = ".mzML")
+        temp_file <- tempfile(fileext = ".mzML", tmpdir = tmp_batch_dir)
         Spectra::export(
           result,
           file = temp_file,
@@ -303,7 +314,6 @@ centroid_one_file <- function(
       })
       logger::log_trace("Concatenating all processed batches")
       sp_cen <- Spectra::Spectra(temp_files, backend = Spectra::MsBackendMzR())
-      unlink(temp_files)
       invisible(gc(verbose = FALSE))
 
       logger::log_trace("Exporting: {basename(file)}")
@@ -331,6 +341,7 @@ centroid_one_file <- function(
       logger::log_trace("Renamed inside mzML: {basename(file)}")
 
       logger::log_success("Successfully centroided: {basename(file)}")
+      unlink(tmp_batch_dir, recursive = TRUE)
       return(TRUE)
     },
     error = function(e) {

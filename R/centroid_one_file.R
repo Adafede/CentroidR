@@ -228,9 +228,9 @@ centroid_one_file <- function(
         ) |>
         Spectra::addProcessing(
           .peaks_combine,
-          tolerance = mz_tol_da_ms1,
-          ppm = mz_tol_ppm_ms1,
-          intensityFun = custom_int_fun_ms1,
+          tolerance = mz_tol_da_ms2,
+          ppm = mz_tol_ppm_ms2,
+          intensityFun = custom_int_fun_ms2,
           mzFun = mz_fun_ms2,
           weighted = mz_weighted,
           timeDomain = time_domain,

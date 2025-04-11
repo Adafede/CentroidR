@@ -205,54 +205,130 @@ centroid_one_file <- function(
   custom_int_fun_ms2 <- function(intensities) {
     custom_int_fun(int_fun_ms2, intensities, min_datapoints_ms2)
   }
+  process_spectra <- function(
+    spectra,
+    mz_tol_da_ms1,
+    mz_tol_da_ms2,
+    mz_tol_ppm_ms1,
+    mz_tol_ppm_ms2,
+    custom_int_fun_ms1,
+    custom_int_fun_ms2,
+    mz_fun_ms1,
+    mz_fun_ms2,
+    mz_weighted,
+    time_domain
+  ) {
+    sp_mem <- spectra |>
+      Spectra::setBackend(Spectra::MsBackendMemory())
+    centroided_2 <- sp_mem |>
+      Spectra::filterMsLevel(2L) |>
+      Spectra::addProcessing(
+        .peaks_combine,
+        tolerance = mz_tol_da_ms2,
+        ppm = mz_tol_ppm_ms2,
+        intensityFun = custom_int_fun_ms2,
+        mzFun = mz_fun_ms2,
+        weighted = mz_weighted,
+        timeDomain = time_domain,
+        msLevel. = 2L
+      ) |>
+      Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
+      Spectra::applyProcessing()
+    centroided_1 <- sp_mem |>
+      Spectra::filterMsLevel(1L) |>
+      Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
+      Spectra::addProcessing(
+        .peaks_combine,
+        tolerance = mz_tol_da_ms1,
+        ppm = mz_tol_ppm_ms1,
+        intensityFun = custom_int_fun_ms1,
+        mzFun = mz_fun_ms1,
+        weighted = mz_weighted,
+        timeDomain = time_domain,
+        msLevel. = 1L
+      ) |>
+      Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
+      Spectra::applyProcessing()
+    rm(sp_mem)
+    return(
+      centroided_1 |>
+        Spectra::concatenateSpectra(centroided_2)
+    )
+  }
 
-  # Processing with error handling
   tryCatch(
     {
-      sp <- Spectra::Spectra(file, backend = Spectra::MsBackendMzR()) |>
-        Spectra::setBackend(Spectra::MsBackendMemory())
+      logger::log_trace("Starting centroiding process for: {basename(file)}")
 
-      # Perform centroiding for MS1 and MS2 levels
-      sp_cen <- sp |>
-        Spectra::addProcessing(
-          .peaks_combine,
-          tolerance = mz_tol_da_ms1,
-          ppm = mz_tol_ppm_ms1,
-          intensityFun = custom_int_fun_ms1,
-          mzFun = mz_fun_ms1,
-          weighted = mz_weighted,
-          timeDomain = time_domain,
-          msLevel. = 1L
-        ) |>
-        Spectra::addProcessing(
-          .peaks_combine,
-          tolerance = mz_tol_da_ms2,
-          ppm = mz_tol_ppm_ms2,
-          intensityFun = custom_int_fun_ms2,
-          mzFun = mz_fun_ms2,
-          weighted = mz_weighted,
-          timeDomain = time_domain,
-          msLevel. = 2L
-        ) |>
-        Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
-        Spectra::applyProcessing()
+      sp <- Spectra::Spectra(file, backend = Spectra::MsBackendMzR())
 
-      # COMMENT: Feels dirty but works
-      # Mark spectra as centroided
-      sp_cen@backend@spectraData$centroided <- TRUE
+      # TODO see if expose of not
+      # Batch processing
+      batch_size <- 1000L
+      n <- length(sp)
+      batch_starts <- seq(1L, n, by = batch_size)
 
-      # Export processed spectra
+      temp_files <- purrr::imap_chr(batch_starts, function(start_idx, i) {
+        idx <- start_idx:min(start_idx + batch_size - 1L, n)
+        sp_batch <- sp[idx]
+
+        logger::log_trace("Processing batch {i} / {length(batch_starts)}")
+
+        result <- process_spectra(
+          spectra = sp_batch,
+          mz_tol_da_ms1 = mz_tol_da_ms1,
+          mz_tol_da_ms2 = mz_tol_da_ms2,
+          mz_tol_ppm_ms1 = mz_tol_ppm_ms1,
+          mz_tol_ppm_ms2 = mz_tol_ppm_ms2,
+          custom_int_fun_ms1 = custom_int_fun_ms1,
+          custom_int_fun_ms2 = custom_int_fun_ms2,
+          mz_fun_ms1 = mz_fun_ms1,
+          mz_fun_ms2 = mz_fun_ms2,
+          mz_weighted = mz_weighted,
+          time_domain = time_domain
+        )
+        # COMMENT: Feels dirty but works
+        result@backend@spectraData$centroided <- TRUE
+        temp_file <- tempfile(fileext = ".mzML")
+        Spectra::export(
+          result,
+          file = temp_file,
+          backend = Spectra::MsBackendMzR()
+        )
+
+        rm(idx, sp_batch, result)
+        invisible(gc())
+
+        return(temp_file)
+      })
+      logger::log_trace("Concatenating all processed batches")
+      sp_cen <- Spectra::Spectra(temp_files, backend = Spectra::MsBackendMzR())
+      unlink(temp_files)
+      invisible(gc(verbose = FALSE))
+
+      logger::log_trace("Exporting: {basename(file)}")
       sp_cen |>
         Spectra::export(file = outf, backend = Spectra::MsBackendMzR())
+      rm(sp_cen)
+      logger::log_trace("Exported: {basename(file)}")
 
-      # Update mzML metadata
+      logger::log_trace("Renaming inside mzML: {basename(file)}")
       filename <- basename(outf)
-      readLines(outf) |>
-        gsub(
+      temp_file <- tempfile()
+      in_con <- file(outf, "r")
+      out_con <- file(temp_file, "w")
+      while (length(line <- readLines(in_con, n = 1, warn = FALSE)) > 0) {
+        line <- gsub(
           pattern = "<run id=\"Experiment_1\"",
-          replacement = paste0("<run id=\"", filename, "\"")
-        ) |>
-        writeLines(outf)
+          replacement = paste0("<run id=\"", filename, "\""),
+          x = line
+        )
+        writeLines(line, out_con)
+      }
+      close(in_con)
+      close(out_con)
+      file.rename(temp_file, outf)
+      logger::log_trace("Renamed inside mzML: {basename(file)}")
 
       logger::log_success("Successfully centroided: {basename(file)}")
       return(TRUE)

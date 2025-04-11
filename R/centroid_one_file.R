@@ -30,7 +30,7 @@
 #'   Ignored if `mz_weighted = TRUE`.
 #' @param int_fun_ms1 `function` (default: `base::max`)
 #'   Function to aggregate peak intensities within each peak group (MS1).
-#' @param int_fun_ms2 `function` (default: `base::sum`)
+#' @param int_fun_ms2 `function` (default: `base::max`)
 #'   Function to aggregate peak intensities within each peak group (MS2).
 #' @param mz_weighted `logical(1)` (default: `TRUE`)
 #'   If `TRUE`, uses intensity-weighted mean for m/z value aggregation.
@@ -57,12 +57,12 @@ centroid_one_file <- function(
   min_datapoints_ms2 = 2L,
   mz_tol_da_ms1 = 0.0025,
   mz_tol_da_ms2 = 0.005,
-  mz_tol_ppm_ms1 = 5,
-  mz_tol_ppm_ms2 = 10,
+  mz_tol_ppm_ms1 = 5.0,
+  mz_tol_ppm_ms2 = 10.0,
   mz_fun_ms1 = base::mean,
   mz_fun_ms2 = base::mean,
   int_fun_ms1 = base::max,
-  int_fun_ms2 = base::sum,
+  int_fun_ms2 = base::max,
   mz_weighted = TRUE,
   time_domain = TRUE,
   intensity_exponent = 3
@@ -154,12 +154,11 @@ centroid_one_file <- function(
   # Input validation
   if (!file.exists(file)) {
     logger::log_error("Input file does not exist: {file}")
-    message("Error: File does not exist - ", file)
     return(FALSE)
   }
 
   if (file.exists(outf)) {
-    message("Skipping: Output file already exists - ", outf)
+    logger::log_info("Skipping. Output file already exists: {outf}")
     return(TRUE)
   }
 
@@ -168,8 +167,7 @@ centroid_one_file <- function(
     dir.create(path = outd, recursive = TRUE)
   }
 
-  message("Processing mzML file: ", file)
-  message("Output file: ", outf)
+  logger::log_info("Processing mzML file: {file}")
 
   # Logging parameter settings
   params <- list(
@@ -189,7 +187,7 @@ centroid_one_file <- function(
   lapply(
     X = names(params),
     FUN = function(param) {
-      message(param, ": ", params[[param]])
+      logger::log_info("{param} : {params[[param]]}")
     }
   )
 
@@ -256,13 +254,11 @@ centroid_one_file <- function(
         ) |>
         writeLines(outf)
 
-      logger::log_info("Successfully centroided: {basename(file)}")
-      message("Centroiding completed for: ", file)
+      logger::log_success("Successfully centroided: {basename(file)}")
       return(TRUE)
     },
     error = function(e) {
       logger::log_error("Error processing {basename(file)}: {e$message}")
-      message("Error processing file: ", file, " - ", e$message)
       return(FALSE)
     }
   )

@@ -14,7 +14,7 @@
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.4.3 (2025-02-28)",
+  "runtimePlatform": "R version 4.5.0 (2025-04-11)",
   "author": [
     {
       "@type": "Person",
@@ -71,7 +71,7 @@
       "@type": "SoftwareApplication",
       "identifier": "R",
       "name": "R",
-      "version": ">= 4.3.0"
+      "version": ">= 4.4.0"
     },
     "2": {
       "@type": "SoftwareApplication",
@@ -110,7 +110,7 @@
         "name": "Bioconductor",
         "url": "https://www.bioconductor.org"
       },
-      "sameAs": "https://github.com/bioc/mzR"
+      "sameAs": "https://bioconductor.org/packages/release/bioc/html/mzR.html"
     },
     "5": {
       "@type": "SoftwareApplication",
@@ -129,7 +129,7 @@
       "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
-      "version": ">= 1.17.10",
+      "version": ">= 1.16.1",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -141,7 +141,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra"],
-  "fileSize": "24.786KB",
+  "fileSize": "27.407KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

@@ -17,7 +17,7 @@ centroid_one_file(
   mz_fun_ms1 = base::mean,
   mz_fun_ms2 = base::mean,
   int_fun_ms1 = base::max,
-  int_fun_ms2 = base::sum,
+  int_fun_ms2 = base::max,
   mz_weighted = TRUE,
   time_domain = TRUE,
   intensity_exponent = 3
@@ -62,7 +62,7 @@ Ignored if \code{mz_weighted = TRUE}.}
 \item{int_fun_ms1}{\code{function} (default: \code{base::max})
 Function to aggregate peak intensities within each peak group (MS1).}
 
-\item{int_fun_ms2}{\code{function} (default: \code{base::sum})
+\item{int_fun_ms2}{\code{function} (default: \code{base::max})
 Function to aggregate peak intensities within each peak group (MS2).}
 
 \item{mz_weighted}{\code{logical(1)} (default: \code{TRUE})

@@ -45,7 +45,7 @@ install.packages(
 
 ## Use
 
-### R
+### Single file
 
 ``` r
 CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
@@ -55,6 +55,22 @@ CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
 
 ``` bash
 Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
+```
+
+### Multiple files
+
+``` r
+"path_to_your/profiles/" |>
+    list.files(pattern = ".mzML", full.names = TRUE) |>
+    purrr::walk(
+      .f = CentroidR::centroid_one_file, 
+      pattern = "/profiles/",
+      replacement = "/profiles_centroided/",
+      .progress = TRUE)
+```
+
+``` bash
+Rscript inst/scripts/centroiding.R --directory "path_to_your/profiles/" --pattern "/profiles/" --replacement "/profiles_centroided/"
 ```
 
 ``` bash
@@ -73,6 +89,13 @@ docker pull adafede/centroidr
   -v path_to_your:/home \
   adafede/centroidr \
   Rscript centroiding.R --file "home/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
+```
+
+``` bash
+ docker run --rm \
+  -v path_to_your:/home \
+  adafede/centroidr \
+  Rscript centroiding.R --directory "home/profiles/" --pattern "/profiles/" --replacement "/profiles_centroided/"
 ```
 
 To see all parameters

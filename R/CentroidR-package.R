@@ -7,6 +7,10 @@ NULL
 .datatable.aware <- TRUE
 
 .onLoad <- function(libname, pkgname) {
+  ## To avoid CRAN warnings
+  optparse::.__C__OptionParser
+  mzR::pwiz.version()
+  invisible()
 }
 
 .onAttach <- function(libname, pkgname) {

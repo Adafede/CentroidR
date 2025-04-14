@@ -104,7 +104,7 @@
 <code class="sourceCode R"><span><span class="st">"path_to_your/profiles/"</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">".mzML"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">walk</a></span><span class="op">(</span></span>
-<span>      .f <span class="op">=</span> <span class="fu">CentroidR</span><span class="fu">::</span><span class="va"><a href="reference/centroid_one_file.html">centroid_one_file</a></span>, </span>
+<span>      .f <span class="op">=</span> <span class="fu">CentroidR</span><span class="fu">::</span><span class="va"><a href="reference/centroid_one_file.html">centroid_one_file</a></span>,</span>
 <span>      pattern <span class="op">=</span> <span class="st">"/profiles/"</span>,</span>
 <span>      replacement <span class="op">=</span> <span class="st">"/profiles_centroided/"</span>,</span>
 <span>      .progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>

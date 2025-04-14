@@ -45,6 +45,7 @@
       "@type": "SoftwareApplication",
       "identifier": "R.utils",
       "name": "R.utils",
+      "version": ">= 2.13.0",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
@@ -55,8 +56,22 @@
     },
     {
       "@type": "SoftwareApplication",
+      "identifier": "rlang",
+      "name": "rlang",
+      "version": ">= 1.1.6",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=rlang"
+    },
+    {
+      "@type": "SoftwareApplication",
       "identifier": "testthat",
       "name": "testthat",
+      "version": ">= 3.2.3",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
@@ -127,6 +142,19 @@
     },
     "6": {
       "@type": "SoftwareApplication",
+      "identifier": "purrr",
+      "name": "purrr",
+      "version": ">= 1.0.4",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=purrr"
+    },
+    "7": {
+      "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
       "version": ">= 1.16.1",
@@ -141,7 +169,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra"],
-  "fileSize": "28.052KB",
+  "fileSize": "28.748KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

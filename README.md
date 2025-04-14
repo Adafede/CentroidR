@@ -27,6 +27,15 @@ Here is what you *minimally* need:
 
 - **An mzML file containing profile spectra**
 
+Here is a generic command in case:
+
+``` bash
+docker run -it --rm -e WINEDEBUG=-all -v .:/data proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses wine msconvert "path_to_your/raw/spectra.wiff" --ignoreUnknownInstrumentError
+```
+
+Note: If using Sciex raw format, use the `.wiff` and not the `.wiff2`
+for this step!
+
 ## Installation
 
 As the package is not (yet) available on CRAN, you will need to install

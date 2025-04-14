@@ -184,9 +184,9 @@ centroid_one_file <- function(
     "m/z weighted" = mz_weighted,
     "Time domain" = time_domain
   )
-  lapply(
-    X = names(params),
-    FUN = function(param) {
+  purrr::walk(
+    .x = names(params),
+    .f = function(param) {
       logger::log_info("{param} : {params[[param]]}")
     }
   )

@@ -63,7 +63,7 @@ Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --
 "path_to_your/profiles/" |>
     list.files(pattern = ".mzML", full.names = TRUE) |>
     purrr::walk(
-      .f = CentroidR::centroid_one_file, 
+      .f = CentroidR::centroid_one_file,
       pattern = "/profiles/",
       replacement = "/profiles_centroided/",
       .progress = TRUE)

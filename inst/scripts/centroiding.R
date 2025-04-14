@@ -169,5 +169,5 @@ if (!is.null(opt$file)) {
 } else {
   opt$dir |>
     list.files(pattern = ".mzML", full.names = TRUE) |>
-    lapply(FUN = centroid_one_file)
+    purrr::walk(.f = centroid_one_file, .progress = TRUE)
 }

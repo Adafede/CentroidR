@@ -135,7 +135,7 @@ if (
   stop("Error: Provide either --file or --dir, but not both.")
 }
 if (
-    is.null(opt$pattern) ||
+  is.null(opt$pattern) ||
     is.null(opt$replacement)
 ) {
   optparse::print_help(parser)

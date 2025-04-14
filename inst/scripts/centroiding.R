@@ -6,7 +6,14 @@ parser <- optparse::OptionParser() |>
     opt_str = c("-f", "--file"),
     type = "character",
     default = NULL,
-    help = "Path to the input file [required]",
+    help = "Path to the input file [exclusive with --dir]",
+    metavar = "character"
+  ) |>
+  optparse::add_option(
+    opt_str = c("-d", "--directory"),
+    type = "character",
+    default = NULL,
+    help = "Path to a directory containing files [exclusive with --file]",
     metavar = "character"
   ) |>
   optparse::add_option(
@@ -119,31 +126,48 @@ parser <- optparse::OptionParser() |>
 opt <- parser |>
   optparse::parse_args()
 
-# Ensure required arguments are provided
+# Input validation
 if (
-  is.null(opt$file) ||
+  (is.null(opt$file) && is.null(opt$dir)) ||
+    (!is.null(opt$file) && !is.null(opt$dir))
+) {
+  optparse::print_help(parser)
+  stop("Error: Provide either --file or --dir, but not both.")
+}
+if (
     is.null(opt$pattern) ||
     is.null(opt$replacement)
 ) {
   optparse::print_help(parser)
-  stop("Error: Missing required arguments --file, --pattern, or --replacement.")
+  stop("Error: Missing required arguments --pattern, or --replacement.")
 }
 
-CentroidR::centroid_one_file(
-  file = opt$file,
-  pattern = opt$pattern,
-  replacement = opt$replacement,
-  min_datapoints_ms1 = opt$`min-datapoints-ms1` %||% 5L,
-  min_datapoints_ms2 = opt$`min-datapoints-ms2` %||% 2L,
-  mz_tol_da_ms1 = opt$`mz-tol-da-ms1` %||% 0.0025,
-  mz_tol_da_ms2 = opt$`mz-tol-da-ms2` %||% 0.005,
-  mz_tol_ppm_ms1 = opt$`mz-tol-ppm-ms1` %||% 5.0,
-  mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 10.0,
-  mz_fun_ms1 = opt$`mz-fun-ms1` |> match.fun() %||% base::mean,
-  mz_fun_ms2 = opt$`mz-fun-ms2` |> match.fun() %||% base::mean,
-  int_fun_ms1 = opt$`int-fun-ms1` |> match.fun() %||% base::max,
-  int_fun_ms2 = opt$`int-fun-ms2` |> match.fun() %||% base::max,
-  mz_weighted = opt$`mz-weighted` %||% TRUE,
-  time_domain = opt$`time-domain` %||% TRUE,
-  intensity_exponent = opt$`intensity-exponent` %||% 3
-)
+centroid_one_file <- function(file) {
+  CentroidR::centroid_one_file(
+    file = file,
+    pattern = opt$pattern,
+    replacement = opt$replacement,
+    min_datapoints_ms1 = opt$`min-datapoints-ms1` %||% 5L,
+    min_datapoints_ms2 = opt$`min-datapoints-ms2` %||% 2L,
+    mz_tol_da_ms1 = opt$`mz-tol-da-ms1` %||% 0.0025,
+    mz_tol_da_ms2 = opt$`mz-tol-da-ms2` %||% 0.005,
+    mz_tol_ppm_ms1 = opt$`mz-tol-ppm-ms1` %||% 5.0,
+    mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 10.0,
+    mz_fun_ms1 = opt$`mz-fun-ms1` |> match.fun() %||% base::mean,
+    mz_fun_ms2 = opt$`mz-fun-ms2` |> match.fun() %||% base::mean,
+    int_fun_ms1 = opt$`int-fun-ms1` |> match.fun() %||% base::max,
+    int_fun_ms2 = opt$`int-fun-ms2` |> match.fun() %||% base::max,
+    mz_weighted = opt$`mz-weighted` %||% TRUE,
+    time_domain = opt$`time-domain` %||% TRUE,
+    intensity_exponent = opt$`intensity-exponent` %||% 3
+  )
+}
+
+# Process
+if (!is.null(opt$file)) {
+  centroid_one_file(opt$file)
+} else {
+  opt$dir |>
+    list.files(pattern = ".mzML", full.names = TRUE) |>
+    lapply(FUN = centroid_one_file)
+}

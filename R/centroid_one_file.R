@@ -270,7 +270,7 @@ centroid_one_file <- function(
 
       # TODO see if expose of not
       # Batch processing
-      batch_size <- 1000L
+      batch_size <- 10000L
       n <- length(sp)
       batch_starts <- seq(1L, n, by = batch_size)
 

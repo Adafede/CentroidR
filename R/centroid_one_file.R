@@ -68,6 +68,7 @@ centroid_one_file <- function(
   intensity_exponent = 3
 ) {
   ## This was copied from the Spectra package to be able to access `timeDomain`
+  ## And slightly adapted
   .peaks_combine <- function(
     x,
     ppm = 20,
@@ -84,59 +85,82 @@ centroid_one_file <- function(
       return(x)
     }
 
-    # Apply the sqrt transformation if timeDomain is TRUE
-    if (timeDomain) {
-      # Adjust the absolute tolerance for sqrt(mz)
-      mz_sqrt <- x[, "mz"] |>
-        sqrt()
-      grps <- MsCoreUtils::group(
-        mz_sqrt,
-        tolerance = tolerance / min(mz_sqrt),
-        ppm = ppm
-      )
+    mz_vals <- if (timeDomain) {
+      x[, "mz"] |> sqrt()
     } else {
-      grps <- MsCoreUtils::group(x[, "mz"], tolerance = tolerance, ppm = ppm)
+      x[, "mz"]
     }
+    mz_base <- if (timeDomain) {
+      # Adjust the absolute tolerance for sqrt(mz)
+      min(mz_vals)
+    } else {
+      1
+    }
+    grps <- MsCoreUtils::group(
+      x = mz_vals,
+      tolerance = tolerance / mz_base,
+      ppm = ppm
+    )
 
-    lg <- length(grps)
-    if (grps[lg] == lg) {
+    if (length(unique(grps)) == length(grps)) {
       return(x)
     }
 
-    mzs <- split(x[, "mz"], grps)
-    ints <- split(x[, "intensity"], grps)
+    mzs_split <- split(x[, "mz"], grps)
+    ints_split <- split(x[, "intensity"], grps)
 
+    # Compute m/z
     if (weighted) {
-      mzs <- unlist(
-        mapply(
-          mzs,
-          ints,
-          FUN = function(m, i)
-            stats::weighted.mean(m, i^intensity_exponent + 1),
-          SIMPLIFY = FALSE,
-          USE.NAMES = FALSE
-        ),
-        use.names = FALSE
+      mzs <- vapply(
+        seq_along(mzs_split),
+        function(i) {
+          mz <- mzs_split[[i]]
+          int <- ints_split[[i]]
+          stats::weighted.mean(mz, int^intensity_exponent + 1)
+        },
+        numeric(1)
       )
     } else {
-      mzs <- MsCoreUtils::vapply1d(mzs, mzFun)
+      mzs <- MsCoreUtils::vapply1d(mzs_split, mzFun)
     }
 
-    ints <- MsCoreUtils::vapply1d(ints, intensityFun)
+    # Compute intensities
+    ints <- MsCoreUtils::vapply1d(ints_split, intensityFun)
 
+    # Handle metadata columns, if present
     if (ncol(x) > 2) {
-      lst <- lapply(x[!colnames(x) %in% c("mz", "intensity")], function(z) {
-        z <- lapply(split(z, grps), unique)
-        z[lengths(z) > 1] <- NA
-        unlist(z, use.names = FALSE, recursive = FALSE)
+      meta <- x[, !colnames(x) %in% c("mz", "intensity"), drop = FALSE]
+      meta_split <- split.data.frame(meta, grps)
+      meta_combined <- lapply(seq_along(meta_split), function(i) {
+        colapply <- lapply(meta_split[[i]], function(col) {
+          u <- unique(col)
+          if (length(u) == 1) {
+            u
+          } else {
+            NA
+          }
+        })
+        as.data.frame(colapply, stringsAsFactors = FALSE)
       })
-      do.call(
-        cbind.data.frame,
-        c(list(mz = mzs, intensity = ints), lst)
-      )
+      meta_final <- do.call(rbind, meta_combined)
+      return(cbind(mz = mzs, intensity = ints, meta_final))
     } else {
-      cbind(mz = mzs, intensity = ints)
+      return(cbind(mz = mzs, intensity = ints))
     }
+  }
+  .fix_run_id <- function(file_path) {
+    temp_file <- tempfile()
+    lines <- readLines(file_path, warn = FALSE)
+    run_id <- basename(file_path)
+    lines <- gsub(
+      pattern = "<run id=\"Experiment_1\"",
+      replacement = sprintf("<run id=\"%s\"", run_id),
+      x = lines,
+      fixed = TRUE
+    )
+    writeLines(lines, temp_file)
+    file.copy(temp_file, file_path, overwrite = TRUE)
+    unlink(temp_file)
   }
 
   # Construct output file path
@@ -236,7 +260,6 @@ centroid_one_file <- function(
       Spectra::applyProcessing()
     centroided_1 <- sp_mem |>
       Spectra::filterMsLevel(1L) |>
-      Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
       Spectra::addProcessing(
         .peaks_combine,
         tolerance = mz_tol_da_ms1,
@@ -274,7 +297,7 @@ centroid_one_file <- function(
 
       # TODO see if expose of not
       # Batch processing
-      batch_size <- 5000L
+      batch_size <- 4096L
       n <- length(sp)
       batch_starts <- seq(1L, n, by = batch_size)
 
@@ -313,13 +336,11 @@ centroid_one_file <- function(
         )
 
         rm(idx, sp_batch, result)
-        invisible(gc())
 
         return(temp_file)
       })
       logger::log_trace("Concatenating all processed batches")
       sp_cen <- Spectra::Spectra(temp_files, backend = Spectra::MsBackendMzR())
-      invisible(gc(verbose = FALSE))
 
       logger::log_trace("Exporting: {basename(file)}")
       sp_cen |>
@@ -328,21 +349,8 @@ centroid_one_file <- function(
       logger::log_trace("Exported: {basename(file)}")
 
       logger::log_trace("Renaming inside mzML: {basename(file)}")
-      filename <- basename(outf)
-      temp_file <- tempfile()
-      in_con <- file(outf, "r")
-      out_con <- file(temp_file, "w")
-      while (length(line <- readLines(in_con, n = 1, warn = FALSE)) > 0) {
-        line <- gsub(
-          pattern = "<run id=\"Experiment_1\"",
-          replacement = paste0("<run id=\"", filename, "\""),
-          x = line
-        )
-        writeLines(line, out_con)
-      }
-      close(in_con)
-      close(out_con)
-      file.rename(temp_file, outf)
+      outf |>
+        .fix_run_id()
       logger::log_trace("Renamed inside mzML: {basename(file)}")
 
       logger::log_success("Successfully centroided: {basename(file)}")

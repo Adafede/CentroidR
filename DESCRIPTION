@@ -22,6 +22,7 @@ BugReports: https://github.com/adafede/CentroidR/issues
 Depends:
     R (>= 4.4.0)
 Imports:
+    BiocParallel (>= 1.40.2),
     logger (>= 0.4.0),
     MsCoreUtils (>= 1.18.0),
     mzR (>= 2.40.0),

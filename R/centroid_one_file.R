@@ -260,7 +260,11 @@ centroid_one_file <- function(
     {
       logger::log_trace("Starting centroiding process for: {basename(file)}")
 
-      sp <- Spectra::Spectra(file, backend = Spectra::MsBackendMzR()) |>
+      sp <- file |>
+        Spectra::Spectra(
+          backend = Spectra::MsBackendMzR(),
+          BPPARAM = BiocParallel::SerialParam()
+        ) |>
         Spectra::dropNaSpectraVariables()
       sd <- sp |>
         Spectra::spectraData()
@@ -304,7 +308,8 @@ centroid_one_file <- function(
         Spectra::export(
           result,
           file = temp_file,
-          backend = Spectra::MsBackendMzR()
+          backend = Spectra::MsBackendMzR(),
+          BPPARAM = BiocParallel::SerialParam()
         )
 
         rm(idx, sp_batch, result)

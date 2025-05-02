@@ -16,11 +16,11 @@
 #'   Minimum datapoints to be considered for MS2 data.
 #' @param mz_tol_da_ms1 `numeric(1)` (default: `0.0025`)
 #'   m/z tolerance in Daltons for MS1 data.
-#' @param mz_tol_da_ms2 `numeric(1)` (default: `0.005`)
+#' @param mz_tol_da_ms2 `numeric(1)` (default: `0.0025`)
 #'   m/z tolerance in Daltons for MS2 data.
 #' @param mz_tol_ppm_ms1 `numeric(1)` (default: `5`)
 #'   m/z tolerance in parts per million (ppm) for MS1.
-#' @param mz_tol_ppm_ms2 `numeric(1)` (default: `10`)
+#' @param mz_tol_ppm_ms2 `numeric(1)` (default: `5`)
 #'   m/z tolerance in parts per million (ppm) for MS2.
 #' @param mz_fun_ms1 `function` (default: `base::mean`)
 #'   Function to aggregate m/z values within each peak group (MS1).
@@ -56,9 +56,9 @@ centroid_one_file <- function(
   min_datapoints_ms1 = 5L,
   min_datapoints_ms2 = 2L,
   mz_tol_da_ms1 = 0.0025,
-  mz_tol_da_ms2 = 0.005,
+  mz_tol_da_ms2 = 0.0025,
   mz_tol_ppm_ms1 = 5.0,
-  mz_tol_ppm_ms2 = 10.0,
+  mz_tol_ppm_ms2 = 5.0,
   mz_fun_ms1 = base::mean,
   mz_fun_ms2 = base::mean,
   int_fun_ms1 = base::max,

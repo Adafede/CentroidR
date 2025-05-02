@@ -54,8 +54,8 @@ parser <- optparse::OptionParser() |>
   optparse::add_option(
     opt_str = "--ms-tol-da-ms2",
     type = "numeric",
-    default = 0.005,
-    help = " m/z tolerance in Dalton (ms2). (default: 0.005)",
+    default = 0.0025,
+    help = " m/z tolerance in Dalton (ms2). (default: 0.0025)",
     metavar = "numeric"
   ) |>
   optparse::add_option(
@@ -68,8 +68,8 @@ parser <- optparse::OptionParser() |>
   optparse::add_option(
     opt_str = "--ms-tol-ppm-ms2",
     type = "numeric",
-    default = 10,
-    help = " m/z tolerance in ppm (ms2). (default: 10)",
+    default = 5,
+    help = " m/z tolerance in ppm (ms2). (default: 5)",
     metavar = "numeric"
   ) |>
   optparse::add_option(
@@ -150,9 +150,9 @@ centroid_one_file <- function(file) {
     min_datapoints_ms1 = opt$`min-datapoints-ms1` %||% 5L,
     min_datapoints_ms2 = opt$`min-datapoints-ms2` %||% 2L,
     mz_tol_da_ms1 = opt$`mz-tol-da-ms1` %||% 0.0025,
-    mz_tol_da_ms2 = opt$`mz-tol-da-ms2` %||% 0.005,
+    mz_tol_da_ms2 = opt$`mz-tol-da-ms2` %||% 0.0025,
     mz_tol_ppm_ms1 = opt$`mz-tol-ppm-ms1` %||% 5.0,
-    mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 10.0,
+    mz_tol_ppm_ms2 = opt$`mz-tol-ppm-ms2` %||% 5.0,
     mz_fun_ms1 = opt$`mz-fun-ms1` |> match.fun() %||% base::mean,
     mz_fun_ms2 = opt$`mz-fun-ms2` |> match.fun() %||% base::mean,
     int_fun_ms1 = opt$`int-fun-ms1` |> match.fun() %||% base::max,

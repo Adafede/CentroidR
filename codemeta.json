@@ -90,6 +90,19 @@
     },
     "2": {
       "@type": "SoftwareApplication",
+      "identifier": "BiocParallel",
+      "name": "BiocParallel",
+      "version": ">= 1.40.2",
+      "provider": {
+        "@id": "https://www.bioconductor.org",
+        "@type": "Organization",
+        "name": "Bioconductor",
+        "url": "https://www.bioconductor.org"
+      },
+      "sameAs": "https://bioconductor.org/packages/release/bioc/html/BiocParallel.html"
+    },
+    "3": {
+      "@type": "SoftwareApplication",
       "identifier": "logger",
       "name": "logger",
       "version": ">= 0.4.0",
@@ -101,7 +114,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=logger"
     },
-    "3": {
+    "4": {
       "@type": "SoftwareApplication",
       "identifier": "MsCoreUtils",
       "name": "MsCoreUtils",
@@ -114,7 +127,7 @@
       },
       "sameAs": "https://bioconductor.org/packages/release/bioc/html/MsCoreUtils.html"
     },
-    "4": {
+    "5": {
       "@type": "SoftwareApplication",
       "identifier": "mzR",
       "name": "mzR",
@@ -127,7 +140,7 @@
       },
       "sameAs": "https://bioconductor.org/packages/release/bioc/html/mzR.html"
     },
-    "5": {
+    "6": {
       "@type": "SoftwareApplication",
       "identifier": "optparse",
       "name": "optparse",
@@ -140,7 +153,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=optparse"
     },
-    "6": {
+    "7": {
       "@type": "SoftwareApplication",
       "identifier": "purrr",
       "name": "purrr",
@@ -153,7 +166,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=purrr"
     },
-    "7": {
+    "8": {
       "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
@@ -169,7 +182,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra"],
-  "fileSize": "28.841KB",
+  "fileSize": "29.465KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

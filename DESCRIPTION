@@ -15,7 +15,7 @@ Authors@R: c(
   )
 Maintainer: Adriano Rutz <adafede@gmail.com>
 Description: CentroidR provides the infrastructure to centroid profile spectra.
-License: GPL (>= 3)
+License: AGPL (>= 3)
 URL: https://github.com/adafede/CentroidR,
     https://adafede.github.io/CentroidR
 BugReports: https://github.com/adafede/CentroidR/issues

@@ -7,7 +7,7 @@
   "relatedLink": "https://adafede.github.io/CentroidR",
   "codeRepository": "https://github.com/adafede/CentroidR",
   "issueTracker": "https://github.com/adafede/CentroidR/issues",
-  "license": "https://spdx.org/licenses/GPL-3.0",
+  "license": "https://spdx.org/licenses/AGPL-3.0",
   "version": "0.0.0.9000",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
@@ -182,7 +182,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra"],
-  "fileSize": "29.465KB",
+  "fileSize": "29.432KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

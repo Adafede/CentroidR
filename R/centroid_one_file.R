@@ -162,6 +162,28 @@ centroid_one_file <- function(
     file.copy(temp_file, file_path, overwrite = TRUE)
     unlink(temp_file)
   }
+  .keep_empty <- function(original, processed) {
+    processed_peaks <- processed |>
+      Spectra::peaksData()
+    is_empty <- lengths(processed_peaks) == 0
+
+    if (any(is_empty)) {
+      logger::log_trace("Restoring {sum(is_empty)} empty spectra to original")
+      original_peaks <- original |>
+        Spectra::peaksData()
+      empty_indices <- which(is_empty)
+      restored_peaks <- purrr::map(empty_indices, function(i) {
+        pk <- original_peaks[[i]]
+        if (nrow(pk) == 0) {
+          return(pk)
+        }
+        pk[pk[, "intensity"] > 0, , drop = FALSE]
+      })
+      processed@backend@peaksData[empty_indices] <- restored_peaks
+    }
+
+    return(processed)
+  }
 
   # Construct output file path
   outf <- sub(
@@ -242,9 +264,7 @@ centroid_one_file <- function(
     mz_weighted,
     time_domain
   ) {
-    sp_mem <- spectra |>
-      Spectra::setBackend(Spectra::MsBackendMemory())
-    centroided_2 <- sp_mem |>
+    centroided_2 <- spectra |>
       Spectra::filterMsLevel(2L) |>
       Spectra::addProcessing(
         .peaks_combine,
@@ -258,7 +278,8 @@ centroid_one_file <- function(
       ) |>
       Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
       Spectra::applyProcessing()
-    centroided_1 <- sp_mem |>
+
+    centroided_1 <- spectra |>
       Spectra::filterMsLevel(1L) |>
       Spectra::addProcessing(
         .peaks_combine,
@@ -272,11 +293,13 @@ centroid_one_file <- function(
       ) |>
       Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
       Spectra::applyProcessing()
-    rm(sp_mem)
-    return(
-      centroided_1 |>
-        Spectra::concatenateSpectra(centroided_2)
-    )
+
+    # Combine processed MS1 and MS2
+    centroided <- Spectra::concatenateSpectra(centroided_1, centroided_2)
+
+    # Replace empty processed spectra with original input
+    centroided <- .keep_empty(spectra, centroided)
+    return(centroided)
   }
 
   tryCatch(
@@ -308,7 +331,8 @@ centroid_one_file <- function(
 
       temp_files <- purrr::imap_chr(batch_starts, function(start_idx, i) {
         idx <- start_idx:min(start_idx + batch_size - 1L, n)
-        sp_batch <- sp[idx]
+        sp_batch <- sp[idx] |>
+          Spectra::setBackend(Spectra::MsBackendMemory())
 
         logger::log_trace("Processing batch {i} / {length(batch_starts)}")
 

@@ -9,6 +9,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![R-CMD-check](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.codecov.io/gh/adafede/CentroidR)
+[![Docker](https://badgen.net/badge/docker/centroidr?icon&label)](https://hub.docker.com/r/adafede/centroidr/)
 <!-- badges: end -->
 
 Repository to centroid profile spectra.

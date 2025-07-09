@@ -1,0 +1,34 @@
+---
+project:
+  output-dir: ../docs/
+  type: website
+
+website:
+  title: "$ALTDOC_PACKAGE_NAME"
+  site-url: https://adafede.github.io/CentroidR/
+  page-navigation: true
+  navbar:
+    title: CentroidR
+    search: true
+    left:
+      # - text: Functions
+      #   href: ./man
+      - text: News
+        file: $ALTDOC_NEWS
+      - text: License
+        file: $ALTDOC_LICENSE
+      - text: Citation
+        file: $ALTDOC_CITATION
+    right:
+      - icon: github
+        href: $ALTDOC_PACKAGE_URL_GITHUB
+        aria-label: $ALTDOC_PACKAGE_NAME GitHub
+
+format:
+  html:
+    respect-user-color-scheme: true
+    toc: true
+    theme:
+      light: flatly
+      dark: darkly
+    # number-sections: false

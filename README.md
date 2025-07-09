@@ -1,16 +1,15 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+<!-- README.md is generated from README.qmd. Please edit that file -->
 
 # CentroidR
 
 <!-- <img src='https://raw.githubusercontent.com/adafede/CentroidR/main/man/figures/logo.svg' align="right" height="139" /> -->
-
 <!-- badges: start -->
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml)
-[![R-Universe](https://adafede.r-universe.dev/badges/CentroidR)](https://adafede.r-universe.dev/CentroidR)
 [![Codecov test
 coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.codecov.io/gh/adafede/CentroidR)
 <!-- badges: end -->
@@ -25,7 +24,7 @@ the original work at
 
 Here is what you *minimally* need:
 
-- **An mzML file containing profile spectra**
+-   **An mzML file containing profile spectra**
 
 Here is a generic command in case:
 
@@ -122,5 +121,5 @@ TODO
 
 ### Others
 
-- The *RforMassSpectrometry* packages suite:
-  <https://doi.org/10.3390/metabo12020173>
+-   The *RforMassSpectrometry* packages suite:
+    <https://doi.org/10.3390/metabo12020173>

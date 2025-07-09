@@ -2,10 +2,7 @@
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
-# CentroidR
-
-<!-- <img src='https://raw.githubusercontent.com/adafede/CentroidR/main/man/figures/logo.svg' align="right" height="139" /> -->
-<!-- badges: start -->
+# CentroidR <img src='https://raw.githubusercontent.com/adafede/CentroidR/main/man/figures/logo.svg' align="right" height="139" />
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)

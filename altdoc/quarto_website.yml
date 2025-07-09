@@ -6,9 +6,13 @@ project:
 website:
   title: "$ALTDOC_PACKAGE_NAME"
   site-url: https://adafede.github.io/CentroidR/
+  favicon: man/figures/logo.svg
+  image: man/figures/logo.svg
   page-navigation: true
   navbar:
     title: CentroidR
+    logo: man/figures/logo.svg
+    logo-alt: CentroidR logo
     search: true
     left:
       # - text: Functions

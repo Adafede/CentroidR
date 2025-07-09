@@ -1,0 +1,1 @@
+Sitemap: https://adafede.github.io/CentroidR/sitemap.xml

@@ -30,8 +30,10 @@ Imports:
     purrr (>= 1.0.4),
     Spectra (>= 1.16.1)
 Suggests: 
+    altdoc (>= 0.5.0),
     R.utils (>= 2.13.0),
     rlang (>= 1.1.6),
+    spelling (>= 2.3.1),
     testthat (>= 3.2.3)
 Config/testthat/edition: 3
 Encoding: UTF-8

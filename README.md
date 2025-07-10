@@ -6,10 +6,10 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check/badge.svg)](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check)
+[![R-CMD-check](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.codecov.io/gh/adafede/CentroidR)
-[![r-universe badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=green&style=flat)](https://adafede.r-universe.dev/CentroidR)
+[![r-universe badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style=classic)](https://adafede.r-universe.dev/CentroidR)
 [![Docker](https://badgen.net/badge/docker/centroidr?icon&label)](https://hub.docker.com/r/adafede/centroidr/)
 <!-- badges: end -->
 

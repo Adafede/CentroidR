@@ -183,7 +183,7 @@
       "@type": "SoftwareApplication",
       "identifier": "purrr",
       "name": "purrr",
-      "version": ">= 1.0.4",
+      "version": ">= 1.1.0",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
@@ -208,7 +208,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra"],
-  "fileSize": "33.567KB",
+  "fileSize": "222.709KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -233,7 +233,7 @@
       "description": "R package, version 0.0.9000"
     }
   ],
-  "releaseNotes": "https://github.com/adafede/CentroidR/blob/master/NEWS.md",
+  "releaseNotes": "https://github.com/adafede/CentroidR/blob/main/NEWS.md",
   "readme": "https://github.com/Adafede/CentroidR/blob/main/README.md",
   "contIntegration": ["https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml", "https://app.codecov.io/gh/adafede/CentroidR"],
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental"

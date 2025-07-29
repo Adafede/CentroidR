@@ -27,7 +27,7 @@ Imports:
     MsCoreUtils (>= 1.18.0),
     mzR (>= 2.40.0),
     optparse (>= 1.7.5),
-    purrr (>= 1.0.4),
+    purrr (>= 1.1.0),
     Spectra (>= 1.16.1)
 Suggests: 
     altdoc (>= 0.5.0),

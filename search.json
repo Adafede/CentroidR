@@ -81,7 +81,7 @@
     "href": "NEWS.html",
     "title": "CentroidR",
     "section": "",
-    "text": "CentroidR\n\n\nCentroidR 0.0.9001\n\nFixed NaN in mzMLs originating from .wiff2 (#6), see https://github.com/sneumann/mzR/issues/305\n\n\n\nCentroidR 0.0.9000\n\nInitial version."
+    "text": "CentroidR\n\n\nCentroidR 0.0.9001\n\nFixed NaN in mzMLs originating from .wiff2 (#6), see https://github.com/sneumann/mzR/issues/307\n\n\n\nCentroidR 0.0.9000\n\nInitial version."
   },
   {
     "objectID": "CITATION.html",

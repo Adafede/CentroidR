@@ -148,20 +148,32 @@ centroid_one_file <- function(
       return(cbind(mz = mzs, intensity = ints))
     }
   }
-  .fix_run_id <- function(file_path) {
+  .fix_xml <- function(file_path) {
     temp_file <- tempfile()
     lines <- readLines(file_path, warn = FALSE)
     run_id <- basename(file_path)
+
+    # Replace nan with NaN, else files are buggy
+    lines <- gsub(
+      pattern = "value=\"nan\"",
+      replacement = "value=\"NaN\"",
+      x = lines,
+      fixed = TRUE
+    )
+
+    # Update run id
     lines <- gsub(
       pattern = "<run id=\"Experiment_1\"",
       replacement = sprintf("<run id=\"%s\"", run_id),
       x = lines,
       fixed = TRUE
     )
+
     writeLines(lines, temp_file)
     file.copy(temp_file, file_path, overwrite = TRUE)
     unlink(temp_file)
   }
+
   .keep_empty <- function(original, processed) {
     processed_peaks <- processed |>
       Spectra::peaksData()
@@ -372,10 +384,10 @@ centroid_one_file <- function(
       rm(sp_cen)
       logger::log_trace("Exported: {basename(file)}")
 
-      logger::log_trace("Renaming inside mzML: {basename(file)}")
+      logger::log_trace("Making a few fixes inside mzML: {basename(file)}")
       outf |>
-        .fix_run_id()
-      logger::log_trace("Renamed inside mzML: {basename(file)}")
+        .fix_xml()
+      logger::log_trace("Made fixes inside mzML: {basename(file)}")
 
       logger::log_success("Successfully centroided: {basename(file)}")
       unlink(tmp_batch_dir, recursive = TRUE)

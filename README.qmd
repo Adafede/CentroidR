@@ -41,7 +41,7 @@ Here is a generic command in case:
 docker run -it --rm -e WINEDEBUG=-all -v .:/data proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses wine msconvert "path_to_your/raw/spectra.wiff" --ignoreUnknownInstrumentError
 ```
 
-Note: If using Sciex raw format, use the `.wiff` and not the `.wiff2` for this step!
+Note: If using Sciex raw format, you can use both the `.wiff` and the `.wiff2` format for this step.
 
 
 ## Installation

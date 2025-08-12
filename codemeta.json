@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/adafede/CentroidR",
   "issueTracker": "https://github.com/adafede/CentroidR/issues",
   "license": "https://spdx.org/licenses/AGPL-3.0",
-  "version": "0.0.0.9000",
+  "version": "0.0.0.9001",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -207,8 +207,8 @@
     },
     "SystemRequirements": null
   },
-  "keywords": ["centroiding", "spectra"],
-  "fileSize": "222.709KB",
+  "keywords": ["centroiding", "spectra", "centroid", "mass-spectra", "mass-spectrometry"],
+  "fileSize": "223.041KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

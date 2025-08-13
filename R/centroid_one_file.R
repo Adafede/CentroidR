@@ -328,6 +328,10 @@ centroid_one_file <- function(
         Spectra::spectraData()
       sp@backend@spectraData <- sd |>
         purrr::discard(.x = sd, .p = ~ all(is.na(.x) | .x == 0))
+      ## We need the polarity = 0L column for negative mode
+      if (!"polarity" %in% colnames(sp@backend@spectraData)) {
+        sp@backend@spectraData$polarity <- 0L
+      }
       rm(sd)
 
       # TODO see if expose of not

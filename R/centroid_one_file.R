@@ -332,6 +332,22 @@ centroid_one_file <- function(
       if (!"polarity" %in% colnames(sp@backend@spectraData)) {
         sp@backend@spectraData$polarity <- 0L
       }
+      ## Fix for missing values
+      if (!"basePeakIntensity" %in% colnames(sp@backend@spectraData)) {
+        sp@backend@spectraData$basePeakIntensity <- NA_integer_
+      }
+      if (!"collisionEnergy" %in% colnames(sp@backend@spectraData)) {
+        sp@backend@spectraData$collisionEnergy <- NA_integer_
+      }
+      if (!"electronBeamEnergy" %in% colnames(sp@backend@spectraData)) {
+        sp@backend@spectraData$electronBeamEnergy <- NA_integer_
+      }
+      if (!"isolationWindowLowerOffset" %in% colnames(sp@backend@spectraData)) {
+        sp@backend@spectraData$isolationWindowLowerOffset <- NA_integer_
+      }
+      if (!"isolationWindowUpperOffset" %in% colnames(sp@backend@spectraData)) {
+        sp@backend@spectraData$isolationWindowUpperOffset <- NA_integer_
+      }
       rm(sd)
 
       # TODO see if expose of not

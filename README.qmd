@@ -132,7 +132,17 @@ TODO
 
 ## Additional software credits
 
-```{r, echo = FALSE}
-grateful::cite_packages(output = "table", out.dir = getwd()) |> 
+```{r, echo = FALSE, message = FALSE}
+# Check if DESCRIPTION is in current dir
+desc_path <- if (file.exists("DESCRIPTION")) {
+  "."
+} else {
+  ".."
+}
+grateful::cite_packages(
+  output = "table",
+  out.dir = getwd(),
+  path = desc_path
+) |> 
   knitr::kable()
 ```

@@ -134,6 +134,7 @@ TODO
 
 ```{r, echo = FALSE, message = FALSE}
 # Check if DESCRIPTION is in current dir
+# Else `altdoc` will not find the dependencies
 desc_path <- if (file.exists("DESCRIPTION")) {
   "."
 } else {

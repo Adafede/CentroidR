@@ -1,5 +1,5 @@
 ---
-output: github_document
+format: gfm
 bibliography: .github/grateful-refs.bib
 ---
 
@@ -131,5 +131,6 @@ TODO
 ## Additional Software credits
 
 ```{r, echo = FALSE}
-grateful::cite_packages(output = "paragraph", out.dir = ".github", omit = "CentroidR")
+grateful::cite_packages(output = "table", out.dir = ".github", omit = "CentroidR") |> 
+  knitr::kable()
 ```

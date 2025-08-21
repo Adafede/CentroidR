@@ -1,6 +1,6 @@
 ---
 format: gfm
-bibliography: .github/grateful-refs.bib
+bibliography: grateful-refs.bib
 ---
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
@@ -131,6 +131,6 @@ TODO
 ## Additional Software credits
 
 ```{r, echo = FALSE}
-grateful::cite_packages(output = "table", out.dir = ".github", omit = "CentroidR") |> 
+grateful::cite_packages(output = "table", out.dir = getwd(), omit = "CentroidR") |> 
   knitr::kable()
 ```

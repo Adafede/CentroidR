@@ -125,18 +125,18 @@ TODO
 
 | Package | Version | Citation |
 |:---|:---|:---|
+| base | 4.5.1 | R Core Team (2025) |
 | BiocManager | 1.30.26 | Morgan and Ramos (2025) |
 | BiocParallel | 1.43.4 | Wang et al. (2025) |
 | BiocVersion | 3.22.0 | Morgan (2025) |
 | CentroidR | 0.0.0.9001 | Rutz and Rainer (2025) |
-| MsCoreUtils | 1.21.0 | Rainer et al. (2022a) |
-| Spectra | 1.19.4 | Rainer et al. (2022b) |
-| base | 4.5.1 | R Core Team (2025) |
 | knitr | 1.50 | Xie (2014); Xie (2015); Xie (2025) |
 | logger | 0.4.0 | Daróczi and Wickham (2024) |
+| MsCoreUtils | 1.21.0 | Rainer et al. (2022a) |
 | mzR | 2.43.1 | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
 | optparse | 1.7.5 | Davis (2024) |
 | rmarkdown | 2.29 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2024) |
+| Spectra | 1.19.4 | Rainer et al. (2022b) |
 | testthat | 3.2.3 | Wickham (2011) |
 | tidyverse | 2.0.0 | Wickham et al. (2019) |
 

@@ -1,5 +1,7 @@
 ---
-format: gfm
+format: 
+  html: default
+  gfm: default
 bibliography: grateful-refs.bib
 ---
 
@@ -128,9 +130,9 @@ To see all parameters
 
 TODO
 
-## Additional Software credits
+## Additional software credits
 
 ```{r, echo = FALSE}
-grateful::cite_packages(output = "table", out.dir = getwd(), omit = "CentroidR") |> 
+grateful::cite_packages(output = "table", out.dir = getwd()) |> 
   knitr::kable()
 ```

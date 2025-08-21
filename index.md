@@ -121,7 +121,7 @@ To see all parameters
 
 TODO
 
-## Additional Software credits
+## Additional software credits
 
 | Package | Version | Citation           |
 |:--------|:--------|:-------------------|

@@ -1,5 +1,6 @@
 ---
 output: github_document
+bibliography: .github/grateful-refs.bib
 ---
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
@@ -123,10 +124,12 @@ To see all parameters
   Rscript centroiding.R --help
 ```
 
-## Main Citations
+## Citation
 
 TODO
 
-### Others
+## Additional Software credits
 
-- The *RforMassSpectrometry* packages suite: <https://doi.org/10.3390/metabo12020173>
+```{r, echo = FALSE}
+grateful::cite_packages(output = "paragraph", out.dir = ".github", omit = "CentroidR")
+```

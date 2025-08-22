@@ -9,7 +9,7 @@ centroid_one_file(
   pattern,
   replacement,
   min_datapoints_ms1 = 5L,
-  min_datapoints_ms2 = 2L,
+  min_datapoints_ms2 = 1L,
   mz_tol_da_ms1 = 0.0025,
   mz_tol_da_ms2 = 0.0025,
   mz_tol_ppm_ms1 = 5,
@@ -36,7 +36,7 @@ Replacement string for altering the output file path based on the \code{pattern}
 \item{min_datapoints_ms1}{\code{integer(1)} (default: \code{5L})
 Minimum datapoints to be considered for MS1 data.}
 
-\item{min_datapoints_ms2}{\code{integer(1)} (default: \code{2L})
+\item{min_datapoints_ms2}{\code{integer(1)} (default: \code{1L})
 Minimum datapoints to be considered for MS2 data.}
 
 \item{mz_tol_da_ms1}{\code{numeric(1)} (default: \code{0.0025})

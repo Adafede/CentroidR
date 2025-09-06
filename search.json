@@ -1,5 +1,12 @@
 [
   {
+    "objectID": "NEWS.html",
+    "href": "NEWS.html",
+    "title": "CentroidR",
+    "section": "",
+    "text": "CentroidR\n\n\nCentroidR 0.0.9001\n\nFixed NaN in mzMLs originating from .wiff2 (#6), see https://github.com/sneumann/mzR/issues/307\n\n\n\nCentroidR 0.0.9000\n\nInitial version."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "CentroidR ",
@@ -42,6 +49,13 @@
     "text": "Package\nVersion\nCitation\n\n\n\n\nbase\n4.5.1\nR Core Team (2025)\n\n\nBiocManager\n1.30.26\nMorgan and Ramos (2025)\n\n\nBiocParallel\n1.42.1\nMorgan et al. (2025)\n\n\nBiocVersion\n3.21.1\nMorgan (2024)\n\n\nCentroidR\n0.0.0.9001\nRutz and Rainer (2025)\n\n\nknitr\n1.50\nXie (2014); Xie (2015); Xie (2025)\n\n\nlogger\n0.4.0\nDaróczi and Wickham (2024)\n\n\nMsCoreUtils\n1.20.0\nRainer et al. (2022a)\n\n\nmzR\n2.42.0\nPedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012)\n\n\noptparse\n1.7.5\nDavis (2024)\n\n\nrmarkdown\n2.29\nXie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2024)\n\n\nSpectra\n1.18.2\nRainer et al. (2022b)\n\n\ntestthat\n3.2.3\nWickham (2011)\n\n\ntidyverse\n2.0.0\nWickham et al. (2019)"
   },
   {
+    "objectID": "CITATION.html",
+    "href": "CITATION.html",
+    "title": "Citation",
+    "section": "",
+    "text": "Citation\nTo cite CentroidR in publications use:\n\nRutz A, Rainer J (2025). CentroidR: CentroidR provides the infrastructure to centroid profile spectra. R package, version 0.0.9000."
+  },
+  {
     "objectID": "LICENSE.html",
     "href": "LICENSE.html",
     "title": "GNU Affero General Public License",
@@ -82,19 +96,5 @@
     "title": "CentroidR",
     "section": "",
     "text": "This function processes an mzML file to apply centroiding with detailed controls for peak picking, smoothing, and noise estimation. It allows fine-tuning of MS1 and MS2 peak detection, optimizing spectral data analysis for various experimental needs.\n\n\n\ncentroid_one_file(\n  file,\n  pattern,\n  replacement,\n  min_datapoints_ms1 = 5L,\n  min_datapoints_ms2 = 1L,\n  mz_tol_da_ms1 = 0.0025,\n  mz_tol_da_ms2 = 0.0025,\n  mz_tol_ppm_ms1 = 5,\n  mz_tol_ppm_ms2 = 5,\n  mz_fun_ms1 = base::mean,\n  mz_fun_ms2 = base::mean,\n  int_fun_ms1 = base::max,\n  int_fun_ms2 = base::max,\n  mz_weighted = TRUE,\n  time_domain = TRUE,\n  intensity_exponent = 3\n)\n\n\n\n\n\n\n\nfile\n\n\ncharacter(1) Path to the input mzML file. Must be a valid, accessible mzML format file.\n\n\n\n\npattern\n\n\ncharacter(1) Regular expression pattern to match in the input file path, used for modifying the output file path.\n\n\n\n\nreplacement\n\n\ncharacter(1) Replacement string for altering the output file path based on the pattern.\n\n\n\n\nmin_datapoints_ms1\n\n\ninteger(1) (default: 5L) Minimum datapoints to be considered for MS1 data.\n\n\n\n\nmin_datapoints_ms2\n\n\ninteger(1) (default: 1L) Minimum datapoints to be considered for MS2 data.\n\n\n\n\nmz_tol_da_ms1\n\n\nnumeric(1) (default: 0.0025) m/z tolerance in Daltons for MS1 data.\n\n\n\n\nmz_tol_da_ms2\n\n\nnumeric(1) (default: 0.0025) m/z tolerance in Daltons for MS2 data.\n\n\n\n\nmz_tol_ppm_ms1\n\n\nnumeric(1) (default: 5) m/z tolerance in parts per million (ppm) for MS1.\n\n\n\n\nmz_tol_ppm_ms2\n\n\nnumeric(1) (default: 5) m/z tolerance in parts per million (ppm) for MS2.\n\n\n\n\nmz_fun_ms1\n\n\nfunction (default: base::mean) Function to aggregate m/z values within each peak group (MS1). Ignored if mz_weighted = TRUE.\n\n\n\n\nmz_fun_ms2\n\n\nfunction (default: base::mean) Function to aggregate m/z values within each peak group (MS2). Ignored if mz_weighted = TRUE.\n\n\n\n\nint_fun_ms1\n\n\nfunction (default: base::max) Function to aggregate peak intensities within each peak group (MS1).\n\n\n\n\nint_fun_ms2\n\n\nfunction (default: base::max) Function to aggregate peak intensities within each peak group (MS2).\n\n\n\n\nmz_weighted\n\n\nlogical(1) (default: TRUE) If TRUE, uses intensity-weighted mean for m/z value aggregation.\n\n\n\n\ntime_domain\n\n\nlogical(1) (default: TRUE) If TRUE, uses square root for m/z weighting (TRUE for TOF).\n\n\n\n\nintensity_exponent\n\n\nnumeric(1) (default: 3) If mz_weighted=TRUE, the exponent of the intensity for m/z weighting.\n\n\n\n\n\n\nThe function processes both MS1 and MS2 data with user-defined smoothing, peak-picking, and noise estimation. File path modifications are supported via pattern and replacement.\n\n\n\nlogical(1) Returns TRUE if centroiding was successful, otherwise FALSE.\n\n\n\nJohannes Rainer, Adriano Rutz"
-  },
-  {
-    "objectID": "NEWS.html",
-    "href": "NEWS.html",
-    "title": "CentroidR",
-    "section": "",
-    "text": "CentroidR\n\n\nCentroidR 0.0.9001\n\nFixed NaN in mzMLs originating from .wiff2 (#6), see https://github.com/sneumann/mzR/issues/307\n\n\n\nCentroidR 0.0.9000\n\nInitial version."
-  },
-  {
-    "objectID": "CITATION.html",
-    "href": "CITATION.html",
-    "title": "Citation",
-    "section": "",
-    "text": "Citation\nTo cite CentroidR in publications use:\n\nRutz A, Rainer J (2025). CentroidR: CentroidR provides the infrastructure to centroid profile spectra. R package, version 0.0.9000."
   }
 ]

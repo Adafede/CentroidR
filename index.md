@@ -131,7 +131,7 @@ TODO
 | BiocVersion | 3.21.1 | Morgan (2024) |
 | CentroidR | 0.0.0.9001 | Rutz and Rainer (2025) |
 | knitr | 1.50 | Xie (2014); Xie (2015); Xie (2025) |
-| logger | 0.4.0 | Daróczi and Wickham (2024) |
+| logger | 0.4.1 | Daróczi and Wickham (2025) |
 | MsCoreUtils | 1.20.0 | Rainer et al. (2022a) |
 | mzR | 2.42.0 | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
 | optparse | 1.7.5 | Davis (2024) |
@@ -163,7 +163,7 @@ spectrometry and proteomics</span>.” *Nat Biotech* 30 (10): 918–20.
 
 <div id="ref-logger" class="csl-entry">
 
-Daróczi, Gergely, and Hadley Wickham. 2024.
+Daróczi, Gergely, and Hadley Wickham. 2025.
 *<span class="nocase">logger</span>: A Lightweight, Modern and Flexible
 Logging Utility*. <https://daroczig.github.io/logger/>.
 

@@ -43,7 +43,7 @@ Encoding: UTF-8
 LazyData: true
 ByteCompile: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 biocViews: centroiding, spectra
 X-schema.org-keywords: centroiding, spectra
 Language: en-US

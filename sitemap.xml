@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://adafede.github.io/CentroidR/NEWS.html</loc>
-    <lastmod>2025-09-25T06:30:43.804Z</lastmod>
-  </url>
-  <url>
-    <loc>https://adafede.github.io/CentroidR/index.html</loc>
-    <lastmod>2025-09-25T06:30:43.830Z</lastmod>
-  </url>
-  <url>
     <loc>https://adafede.github.io/CentroidR/CITATION.html</loc>
-    <lastmod>2025-09-25T06:30:43.856Z</lastmod>
+    <lastmod>2025-09-25T06:44:55.083Z</lastmod>
+  </url>
+  <url>
+    <loc>https://adafede.github.io/CentroidR/NEWS.html</loc>
+    <lastmod>2025-09-25T06:44:55.036Z</lastmod>
   </url>
   <url>
     <loc>https://adafede.github.io/CentroidR/LICENSE.html</loc>
-    <lastmod>2025-09-25T06:30:43.814Z</lastmod>
+    <lastmod>2025-09-25T06:44:55.045Z</lastmod>
+  </url>
+  <url>
+    <loc>https://adafede.github.io/CentroidR/index.html</loc>
+    <lastmod>2025-09-25T06:44:55.059Z</lastmod>
   </url>
   <url>
     <loc>https://adafede.github.io/CentroidR/man/centroid_one_file.html</loc>
-    <lastmod>2025-09-25T06:30:43.942Z</lastmod>
+    <lastmod>2025-09-25T06:44:55.162Z</lastmod>
   </url>
 </urlset>

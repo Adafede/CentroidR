@@ -127,7 +127,7 @@ TODO
 |:---|:---|:---|
 | base | 4.5.1 | R Core Team (2025) |
 | BiocManager | 1.30.26 | Morgan and Ramos (2025) |
-| BiocParallel | 1.42.1 | Morgan et al. (2025) |
+| BiocParallel | 1.42.2 | Morgan et al. (2025) |
 | BiocVersion | 3.21.1 | Morgan (2024) |
 | CentroidR | 0.0.0.9001 | Rutz and Rainer (2025) |
 | knitr | 1.50 | Xie (2014); Xie (2015); Xie (2025) |
@@ -135,7 +135,7 @@ TODO
 | MsCoreUtils | 1.20.0 | Rainer et al. (2022a) |
 | mzR | 2.42.0 | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
 | optparse | 1.7.5 | Davis (2024) |
-| rmarkdown | 2.29 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2024) |
+| rmarkdown | 2.30 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2025) |
 | Spectra | 1.18.2 | Rainer et al. (2022b) |
 | testthat | 3.2.3 | Wickham (2011) |
 | tidyverse | 2.0.0 | Wickham et al. (2019) |
@@ -143,10 +143,10 @@ TODO
 <div id="refs" class="references csl-bib-body hanging-indent"
 entry-spacing="0">
 
-<div id="ref-rmarkdown2024" class="csl-entry">
+<div id="ref-rmarkdown2025" class="csl-entry">
 
 Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
-Luraschi, Kevin Ushey, Aron Atkins, et al. 2024.
+Luraschi, Kevin Ushey, Aron Atkins, et al. 2025.
 *<span class="nocase">rmarkdown</span>: Dynamic Documents for r*.
 <https://github.com/rstudio/rmarkdown>.
 

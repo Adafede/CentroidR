@@ -14,6 +14,7 @@ coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.
 [![r-universe
 badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style=classic.png)](https://adafede.r-universe.dev/CentroidR)
 [![Docker](https://badgen.net/badge/docker/centroidr?icon&label.png)](https://hub.docker.com/r/adafede/centroidr/)
+[![DOI](https://zenodo.org/badge/921724027.svg)](https://doi.org/10.5281/zenodo.17250307)
 <!-- badges: end -->
 
 Repository to centroid profile spectra.
@@ -129,7 +130,7 @@ TODO
 | BiocManager | 1.30.26 | Morgan and Ramos (2025) |
 | BiocParallel | 1.42.2 | Morgan et al. (2025) |
 | BiocVersion | 3.21.1 | Morgan (2024) |
-| CentroidR | 0.0.0.9001 | Rutz and Rainer (2025) |
+| CentroidR | 0.0.0.9002 | Rutz and Rainer (2025) |
 | knitr | 1.50 | Xie (2014); Xie (2015); Xie (2025) |
 | logger | 0.4.1 | Daróczi and Wickham (2025) |
 | MsCoreUtils | 1.20.0 | Rainer et al. (2022a) |

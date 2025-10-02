@@ -24,6 +24,7 @@ knitr::opts_chunk$set(
 [![Codecov test coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.codecov.io/gh/adafede/CentroidR)
 [![r-universe badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style=classic)](https://adafede.r-universe.dev/CentroidR)
 [![Docker](https://badgen.net/badge/docker/centroidr?icon&label)](https://hub.docker.com/r/adafede/centroidr/)
+[![DOI](https://zenodo.org/badge/921724027.svg)](https://doi.org/10.5281/zenodo.17250307)
 <!-- badges: end -->
 
 Repository to centroid profile spectra.

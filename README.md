@@ -14,6 +14,7 @@ coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.
 [![r-universe
 badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style=classic.png)](https://adafede.r-universe.dev/CentroidR)
 [![Docker](https://badgen.net/badge/docker/centroidr?icon&label.png)](https://hub.docker.com/r/adafede/centroidr/)
+[![DOI](https://zenodo.org/badge/921724027.svg)](https://doi.org/10.5281/zenodo.17250307)
 <!-- badges: end -->
 
 Repository to centroid profile spectra.
@@ -135,7 +136,7 @@ TODO
 | MsCoreUtils | 1.21.0 | Rainer et al. (2022a) |
 | mzR | 2.43.1 | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
 | optparse | 1.7.5 | Davis (2024) |
-| rmarkdown | 2.29 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2024) |
+| rmarkdown | 2.30 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2025) |
 | Spectra | 1.19.4 | Rainer et al. (2022b) |
 | testthat | 3.2.3 | Wickham (2011) |
 | tidyverse | 2.0.0 | Wickham et al. (2019) |
@@ -143,10 +144,10 @@ TODO
 <div id="refs" class="references csl-bib-body hanging-indent"
 entry-spacing="0">
 
-<div id="ref-rmarkdown2024" class="csl-entry">
+<div id="ref-rmarkdown2025" class="csl-entry">
 
 Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
-Luraschi, Kevin Ushey, Aron Atkins, et al. 2024.
+Luraschi, Kevin Ushey, Aron Atkins, et al. 2025.
 *<span class="nocase">rmarkdown</span>: Dynamic Documents for r*.
 <https://github.com/rstudio/rmarkdown>.
 

@@ -24,59 +24,40 @@ centroid_one_file(
 )
 }
 \arguments{
-\item{file}{\code{character(1)}
-Path to the input mzML file. Must be a valid, accessible mzML format file.}
+\item{file}{character(1). Path to the input mzML file. Must be a valid, accessible mzML format file.}
 
-\item{pattern}{\code{character(1)}
-Regular expression pattern to match in the input file path, used for modifying the output file path.}
+\item{pattern}{character(1). Regular expression pattern to match in the input file path, used for modifying the output file path.}
 
-\item{replacement}{\code{character(1)}
-Replacement string for altering the output file path based on the \code{pattern}.}
+\item{replacement}{character(1). Replacement string for altering the output file path based on the \code{pattern}.}
 
-\item{min_datapoints_ms1}{\code{integer(1)} (default: \code{5L})
-Minimum datapoints to be considered for MS1 data.}
+\item{min_datapoints_ms1}{integer(1). Minimum datapoints to be considered for MS1 data. Default: 5L.}
 
-\item{min_datapoints_ms2}{\code{integer(1)} (default: \code{1L})
-Minimum datapoints to be considered for MS2 data.}
+\item{min_datapoints_ms2}{integer(1). Minimum datapoints to be considered for MS2 data. Default: 1L.}
 
-\item{mz_tol_da_ms1}{\code{numeric(1)} (default: \code{0.0025})
-m/z tolerance in Daltons for MS1 data.}
+\item{mz_tol_da_ms1}{numeric(1). m/z tolerance in Daltons for MS1 data. Default: 0.0025.}
 
-\item{mz_tol_da_ms2}{\code{numeric(1)} (default: \code{0.0025})
-m/z tolerance in Daltons for MS2 data.}
+\item{mz_tol_da_ms2}{numeric(1). m/z tolerance in Daltons for MS2 data. Default: 0.0025.}
 
-\item{mz_tol_ppm_ms1}{\code{numeric(1)} (default: \code{5})
-m/z tolerance in parts per million (ppm) for MS1.}
+\item{mz_tol_ppm_ms1}{numeric(1). m/z tolerance in parts per million (ppm) for MS1. Default: 5.}
 
-\item{mz_tol_ppm_ms2}{\code{numeric(1)} (default: \code{5})
-m/z tolerance in parts per million (ppm) for MS2.}
+\item{mz_tol_ppm_ms2}{numeric(1). m/z tolerance in parts per million (ppm) for MS2. Default: 5.}
 
-\item{mz_fun_ms1}{\code{function} (default: \code{base::mean})
-Function to aggregate m/z values within each peak group (MS1).
-Ignored if \code{mz_weighted = TRUE}.}
+\item{mz_fun_ms1}{function. Function to aggregate m/z values within each peak group (MS1). Ignored if \code{mz_weighted = TRUE}. Default: base::mean.}
 
-\item{mz_fun_ms2}{\code{function} (default: \code{base::mean})
-Function to aggregate m/z values within each peak group (MS2).
-Ignored if \code{mz_weighted = TRUE}.}
+\item{mz_fun_ms2}{function. Function to aggregate m/z values within each peak group (MS2). Ignored if \code{mz_weighted = TRUE}. Default: base::mean.}
 
-\item{int_fun_ms1}{\code{function} (default: \code{base::max})
-Function to aggregate peak intensities within each peak group (MS1).}
+\item{int_fun_ms1}{function. Function to aggregate peak intensities within each peak group (MS1). Default: base::max.}
 
-\item{int_fun_ms2}{\code{function} (default: \code{base::max})
-Function to aggregate peak intensities within each peak group (MS2).}
+\item{int_fun_ms2}{function. Function to aggregate peak intensities within each peak group (MS2). Default: base::max.}
 
-\item{mz_weighted}{\code{logical(1)} (default: \code{TRUE})
-If \code{TRUE}, uses intensity-weighted mean for m/z value aggregation.}
+\item{mz_weighted}{logical(1). If \code{TRUE}, uses intensity-weighted mean for m/z value aggregation. Default: TRUE.}
 
-\item{time_domain}{\code{logical(1)} (default: \code{TRUE})
-If \code{TRUE}, uses square root for m/z weighting (TRUE for TOF).}
+\item{time_domain}{logical(1). If \code{TRUE}, uses square root for m/z weighting (TRUE for TOF). Default: TRUE.}
 
-\item{intensity_exponent}{\code{numeric(1)} (default: \code{3})
-If \code{mz_weighted=TRUE}, the exponent of the intensity for m/z weighting.}
+\item{intensity_exponent}{numeric(1). If \code{mz_weighted=TRUE}, the exponent of the intensity for m/z weighting. Default: 3.}
 }
 \value{
-\code{logical(1)}
-Returns \code{TRUE} if centroiding was successful, otherwise \code{FALSE}.
+logical(1). Returns TRUE if centroiding was successful, otherwise FALSE.
 }
 \description{
 This function processes an mzML file to apply centroiding with detailed controls

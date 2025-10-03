@@ -4,9 +4,9 @@
 \name{CentroidR-package}
 \alias{CentroidR}
 \alias{CentroidR-package}
-\title{CentroidR: CentroidR}
+\title{CentroidR Package}
 \description{
-CentroidR provides the infrastructure to centroid profile spectra.
+Internal package-level definitions and startup hooks for CentroidR.
 }
 \seealso{
 Useful links:

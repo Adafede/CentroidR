@@ -7,16 +7,16 @@
 try_centroid_one_file(file, pattern, replacement, ...)
 }
 \arguments{
-\item{file}{Path to the input mzML file.}
+\item{file}{character(1). Path to the input mzML file.}
 
-\item{pattern}{Pattern for modifying the file path.}
+\item{pattern}{character(1). Pattern for modifying the file path.}
 
-\item{replacement}{Replacement string for output path.}
+\item{replacement}{character(1). Replacement string for output path.}
 
 \item{...}{Additional parameters to pass to \code{centroid_one_file}.}
 }
 \value{
-Logical indicating success (\code{TRUE}) or failure (\code{FALSE}).
+logical. TRUE on success, FALSE on failure.
 }
 \description{
 Wrapper for centroiding with error handling

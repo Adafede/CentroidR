@@ -4,51 +4,31 @@
 #' for peak picking, smoothing, and noise estimation. It allows fine-tuning of MS1 and MS2
 #' peak detection, optimizing spectral data analysis for various experimental needs.
 #'
-#' @param file `character(1)`
-#'   Path to the input mzML file. Must be a valid, accessible mzML format file.
-#' @param pattern `character(1)`
-#'   Regular expression pattern to match in the input file path, used for modifying the output file path.
-#' @param replacement `character(1)`
-#'   Replacement string for altering the output file path based on the `pattern`.
-#' @param min_datapoints_ms1 `integer(1)` (default: `5L`)
-#'   Minimum datapoints to be considered for MS1 data.
-#' @param min_datapoints_ms2 `integer(1)` (default: `1L`)
-#'   Minimum datapoints to be considered for MS2 data.
-#' @param mz_tol_da_ms1 `numeric(1)` (default: `0.0025`)
-#'   m/z tolerance in Daltons for MS1 data.
-#' @param mz_tol_da_ms2 `numeric(1)` (default: `0.0025`)
-#'   m/z tolerance in Daltons for MS2 data.
-#' @param mz_tol_ppm_ms1 `numeric(1)` (default: `5`)
-#'   m/z tolerance in parts per million (ppm) for MS1.
-#' @param mz_tol_ppm_ms2 `numeric(1)` (default: `5`)
-#'   m/z tolerance in parts per million (ppm) for MS2.
-#' @param mz_fun_ms1 `function` (default: `base::mean`)
-#'   Function to aggregate m/z values within each peak group (MS1).
-#'   Ignored if `mz_weighted = TRUE`.
-#' @param mz_fun_ms2 `function` (default: `base::mean`)
-#'   Function to aggregate m/z values within each peak group (MS2).
-#'   Ignored if `mz_weighted = TRUE`.
-#' @param int_fun_ms1 `function` (default: `base::max`)
-#'   Function to aggregate peak intensities within each peak group (MS1).
-#' @param int_fun_ms2 `function` (default: `base::max`)
-#'   Function to aggregate peak intensities within each peak group (MS2).
-#' @param mz_weighted `logical(1)` (default: `TRUE`)
-#'   If `TRUE`, uses intensity-weighted mean for m/z value aggregation.
-#' @param time_domain `logical(1)` (default: `TRUE`)
-#'   If `TRUE`, uses square root for m/z weighting (TRUE for TOF).
-#' @param intensity_exponent `numeric(1)` (default: `3`)
-#'   If `mz_weighted=TRUE`, the exponent of the intensity for m/z weighting.
+#' @param file character(1). Path to the input mzML file. Must be a valid, accessible mzML format file.
+#' @param pattern character(1). Regular expression pattern to match in the input file path, used for modifying the output file path.
+#' @param replacement character(1). Replacement string for altering the output file path based on the `pattern`.
+#' @param min_datapoints_ms1 integer(1). Minimum datapoints to be considered for MS1 data. Default: 5L.
+#' @param min_datapoints_ms2 integer(1). Minimum datapoints to be considered for MS2 data. Default: 1L.
+#' @param mz_tol_da_ms1 numeric(1). m/z tolerance in Daltons for MS1 data. Default: 0.0025.
+#' @param mz_tol_da_ms2 numeric(1). m/z tolerance in Daltons for MS2 data. Default: 0.0025.
+#' @param mz_tol_ppm_ms1 numeric(1). m/z tolerance in parts per million (ppm) for MS1. Default: 5.
+#' @param mz_tol_ppm_ms2 numeric(1). m/z tolerance in parts per million (ppm) for MS2. Default: 5.
+#' @param mz_fun_ms1 function. Function to aggregate m/z values within each peak group (MS1). Ignored if `mz_weighted = TRUE`. Default: base::mean.
+#' @param mz_fun_ms2 function. Function to aggregate m/z values within each peak group (MS2). Ignored if `mz_weighted = TRUE`. Default: base::mean.
+#' @param int_fun_ms1 function. Function to aggregate peak intensities within each peak group (MS1). Default: base::max.
+#' @param int_fun_ms2 function. Function to aggregate peak intensities within each peak group (MS2). Default: base::max.
+#' @param mz_weighted logical(1). If `TRUE`, uses intensity-weighted mean for m/z value aggregation. Default: TRUE.
+#' @param time_domain logical(1). If `TRUE`, uses square root for m/z weighting (TRUE for TOF). Default: TRUE.
+#' @param intensity_exponent numeric(1). If `mz_weighted=TRUE`, the exponent of the intensity for m/z weighting. Default: 3.
 #'
-#' @return `logical(1)`
-#'   Returns `TRUE` if centroiding was successful, otherwise `FALSE`.
+#' @return logical(1). Returns TRUE if centroiding was successful, otherwise FALSE.
 #'
 #' @details
 #' The function processes both MS1 and MS2 data with user-defined smoothing, peak-picking, and noise estimation.
 #' File path modifications are supported via `pattern` and `replacement`.
 #'
 #' @export
-#' @author
-#'   Johannes Rainer, Adriano Rutz
+#' @author Johannes Rainer, Adriano Rutz
 centroid_one_file <- function(
   file,
   pattern,
@@ -67,8 +47,27 @@ centroid_one_file <- function(
   time_domain = TRUE,
   intensity_exponent = 3
 ) {
-  ## This was copied from the Spectra package to be able to access `timeDomain`
-  ## And slightly adapted
+  # Input validation for critical arguments
+  stopifnot(is.character(file), length(file) == 1)
+  stopifnot(is.character(pattern), length(pattern) == 1)
+  stopifnot(is.character(replacement), length(replacement) == 1)
+  stopifnot(
+    is.numeric(mz_tol_da_ms1),
+    is.numeric(mz_tol_da_ms2),
+    is.numeric(mz_tol_ppm_ms1),
+    is.numeric(mz_tol_ppm_ms2)
+  )
+  stopifnot(
+    is.function(mz_fun_ms1),
+    is.function(mz_fun_ms2),
+    is.function(int_fun_ms1),
+    is.function(int_fun_ms2)
+  )
+  stopifnot(is.logical(mz_weighted), length(mz_weighted) == 1)
+  stopifnot(is.logical(time_domain), length(time_domain) == 1)
+  stopifnot(is.numeric(intensity_exponent), length(intensity_exponent) == 1)
+
+  # Helper: Combine peaks for centroiding (adapted from Spectra)
   .peaks_combine <- function(
     x,
     ppm = 20,
@@ -84,31 +83,18 @@ centroid_one_file <- function(
     if (!spectrumMsLevel %in% msLevel || !length(x)) {
       return(x)
     }
-
-    mz_vals <- if (timeDomain) {
-      x[, "mz"] |> sqrt()
-    } else {
-      x[, "mz"]
-    }
-    mz_base <- if (timeDomain) {
-      # Adjust the absolute tolerance for sqrt(mz)
-      min(mz_vals)
-    } else {
-      1
-    }
+    mz_vals <- if (timeDomain) sqrt(x[, "mz"]) else x[, "mz"]
+    mz_base <- if (timeDomain) min(mz_vals) else 1
     grps <- MsCoreUtils::group(
       x = mz_vals,
       tolerance = tolerance / mz_base,
       ppm = ppm
     )
-
     if (length(unique(grps)) == length(grps)) {
       return(x)
     }
-
     mzs_split <- split(x[, "mz"], grps)
     ints_split <- split(x[, "intensity"], grps)
-
     # Compute m/z
     if (weighted) {
       mzs <- vapply(
@@ -123,22 +109,16 @@ centroid_one_file <- function(
     } else {
       mzs <- MsCoreUtils::vapply1d(mzs_split, mzFun)
     }
-
     # Compute intensities
     ints <- MsCoreUtils::vapply1d(ints_split, intensityFun)
-
     # Handle metadata columns, if present
-    if (ncol(x) > 2) {
+    if (ncol(x) > 2L) {
       meta <- x[, !colnames(x) %in% c("mz", "intensity"), drop = FALSE]
       meta_split <- split.data.frame(meta, grps)
       meta_combined <- lapply(seq_along(meta_split), function(i) {
         colapply <- lapply(meta_split[[i]], function(col) {
           u <- unique(col)
-          if (length(u) == 1) {
-            u
-          } else {
-            NA
-          }
+          if (length(u) == 1L) u else NA
         })
         as.data.frame(colapply, stringsAsFactors = FALSE)
       })
@@ -148,11 +128,12 @@ centroid_one_file <- function(
       return(cbind(mz = mzs, intensity = ints))
     }
   }
+
+  # Helper: Fix XML output for compatibility
   .fix_xml <- function(file_path) {
     temp_file <- tempfile()
     lines <- readLines(file_path, warn = FALSE)
     run_id <- basename(file_path)
-
     # Replace nan with NaN, else files are buggy
     lines <- gsub(
       pattern = "value=\"nan\"",
@@ -160,7 +141,6 @@ centroid_one_file <- function(
       x = lines,
       fixed = TRUE
     )
-
     # Update run id
     lines <- gsub(
       pattern = "<run id=\"Experiment_1\"",
@@ -168,32 +148,28 @@ centroid_one_file <- function(
       x = lines,
       fixed = TRUE
     )
-
     writeLines(lines, temp_file)
     file.copy(temp_file, file_path, overwrite = TRUE)
     unlink(temp_file)
   }
 
+  # Helper: Restore empty spectra if needed
   .keep_empty <- function(original, processed) {
-    processed_peaks <- processed |>
-      Spectra::peaksData()
-    is_empty <- lengths(processed_peaks) == 0
-
+    processed_peaks <- Spectra::peaksData(processed)
+    is_empty <- lengths(processed_peaks) == 0L
     if (any(is_empty)) {
       logger::log_trace("Restoring {sum(is_empty)} empty spectra to original")
-      original_peaks <- original |>
-        Spectra::peaksData()
+      original_peaks <- Spectra::peaksData(original)
       empty_indices <- which(is_empty)
       restored_peaks <- purrr::map(empty_indices, function(i) {
         pk <- original_peaks[[i]]
-        if (nrow(pk) == 0) {
+        if (nrow(pk) == 0L) {
           return(pk)
         }
         pk[pk[, "intensity"] > 0, , drop = FALSE]
       })
       processed@backend@peaksData[empty_indices] <- restored_peaks
     }
-
     return(processed)
   }
 
@@ -209,22 +185,19 @@ centroid_one_file <- function(
   # Initialize logger
   setup_logger(dir = outd)
 
-  # Input validation
+  # Input validation for file existence
   if (!file.exists(file)) {
     logger::log_error("Input file does not exist: {file}")
     return(FALSE)
   }
-
   if (file.exists(outf)) {
     logger::log_info("Skipping. Output file already exists: {outf}")
     return(TRUE)
   }
-
   # Ensure output directory exists
   if (!dir.exists(outd)) {
     dir.create(path = outd, recursive = TRUE)
   }
-
   logger::log_info("Processing mzML file: {file}")
 
   # Logging parameter settings
@@ -263,6 +236,8 @@ centroid_one_file <- function(
   custom_int_fun_ms2 <- function(intensities) {
     custom_int_fun(int_fun_ms2, intensities, min_datapoints_ms2)
   }
+
+  # Main batch processing function for spectra
   process_spectra <- function(
     spectra,
     mz_tol_da_ms1,
@@ -290,7 +265,6 @@ centroid_one_file <- function(
       ) |>
       Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
       Spectra::applyProcessing()
-
     centroided_1 <- spectra |>
       Spectra::filterMsLevel(1L) |>
       Spectra::addProcessing(
@@ -305,10 +279,8 @@ centroid_one_file <- function(
       ) |>
       Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
       Spectra::applyProcessing()
-
     # Combine processed MS1 and MS2
     centroided <- Spectra::concatenateSpectra(centroided_1, centroided_2)
-
     # Replace empty processed spectra with original input
     centroided <- .keep_empty(spectra, centroided)
     return(centroided)
@@ -317,22 +289,21 @@ centroid_one_file <- function(
   tryCatch(
     {
       logger::log_trace("Starting centroiding process for: {basename(file)}")
-
       sp <- file |>
         Spectra::Spectra(
           backend = Spectra::MsBackendMzR(),
           BPPARAM = BiocParallel::SerialParam()
         ) |>
         Spectra::dropNaSpectraVariables()
-      sd <- sp |>
-        Spectra::spectraData()
-      sp@backend@spectraData <- sd |>
-        purrr::discard(.x = sd, .p = ~ all(is.na(.x) | .x == 0))
-      ## We need the polarity = 0L column for negative mode
+      sd <- Spectra::spectraData(sp)
+      sp@backend@spectraData <- purrr::discard(
+        .x = sd,
+        .p = ~ all(is.na(.x) | .x == 0)
+      )
+      # Ensure required columns exist for downstream processing
       if (!"polarity" %in% colnames(sp@backend@spectraData)) {
         sp@backend@spectraData$polarity <- 0L
       }
-      ## Fix for missing values
       if (!"basePeakIntensity" %in% colnames(sp@backend@spectraData)) {
         sp@backend@spectraData$basePeakIntensity <- NA_integer_
       }
@@ -349,25 +320,20 @@ centroid_one_file <- function(
         sp@backend@spectraData$isolationWindowUpperOffset <- NA_integer_
       }
       rm(sd)
-
       # TODO see if expose of not
-      # Batch processing
+      # Batch processing for large files
       batch_size <- 4096L
       n <- length(sp)
       batch_starts <- seq(1L, n, by = batch_size)
-
       tmp_batch_dir <- file.path(outd, "tmp")
       if (!dir.exists(tmp_batch_dir)) {
         dir.create(tmp_batch_dir, recursive = TRUE)
       }
-
       temp_files <- purrr::imap_chr(batch_starts, function(start_idx, i) {
         idx <- start_idx:min(start_idx + batch_size - 1L, n)
         sp_batch <- sp[idx] |>
           Spectra::setBackend(Spectra::MsBackendMemory())
-
         logger::log_trace("Processing batch {i} / {length(batch_starts)}")
-
         result <- process_spectra(
           spectra = sp_batch,
           mz_tol_da_ms1 = mz_tol_da_ms1,
@@ -382,6 +348,7 @@ centroid_one_file <- function(
           time_domain = time_domain
         )
         # COMMENT: Feels dirty but works
+        # Mark spectra as centroided
         result@backend@spectraData$centroided <- TRUE
         temp_file <- tempfile(fileext = ".mzML", tmpdir = tmp_batch_dir)
         Spectra::export(
@@ -390,25 +357,18 @@ centroid_one_file <- function(
           backend = Spectra::MsBackendMzR(),
           BPPARAM = BiocParallel::SerialParam()
         )
-
         rm(idx, sp_batch, result)
-
         return(temp_file)
       })
       logger::log_trace("Concatenating all processed batches")
       sp_cen <- Spectra::Spectra(temp_files, backend = Spectra::MsBackendMzR())
-
       logger::log_trace("Exporting: {basename(file)}")
-      sp_cen |>
-        Spectra::export(file = outf, backend = Spectra::MsBackendMzR())
+      Spectra::export(sp_cen, file = outf, backend = Spectra::MsBackendMzR())
       rm(sp_cen)
       logger::log_trace("Exported: {basename(file)}")
-
       logger::log_trace("Making a few fixes inside mzML: {basename(file)}")
-      outf |>
-        .fix_xml()
+      .fix_xml(outf)
       logger::log_trace("Made fixes inside mzML: {basename(file)}")
-
       logger::log_success("Successfully centroided: {basename(file)}")
       unlink(tmp_batch_dir, recursive = TRUE)
       return(TRUE)
@@ -422,11 +382,11 @@ centroid_one_file <- function(
 
 #' Wrapper for centroiding with error handling
 #'
-#' @param file Path to the input mzML file.
-#' @param pattern Pattern for modifying the file path.
-#' @param replacement Replacement string for output path.
+#' @param file character(1). Path to the input mzML file.
+#' @param pattern character(1). Pattern for modifying the file path.
+#' @param replacement character(1). Replacement string for output path.
 #' @param ... Additional parameters to pass to `centroid_one_file`.
-#' @return Logical indicating success (`TRUE`) or failure (`FALSE`).
+#' @return logical. TRUE on success, FALSE on failure.
 #' @keywords internal
 try_centroid_one_file <- function(file, pattern, replacement, ...) {
   result <- centroid_one_file(
@@ -443,8 +403,8 @@ try_centroid_one_file <- function(file, pattern, replacement, ...) {
 
 #' Setup Logging for Centroiding Process
 #'
-#' @param dir Directory for saving the log file. Defaults to the output directory.
-#' @param filename Log file name. Default: `"centroiding.log"`.
+#' @param dir character(1). Directory for saving the log file. Defaults to the output directory.
+#' @param filename character(1). Log file name. Default: "centroiding.log".
 #' @return NULL
 #' @keywords internal
 setup_logger <- function(

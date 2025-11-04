@@ -126,18 +126,18 @@ TODO
 
 | Package | Version | Citation |
 |:---|:---|:---|
-| base | 4.5.1 | R Core Team (2025) |
+| base | 4.5.2 | R Core Team (2025) |
 | BiocManager | 1.30.26 | Morgan and Ramos (2025) |
-| BiocParallel | 1.42.2 | Morgan et al. (2025) |
-| BiocVersion | 3.21.1 | Morgan (2024) |
+| BiocParallel | 1.44.0 | Wang et al. (2025) |
+| BiocVersion | 3.22.0 | Morgan (2025) |
 | CentroidR | 0.0.0.9002 | Rutz and Rainer (2025) |
 | knitr | 1.50 | Xie (2014); Xie (2015); Xie (2025) |
 | logger | 0.4.1 | Daróczi and Wickham (2025) |
-| MsCoreUtils | 1.20.0 | Rainer et al. (2022a) |
-| mzR | 2.42.0 | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
+| MsCoreUtils | 1.21.0 | Rainer et al. (2022a) |
+| mzR | 2.44.0 | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
 | optparse | 1.7.5 | Davis (2024) |
 | rmarkdown | 2.30 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2025) |
-| Spectra | 1.18.2 | Rainer et al. (2022b) |
+| Spectra | 1.19.11 | Rainer et al. (2022b) |
 | testthat | 3.2.3 | Wickham (2011) |
 | tidyverse | 2.0.0 | Wickham et al. (2019) |
 
@@ -205,7 +205,7 @@ Community Standard for Mass Spectrometry Data.” *Mol Cell Proteomics*.
 
 <div id="ref-BiocVersion" class="csl-entry">
 
-Morgan, Martin. 2024. *BiocVersion: Set the Appropriate Version of
+Morgan, Martin. 2025. *BiocVersion: Set the Appropriate Version of
 Bioconductor Packages*. <https://doi.org/10.18129/B9.bioc.BiocVersion>.
 
 </div>
@@ -215,15 +215,6 @@ Bioconductor Packages*. <https://doi.org/10.18129/B9.bioc.BiocVersion>.
 Morgan, Martin, and Marcel Ramos. 2025. *BiocManager: Access the
 Bioconductor Project Package Repository*.
 <https://bioconductor.github.io/BiocManager/>.
-
-</div>
-
-<div id="ref-BiocParallel" class="csl-entry">
-
-Morgan, Martin, Jiefei Wang, Valerie Obenchain, Michel Lang, Ryan
-Thompson, and Nitesh Turaga. 2025. *BiocParallel: Bioconductor
-Facilities for Parallel Evaluation*.
-<https://doi.org/10.18129/B9.bioc.BiocParallel>.
 
 </div>
 
@@ -266,6 +257,15 @@ Data Annotation in r.” *Metabolites* 12: 173.
 
 Rutz, Adriano, and Johannes Rainer. 2025. *CentroidR: CentroidR Provides
 the Infrastructure to Centroid Profile Spectra*.
+
+</div>
+
+<div id="ref-BiocParallel" class="csl-entry">
+
+Wang, Jiefei, Martin Morgan, Valerie Obenchain, Michel Lang, Ryan
+Thompson, and Nitesh Turaga. 2025. *BiocParallel: Bioconductor
+Facilities for Parallel Evaluation*.
+<https://doi.org/10.18129/B9.bioc.BiocParallel>.
 
 </div>
 

@@ -71,7 +71,7 @@
       "@type": "SoftwareApplication",
       "identifier": "BiocVersion",
       "name": "BiocVersion",
-      "version": ">= 3.21.1",
+      "version": ">= 3.20.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -157,7 +157,7 @@
       "@type": "SoftwareApplication",
       "identifier": "BiocParallel",
       "name": "BiocParallel",
-      "version": ">= 1.42.2",
+      "version": ">= 1.40.2",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -183,7 +183,7 @@
       "@type": "SoftwareApplication",
       "identifier": "MsCoreUtils",
       "name": "MsCoreUtils",
-      "version": ">= 1.20.0",
+      "version": ">= 1.18.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -196,7 +196,7 @@
       "@type": "SoftwareApplication",
       "identifier": "mzR",
       "name": "mzR",
-      "version": ">= 2.42.0",
+      "version": ">= 2.40.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -235,7 +235,7 @@
       "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
-      "version": ">= 1.18.2",
+      "version": ">= 1.16.1",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",

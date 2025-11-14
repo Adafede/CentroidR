@@ -138,7 +138,7 @@ TODO
 | optparse | 1.7.5 | Davis (2024) |
 | rmarkdown | 2.30 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2025) |
 | Spectra | 1.19.11 | Rainer et al. (2022b) |
-| testthat | 3.2.3 | Wickham (2011) |
+| testthat | 3.3.0 | Wickham (2011) |
 | tidyverse | 2.0.0 | Wickham et al. (2019) |
 
 <div id="refs" class="references csl-bib-body hanging-indent"
@@ -273,7 +273,7 @@ Facilities for Parallel Evaluation*.
 
 Wickham, Hadley. 2011. “<span class="nocase">testthat</span>: Get
 Started with Testing.” *The R Journal* 3: 5–10.
-<https://journal.r-project.org/archive/2011-1/RJournal_2011-1_Wickham.pdf>.
+<https://journal.r-project.org/articles/RJ-2011-002/>.
 
 </div>
 

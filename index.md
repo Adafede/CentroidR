@@ -127,7 +127,7 @@ TODO
 | Package | Version | Citation |
 |:---|:---|:---|
 | base | 4.5.2 | R Core Team (2025) |
-| BiocManager | 1.30.26 | Morgan and Ramos (2025) |
+| BiocManager | 1.30.27 | Morgan and Ramos (2025) |
 | BiocParallel | 1.44.0 | Wang et al. (2025) |
 | BiocVersion | 3.22.0 | Morgan (2025) |
 | CentroidR | 0.0.0.9002 | Rutz and Rainer (2025) |
@@ -214,7 +214,7 @@ Bioconductor Packages*. <https://doi.org/10.18129/B9.bioc.BiocVersion>.
 
 Morgan, Martin, and Marcel Ramos. 2025. *BiocManager: Access the
 Bioconductor Project Package Repository*.
-<https://bioconductor.github.io/BiocManager/>.
+<https://doi.org/10.32614/CRAN.package.BiocManager>.
 
 </div>
 

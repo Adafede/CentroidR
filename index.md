@@ -138,7 +138,7 @@ TODO
 | optparse | 1.7.5 | Davis (2024) |
 | rmarkdown | 2.30 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2025) |
 | Spectra | 1.19.11 | Rainer et al. (2022b) |
-| testthat | 3.3.0 | Wickham (2011) |
+| testthat | 3.3.1 | Wickham (2011) |
 | tidyverse | 2.0.0 | Wickham et al. (2019) |
 
 <div id="refs" class="references csl-bib-body hanging-indent"

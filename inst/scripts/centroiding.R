@@ -9,7 +9,7 @@
 # This script wraps CentroidR::centroid_one_file for command-line use.
 
 # Utility: Null coalescing operator (if not already defined)
-`%||%` <- function(a, b) if (!is.null(a)) a else b
+`%||%` <- function(a, b) a %||% b
 
 # Define command-line options
 parser <- optparse::OptionParser() |>

@@ -22,6 +22,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Adriano Rutz \email{adafede@gmail.com} (\href{https://orcid.org/0000-0003-0443-9902}{ORCID})
   \item Johannes Rainer \email{Johannes.Rainer@eurac.edu} (\href{https://orcid.org/0000-0002-6977-7147}{ORCID})
 }
 

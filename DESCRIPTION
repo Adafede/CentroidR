@@ -38,15 +38,15 @@ Suggests:
     rlang (>= 1.2.0),
     spelling (>= 2.3.2),
     testthat (>= 3.3.2)
-Config/testthat/edition: 3
-Encoding: UTF-8
-LazyData: true
-ByteCompile: true
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
-biocViews: centroiding, spectra
-X-schema.org-keywords: centroiding, spectra
-Language: en-US
-Collate: 
+ByteCompile: TRUE
+Collate:
     'CentroidR-package.R'
     'centroid_one_file.R'
+Config/roxygen2/markdown: TRUE
+Config/roxygen2/version: 8.0.0
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-US
+LazyData: TRUE
+biocViews: centroiding, spectra
+X-schema.org-keywords: centroiding, spectra

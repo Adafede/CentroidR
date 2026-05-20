@@ -24,6 +24,7 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+          lookup-only: true
 
       - name: Prepare
         run: |
@@ -65,8 +66,10 @@ jobs:
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
+          digest="${STEPS_BUILD_OUTPUTS_DIGEST}"
           touch "/tmp/digests/${digest#sha256:}"
+        env:
+          STEPS_BUILD_OUTPUTS_DIGEST: ${{ steps.build.outputs.digest }}
       
       - name: Upload digest
         uses: actions/upload-artifact@v7
@@ -167,12 +170,16 @@ jobs:
         run: |
           # Add the 'latest' tag
           docker buildx imagetools create \
-          -t ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }} \
+          -t ${{ env.REGISTRY_IMAGE }}:${STEPS_META_OUTPUTS_VERSION} \
           -t ${{ env.REGISTRY_IMAGE }}:latest \
           $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
           $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+        env:
+          STEPS_META_OUTPUTS_VERSION: ${{ steps.meta.outputs.version }}
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${STEPS_META_OUTPUTS_VERSION}
           docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:latest
+        env:
+          STEPS_META_OUTPUTS_VERSION: ${{ steps.meta.outputs.version }}

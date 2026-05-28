@@ -8,7 +8,7 @@ message: 'To cite package "CentroidR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'CentroidR: Repository to centroid profile spectra.'
-version: 0.0.0.9000
+version: 0.0.0.9003
 abstract: CentroidR provides the infrastructure to centroid profile spectra
 authors:
 - family-names: Rutz
@@ -31,7 +31,7 @@ preferred-citation:
     given-names: Johannes
     email: Johannes.Rainer@eurac.edu
     orcid: https://orcid.org/0000-0002-6977-7147
-  year: '2025'
+  year: '2026'
   notes: R package, version 0.0.9000
 repository: https://r-universe.dev
 repository-code: https://github.com/adafede/CentroidR

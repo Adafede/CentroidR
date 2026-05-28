@@ -123,7 +123,6 @@
       "@type": "SoftwareApplication",
       "identifier": "spelling",
       "name": "spelling",
-      "version": ">= 2.3.2",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
@@ -157,7 +156,7 @@
       "@type": "SoftwareApplication",
       "identifier": "BiocParallel",
       "name": "BiocParallel",
-      "version": ">= 1.44.0",
+      "version": ">= 1.46.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -170,7 +169,7 @@
       "@type": "SoftwareApplication",
       "identifier": "logger",
       "name": "logger",
-      "version": ">= 0.4.1",
+      "version": ">= 0.4.2",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
@@ -183,7 +182,7 @@
       "@type": "SoftwareApplication",
       "identifier": "MsCoreUtils",
       "name": "MsCoreUtils",
-      "version": ">= 1.22.1",
+      "version": ">= 1.24.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -196,7 +195,7 @@
       "@type": "SoftwareApplication",
       "identifier": "mzR",
       "name": "mzR",
-      "version": ">= 2.44.0",
+      "version": ">= 2.46.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -235,7 +234,7 @@
       "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
-      "version": ">= 1.20.1",
+      "version": ">= 1.22.0",
       "provider": {
         "@id": "https://www.bioconductor.org",
         "@type": "Organization",
@@ -247,11 +246,11 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra", "centroid", "mass-spectra", "mass-spectrometry", "r"],
-  "fileSize": "241.588KB",
+  "fileSize": "242.424KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
-      "datePublished": "2025",
+      "datePublished": "2026",
       "author": [
         {
           "@type": "Person",
@@ -269,7 +268,7 @@
         }
       ],
       "name": "CentroidR: CentroidR provides the infrastructure to centroid profile spectra",
-      "description": "R package, version 0.0.9000"
+      "description": "R package, version 0.0.9003"
     }
   ],
   "releaseNotes": "https://github.com/adafede/CentroidR/blob/main/NEWS.md",

@@ -3,8 +3,10 @@
 # CentroidR CLI: Batch or single-file centroiding for mzML files
 #
 # Usage:
-#   Rscript centroiding.R --file <input.mzML> --pattern <pattern> --replacement <replacement>
-#   Rscript centroiding.R --directory <dir> --pattern <pattern> --replacement <replacement>
+#   Rscript centroiding.R --file <input.mzML> --pattern <pattern> \
+#                         --replacement <replacement>
+#   Rscript centroiding.R --directory <dir> --pattern <pattern> \
+#                         --replacement <replacement>
 #
 # This script wraps CentroidR::centroid_one_file for command-line use.
 
@@ -115,21 +117,25 @@ parser <- optparse::OptionParser() |>
     opt_str = "--mz-weighted",
     type = "logical",
     default = TRUE,
-    help = "Whether m/z values of peaks within each peak group should be aggregated using an intensity-weighted mean. (default: TRUE)",
+    help = "Whether m/z values of peaks within each peak group
+      should be aggregated using an intensity-weighted mean.
+      (default: TRUE)",
     metavar = "logical"
   ) |>
   optparse::add_option(
     opt_str = "--time-domain",
     type = "logical",
     default = TRUE,
-    help = "Whether grouping of mass peaks is performed on the m/z values (FALSE) or on sqrt(mz) (TRUE). (default: TRUE)",
+    help = "Whether grouping of mass peaks is performed on the m/z
+      values (FALSE) or on sqrt(mz) (TRUE). (default: TRUE)",
     metavar = "logical"
   ) |>
   optparse::add_option(
     opt_str = "--intensity-exponent",
     type = "numeric",
     default = 3,
-    help = "Exponent to apply to the intensities when weighting m/z. (default: 3)",
+    help = "Exponent to apply to the intensities when weighting m/z.
+      (default: 3)",
     metavar = "numeric"
   )
 

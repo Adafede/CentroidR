@@ -1,34 +1,64 @@
 #' Centroid an mzML file with configurable parameters
 #'
-#' This function processes an mzML file to apply centroiding with detailed controls
-#' for peak picking, smoothing, and noise estimation. It allows fine-tuning of MS1 and MS2
-#' peak detection, optimizing spectral data analysis for various experimental needs.
+#' This function processes an mzML file to apply centroiding with detailed
+#' controls for peak picking, smoothing, and noise estimation. It allows
+#' fine-tuning of MS1 and MS2 peak detection, optimizing spectral data analysis
+#' for various experimental needs.
 #'
-#' @param file character(1). Path to the input mzML file. Must be a valid, accessible mzML format file.
-#' @param pattern character(1). Regular expression pattern to match in the input file path, used for modifying the output file path.
-#' @param replacement character(1). Replacement string for altering the output file path based on the `pattern`.
-#' @param min_datapoints_ms1 integer(1). Minimum datapoints to be considered for MS1 data. Default: 5L.
-#' @param min_datapoints_ms2 integer(1). Minimum datapoints to be considered for MS2 data. Default: 1L.
-#' @param mz_tol_da_ms1 numeric(1). m/z tolerance in Daltons for MS1 data. Default: 0.0025.
-#' @param mz_tol_da_ms2 numeric(1). m/z tolerance in Daltons for MS2 data. Default: 0.0025.
-#' @param mz_tol_ppm_ms1 numeric(1). m/z tolerance in parts per million (ppm) for MS1. Default: 5.
-#' @param mz_tol_ppm_ms2 numeric(1). m/z tolerance in parts per million (ppm) for MS2. Default: 5.
-#' @param mz_fun_ms1 function. Function to aggregate m/z values within each peak group (MS1). Ignored if `mz_weighted = TRUE`. Default: base::mean.
-#' @param mz_fun_ms2 function. Function to aggregate m/z values within each peak group (MS2). Ignored if `mz_weighted = TRUE`. Default: base::mean.
-#' @param int_fun_ms1 function. Function to aggregate peak intensities within each peak group (MS1). Default: base::max.
-#' @param int_fun_ms2 function. Function to aggregate peak intensities within each peak group (MS2). Default: base::max.
-#' @param mz_weighted logical(1). If `TRUE`, uses intensity-weighted mean for m/z value aggregation. Default: TRUE.
-#' @param time_domain logical(1). If `TRUE`, uses square root for m/z weighting (TRUE for TOF). Default: TRUE.
-#' @param intensity_exponent numeric(1). If `mz_weighted=TRUE`, the exponent of the intensity for m/z weighting. Default: 3.
+#' @param file character(1). Path to the input mzML file. Must be a valid,
+#'   accessible mzML format file.
+#' @param pattern character(1). Regular expression pattern to match in the
+#'   input file path, used for modifying the output file path.
+#' @param replacement character(1). Replacement string for altering the output
+#'   file path based on the `pattern`.
+#' @param min_datapoints_ms1 integer(1). Minimum datapoints to be considered
+#'   for MS1 data. Default: 5L.
+#' @param min_datapoints_ms2 integer(1). Minimum datapoints to be considered
+#'   for MS2 data. Default: 1L.
+#' @param mz_tol_da_ms1 numeric(1). m/z tolerance in Daltons for MS1 data.
+#'   Default: 0.0025.
+#' @param mz_tol_da_ms2 numeric(1). m/z tolerance in Daltons for MS2 data.
+#'   Default: 0.0025.
+#' @param mz_tol_ppm_ms1 numeric(1). m/z tolerance in parts per million (ppm)
+#'   for MS1. Default: 5.
+#' @param mz_tol_ppm_ms2 numeric(1). m/z tolerance in parts per million (ppm)
+#'   for MS2. Default: 5.
+#' @param mz_fun_ms1 function. Function to aggregate m/z values within each
+#'   peak group (MS1). Ignored if `mz_weighted = TRUE`. Default: base::mean.
+#' @param mz_fun_ms2 function. Function to aggregate m/z values within each
+#'   peak group (MS2). Ignored if `mz_weighted = TRUE`. Default: base::mean.
+#' @param int_fun_ms1 function. Function to aggregate peak intensities within
+#'   each peak group (MS1). Default: base::max.
+#' @param int_fun_ms2 function. Function to aggregate peak intensities within
+#'   each peak group (MS2). Default: base::max.
+#' @param mz_weighted logical(1). If `TRUE`, uses intensity-weighted mean for
+#'   m/z value aggregation. Default: TRUE.
+#' @param time_domain logical(1). If `TRUE`, uses square root for m/z weighting
+#'   (TRUE for TOF). Default: TRUE.
+#' @param intensity_exponent numeric(1). If `mz_weighted=TRUE`, the exponent of
+#'   the intensity for m/z weighting. Default: 3.
 #'
-#' @return logical(1). Returns TRUE if centroiding was successful, otherwise FALSE.
+#' @return logical(1). Returns TRUE if centroiding was successful, otherwise
+#'   FALSE.
 #'
 #' @details
-#' The function processes both MS1 and MS2 data with user-defined smoothing, peak-picking, and noise estimation.
+#' The function processes both MS1 and MS2 data with user-defined smoothing,
+#' peak-picking, and noise estimation.
 #' File path modifications are supported via `pattern` and `replacement`.
 #'
 #' @export
 #' @author Johannes Rainer, Adriano Rutz
+#' @examples
+#' \dontrun{
+#'   # Example usage (requires an mzML file):
+#'   # centroid_one_file(
+#'   #   file = "raw_data.mzML",
+#'   #   pattern = "\\.mzML$",
+#'   #   replacement = "_centroided.mzML",
+#'   #   min_datapoints_ms1 = 5L,
+#'   #   min_datapoints_ms2 = 1L
+#'   # )
+#' }
 centroid_one_file <- function(
   file,
   pattern,
@@ -48,24 +78,28 @@ centroid_one_file <- function(
   intensity_exponent = 3
 ) {
   # Input validation for critical arguments
-  stopifnot(is.character(file), length(file) == 1)
-  stopifnot(is.character(pattern), length(pattern) == 1)
-  stopifnot(is.character(replacement), length(replacement) == 1)
   stopifnot(
+    is.character(file),
+    length(file) == 1,
+    is.character(pattern),
+    length(pattern) == 1,
+    is.character(replacement),
+    length(replacement) == 1,
     is.numeric(mz_tol_da_ms1),
     is.numeric(mz_tol_da_ms2),
     is.numeric(mz_tol_ppm_ms1),
-    is.numeric(mz_tol_ppm_ms2)
-  )
-  stopifnot(
+    is.numeric(mz_tol_ppm_ms2),
     is.function(mz_fun_ms1),
     is.function(mz_fun_ms2),
     is.function(int_fun_ms1),
-    is.function(int_fun_ms2)
+    is.function(int_fun_ms2),
+    is.logical(mz_weighted),
+    length(mz_weighted) == 1,
+    is.logical(time_domain),
+    length(time_domain) == 1,
+    is.numeric(intensity_exponent),
+    length(intensity_exponent) == 1
   )
-  stopifnot(is.logical(mz_weighted), length(mz_weighted) == 1)
-  stopifnot(is.logical(time_domain), length(time_domain) == 1)
-  stopifnot(is.numeric(intensity_exponent), length(intensity_exponent) == 1)
 
   # Helper: Combine peaks for centroiding (adapted from Spectra)
   .peaks_combine <- function(
@@ -90,7 +124,7 @@ centroid_one_file <- function(
       tolerance = tolerance / mz_base,
       ppm = ppm
     )
-    if (length(unique(grps)) == length(grps)) {
+    if (!anyDuplicated(grps)) {
       return(x)
     }
     mzs_split <- split(x[, "mz"], grps)
@@ -384,10 +418,11 @@ centroid_one_file <- function(
 #'
 #' Setup Logging for Centroiding Process
 #'
-#' @param dir character(1). Directory for saving the log file. Defaults to the output directory.
+#' @param dir character(1). Directory for saving the log file. Defaults to the
+#'   output directory.
 #' @param filename character(1). Log file name. Default: "centroiding.log".
 #' @return NULL
-#' @keywords internal
+#' @noRd
 setup_logger <- function(
   dir = Sys.getenv("HOME"),
   filename = "centroiding.log"

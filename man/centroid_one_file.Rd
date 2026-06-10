@@ -24,49 +24,80 @@ centroid_one_file(
 )
 }
 \arguments{
-\item{file}{character(1). Path to the input mzML file. Must be a valid, accessible mzML format file.}
+\item{file}{character(1). Path to the input mzML file. Must be a valid,
+accessible mzML format file.}
 
-\item{pattern}{character(1). Regular expression pattern to match in the input file path, used for modifying the output file path.}
+\item{pattern}{character(1). Regular expression pattern to match in the
+input file path, used for modifying the output file path.}
 
-\item{replacement}{character(1). Replacement string for altering the output file path based on the \code{pattern}.}
+\item{replacement}{character(1). Replacement string for altering the output
+file path based on the \code{pattern}.}
 
-\item{min_datapoints_ms1}{integer(1). Minimum datapoints to be considered for MS1 data. Default: 5L.}
+\item{min_datapoints_ms1}{integer(1). Minimum datapoints to be considered
+for MS1 data. Default: 5L.}
 
-\item{min_datapoints_ms2}{integer(1). Minimum datapoints to be considered for MS2 data. Default: 1L.}
+\item{min_datapoints_ms2}{integer(1). Minimum datapoints to be considered
+for MS2 data. Default: 1L.}
 
-\item{mz_tol_da_ms1}{numeric(1). m/z tolerance in Daltons for MS1 data. Default: 0.0025.}
+\item{mz_tol_da_ms1}{numeric(1). m/z tolerance in Daltons for MS1 data.
+Default: 0.0025.}
 
-\item{mz_tol_da_ms2}{numeric(1). m/z tolerance in Daltons for MS2 data. Default: 0.0025.}
+\item{mz_tol_da_ms2}{numeric(1). m/z tolerance in Daltons for MS2 data.
+Default: 0.0025.}
 
-\item{mz_tol_ppm_ms1}{numeric(1). m/z tolerance in parts per million (ppm) for MS1. Default: 5.}
+\item{mz_tol_ppm_ms1}{numeric(1). m/z tolerance in parts per million (ppm)
+for MS1. Default: 5.}
 
-\item{mz_tol_ppm_ms2}{numeric(1). m/z tolerance in parts per million (ppm) for MS2. Default: 5.}
+\item{mz_tol_ppm_ms2}{numeric(1). m/z tolerance in parts per million (ppm)
+for MS2. Default: 5.}
 
-\item{mz_fun_ms1}{function. Function to aggregate m/z values within each peak group (MS1). Ignored if \code{mz_weighted = TRUE}. Default: base::mean.}
+\item{mz_fun_ms1}{function. Function to aggregate m/z values within each
+peak group (MS1). Ignored if \code{mz_weighted = TRUE}. Default: base::mean.}
 
-\item{mz_fun_ms2}{function. Function to aggregate m/z values within each peak group (MS2). Ignored if \code{mz_weighted = TRUE}. Default: base::mean.}
+\item{mz_fun_ms2}{function. Function to aggregate m/z values within each
+peak group (MS2). Ignored if \code{mz_weighted = TRUE}. Default: base::mean.}
 
-\item{int_fun_ms1}{function. Function to aggregate peak intensities within each peak group (MS1). Default: base::max.}
+\item{int_fun_ms1}{function. Function to aggregate peak intensities within
+each peak group (MS1). Default: base::max.}
 
-\item{int_fun_ms2}{function. Function to aggregate peak intensities within each peak group (MS2). Default: base::max.}
+\item{int_fun_ms2}{function. Function to aggregate peak intensities within
+each peak group (MS2). Default: base::max.}
 
-\item{mz_weighted}{logical(1). If \code{TRUE}, uses intensity-weighted mean for m/z value aggregation. Default: TRUE.}
+\item{mz_weighted}{logical(1). If \code{TRUE}, uses intensity-weighted mean for
+m/z value aggregation. Default: TRUE.}
 
-\item{time_domain}{logical(1). If \code{TRUE}, uses square root for m/z weighting (TRUE for TOF). Default: TRUE.}
+\item{time_domain}{logical(1). If \code{TRUE}, uses square root for m/z weighting
+(TRUE for TOF). Default: TRUE.}
 
-\item{intensity_exponent}{numeric(1). If \code{mz_weighted=TRUE}, the exponent of the intensity for m/z weighting. Default: 3.}
+\item{intensity_exponent}{numeric(1). If \code{mz_weighted=TRUE}, the exponent of
+the intensity for m/z weighting. Default: 3.}
 }
 \value{
-logical(1). Returns TRUE if centroiding was successful, otherwise FALSE.
+logical(1). Returns TRUE if centroiding was successful, otherwise
+FALSE.
 }
 \description{
-This function processes an mzML file to apply centroiding with detailed controls
-for peak picking, smoothing, and noise estimation. It allows fine-tuning of MS1 and MS2
-peak detection, optimizing spectral data analysis for various experimental needs.
+This function processes an mzML file to apply centroiding with detailed
+controls for peak picking, smoothing, and noise estimation. It allows
+fine-tuning of MS1 and MS2 peak detection, optimizing spectral data analysis
+for various experimental needs.
 }
 \details{
-The function processes both MS1 and MS2 data with user-defined smoothing, peak-picking, and noise estimation.
+The function processes both MS1 and MS2 data with user-defined smoothing,
+peak-picking, and noise estimation.
 File path modifications are supported via \code{pattern} and \code{replacement}.
+}
+\examples{
+\dontrun{
+  # Example usage (requires an mzML file):
+  # centroid_one_file(
+  #   file = "raw_data.mzML",
+  #   pattern = "\\.mzML$",
+  #   replacement = "_centroided.mzML",
+  #   min_datapoints_ms1 = 5L,
+  #   min_datapoints_ms2 = 1L
+  # )
+}
 }
 \author{
 Johannes Rainer, Adriano Rutz

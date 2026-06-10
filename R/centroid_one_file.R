@@ -382,25 +382,6 @@ centroid_one_file <- function(
 
 #' Wrapper for centroiding with error handling
 #'
-#' @param file character(1). Path to the input mzML file.
-#' @param pattern character(1). Pattern for modifying the file path.
-#' @param replacement character(1). Replacement string for output path.
-#' @param ... Additional parameters to pass to `centroid_one_file`.
-#' @return logical. TRUE on success, FALSE on failure.
-#' @keywords internal
-try_centroid_one_file <- function(file, pattern, replacement, ...) {
-  result <- centroid_one_file(
-    file = file,
-    pattern = pattern,
-    replacement = replacement,
-    ...
-  )
-  if (!result) {
-    logger::log_error("Failed to process file: {basename(file)}")
-  }
-  return(result)
-}
-
 #' Setup Logging for Centroiding Process
 #'
 #' @param dir character(1). Directory for saving the log file. Defaults to the output directory.

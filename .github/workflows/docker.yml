@@ -29,7 +29,7 @@ jobs:
       - name: Prepare
         run: |
           echo PLATFORM_PAIR=linux-amd64 >> "$GITHUB_ENV"
-      
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9
@@ -39,19 +39,19 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
           flavor: |
             latest=false
-      
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5
-      
+
       - name: Login to Docker Hub
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf
@@ -62,7 +62,7 @@ jobs:
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache-amd64
           cache-to: type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache-amd64,mode=max
-      
+
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
@@ -70,7 +70,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
         env:
           STEPS_BUILD_OUTPUTS_DIGEST: ${{ steps.build.outputs.digest }}
-      
+
       - name: Upload digest
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -93,25 +93,25 @@ jobs:
   #     - name: Prepare
   #       run: |
   #         echo "PLATFORM_PAIR=linux-arm64" >> $GITHUB_ENV
-      
+
   #     - name: Docker meta
   #       id: meta
   #       uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9
   #       with:
   #         images: ${{ env.REGISTRY_IMAGE }}
-      
+
   #     - name: Set up QEMU
   #       uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3
-      
+
   #     - name: Set up Docker Buildx
   #       uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5
-      
+
   #     - name: Login to Docker Hub
   #       uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee
   #       with:
   #         username: ${{ secrets.DOCKERHUB_USERNAME }}
   #         password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
   #     - name: Build and push by digest
   #       id: build
   #       uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f
@@ -122,13 +122,13 @@ jobs:
   #         outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
   #         cache-from: type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache-arm64
   #         cache-to: type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache-arm64,mode=max
-      
+
   #     - name: Export digest
   #       run: |
   #         mkdir -p /tmp/digests
   #         digest="${{ steps.build.outputs.digest }}"
   #         touch "/tmp/digests/${digest#sha256:}"
-      
+
   #     - name: Upload digest
   #       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
   #       with:
@@ -149,22 +149,22 @@ jobs:
           path: /tmp/digests
           pattern: digests-*
           merge-multiple: true
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5
-      
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9
         with:
           images: ${{ env.REGISTRY_IMAGE }}
-      
+
       - name: Login to Docker Hub
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |

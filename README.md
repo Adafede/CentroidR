@@ -1,5 +1,3 @@
-
-
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
 # CentroidR <img src='https://raw.githubusercontent.com/adafede/CentroidR/main/man/figures/logo.svg' align="right" height="139" />
@@ -19,9 +17,8 @@ badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style
 
 Repository to centroid profile spectra.
 
-This repository is experimental. Use it at your own risks. Inspired from
-the original work at
-<https://github.com/EuracBiomedicalResearch/batch_centroid>
+This repository is experimental. Use it at your own risks. Inspired from the
+original work at <https://github.com/EuracBiomedicalResearch/batch_centroid>
 
 ## Requirements
 
@@ -31,19 +28,18 @@ Here is what you *minimally* need:
 
 Here is a generic command in case:
 
-``` bash
+```bash
 docker run -it --rm -e WINEDEBUG=-all -v .:/data proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses wine msconvert "path_to_your/raw/spectra.wiff" --ignoreUnknownInstrumentError
 ```
 
-Note: If using Sciex raw format, you can use both the `.wiff` and the
-`.wiff2` format for this step.
+Note: If using Sciex raw format, you can use both the `.wiff` and the `.wiff2`
+format for this step.
 
 ## Installation
 
-As the package is not (yet) available on CRAN, you will need to install
-with:
+As the package is not (yet) available on CRAN, you will need to install with:
 
-``` r
+```r
 install.packages(
   "CentroidR",
   repos = c(
@@ -58,19 +54,19 @@ install.packages(
 
 ### Single file
 
-``` r
+```r
 CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
                              pattern = "/profile/",
                              replacement = "/profile_centroided/")
 ```
 
-``` bash
+```bash
 Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
 
 ### Multiple files
 
-``` r
+```r
 "path_to_your/profiles/" |>
     list.files(pattern = ".mzML", full.names = TRUE) |>
     purrr::walk(
@@ -80,29 +76,29 @@ Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --
       .progress = TRUE)
 ```
 
-``` bash
+```bash
 Rscript inst/scripts/centroiding.R --directory "path_to_your/profiles/" --pattern "/profiles/" --replacement "/profiles_centroided/"
 ```
 
-``` bash
+```bash
 Rscript inst/scripts/centroiding.R --help
 ```
 
 ### Docker
 
-``` bash
+```bash
 docker pull adafede/centroidr
 # docker build . -t adafede/centroidr
 ```
 
-``` bash
+```bash
  docker run --rm \
   -v path_to_your:/home \
   adafede/centroidr \
   Rscript centroiding.R --file "home/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
 
-``` bash
+```bash
  docker run --rm \
   -v path_to_your:/home \
   adafede/centroidr \
@@ -111,7 +107,7 @@ docker pull adafede/centroidr
 
 To see all parameters
 
-``` bash
+```bash
  docker run --rm \
    -v path_to_your:/home \
   adafede/centroidr \
@@ -124,22 +120,22 @@ TODO
 
 ## Additional software credits
 
-| Package | Version | Citation |
-|:---|:---|:---|
-| base | 4.5.1 | R Core Team (2025) |
-| BiocManager | 1.30.26 | Morgan and Ramos (2025) |
-| BiocParallel | 1.43.4 | Wang et al. (2025) |
-| BiocVersion | 3.22.0 | Morgan (2025) |
-| CentroidR | 0.0.0.9001 | Rutz and Rainer (2025) |
-| knitr | 1.50 | Xie (2014); Xie (2015); Xie (2025) |
-| logger | 0.4.1 | Daróczi and Wickham (2025) |
-| MsCoreUtils | 1.21.0 | Rainer et al. (2022a) |
-| mzR | 2.43.1 | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
-| optparse | 1.7.5 | Davis (2024) |
-| rmarkdown | 2.30 | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2025) |
-| Spectra | 1.19.4 | Rainer et al. (2022b) |
-| testthat | 3.2.3 | Wickham (2011) |
-| tidyverse | 2.0.0 | Wickham et al. (2019) |
+  | Package      | Version    | Citation                                                                                                           |
+  | :----------- | :--------- | :----------------------------------------------------------------------------------------------------------------- |
+  | base         | 4.5.1      | R Core Team (2025)                                                                                                 |
+  | BiocManager  | 1.30.26    | Morgan and Ramos (2025)                                                                                            |
+  | BiocParallel | 1.43.4     | Wang et al. (2025)                                                                                                 |
+  | BiocVersion  | 3.22.0     | Morgan (2025)                                                                                                      |
+  | CentroidR    | 0.0.0.9001 | Rutz and Rainer (2025)                                                                                             |
+  | knitr        | 1.50       | Xie (2014); Xie (2015); Xie (2025)                                                                                 |
+  | logger       | 0.4.1      | Daróczi and Wickham (2025)                                                                                         |
+  | MsCoreUtils  | 1.21.0     | Rainer et al. (2022a)                                                                                              |
+  | mzR          | 2.43.1     | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
+  | optparse     | 1.7.5      | Davis (2024)                                                                                                       |
+  | rmarkdown    | 2.30       | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2025)                      |
+  | Spectra      | 1.19.4     | Rainer et al. (2022b)                                                                                              |
+  | testthat     | 3.2.3      | Wickham (2011)                                                                                                     |
+  | tidyverse    | 2.0.0      | Wickham et al. (2019)                                                                                              |
 
 <div id="refs" class="references csl-bib-body hanging-indent"
 entry-spacing="0">

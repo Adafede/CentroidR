@@ -7,7 +7,9 @@ bibliography: grateful-refs.bib
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
-```{r, include = FALSE}
+```{r}
+#| include: false
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -19,19 +21,21 @@ knitr::opts_chunk$set(
 # CentroidR <img src='https://raw.githubusercontent.com/adafede/CentroidR/main/man/figures/logo.svg' align="right" height="139" />
 
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.codecov.io/gh/adafede/CentroidR)
-[![r-universe badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style=classic)](https://adafede.r-universe.dev/CentroidR)
+[![Codecov test
+coverage](https://codecov.io/gh/adafede/CentroidR/graph/badge.svg)](https://app.codecov.io/gh/adafede/CentroidR)
+[![r-universe
+badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style=classic)](https://adafede.r-universe.dev/CentroidR)
 [![Docker](https://badgen.net/badge/docker/centroidr?icon&label)](https://hub.docker.com/r/adafede/centroidr/)
 [![DOI](https://zenodo.org/badge/921724027.svg)](https://doi.org/10.5281/zenodo.17250307)
 <!-- badges: end -->
 
 Repository to centroid profile spectra.
 
-This repository is experimental.
-Use it at your own risks.
-Inspired from the original work at <https://github.com/EuracBiomedicalResearch/batch_centroid>
+This repository is experimental. Use it at your own risks. Inspired from the
+original work at <https://github.com/EuracBiomedicalResearch/batch_centroid>
 
 ## Requirements
 
@@ -41,18 +45,18 @@ Here is what you *minimally* need:
 
 Here is a generic command in case:
 
-``` bash
+```bash
 docker run -it --rm -e WINEDEBUG=-all -v .:/data proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses wine msconvert "path_to_your/raw/spectra.wiff" --ignoreUnknownInstrumentError
 ```
 
-Note: If using Sciex raw format, you can use both the `.wiff` and the `.wiff2` format for this step.
-
+Note: If using Sciex raw format, you can use both the `.wiff` and the `.wiff2`
+format for this step.
 
 ## Installation
 
 As the package is not (yet) available on CRAN, you will need to install with:
 
-``` r
+```r
 install.packages(
   "CentroidR",
   repos = c(
@@ -73,7 +77,7 @@ CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
                              replacement = "/profile_centroided/")
 ```
 
-``` bash
+```bash
 Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
 
@@ -89,29 +93,29 @@ Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --
       .progress = TRUE)
 ```
 
-``` bash
+```bash
 Rscript inst/scripts/centroiding.R --directory "path_to_your/profiles/" --pattern "/profiles/" --replacement "/profiles_centroided/"
 ```
 
-``` bash
+```bash
 Rscript inst/scripts/centroiding.R --help
 ```
 
 ### Docker
 
-``` bash
+```bash
 docker pull adafede/centroidr
 # docker build . -t adafede/centroidr
 ```
 
-``` bash
+```bash
  docker run --rm \
   -v path_to_your:/home \
   adafede/centroidr \
   Rscript centroiding.R --file "home/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
 
-``` bash
+```bash
  docker run --rm \
   -v path_to_your:/home \
   adafede/centroidr \
@@ -120,7 +124,7 @@ docker pull adafede/centroidr
 
 To see all parameters
 
-``` bash
+```bash
  docker run --rm \
    -v path_to_your:/home \
   adafede/centroidr \
@@ -133,7 +137,10 @@ TODO
 
 ## Additional software credits
 
-```{r, echo = FALSE, message = FALSE}
+```{r}
+#| echo: false
+#| message: false
+
 # Check if DESCRIPTION is in current dir
 # Else `altdoc` will not find the dependencies
 desc_path <- if (file.exists("DESCRIPTION")) {

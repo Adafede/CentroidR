@@ -19,6 +19,7 @@ CITATION.cff
 ^data$
 ^docs$
 ^pkgdown$
+^prek[.]toml$
 ^renv$
 ^renv\.lock$
 ^vignettes/articles$

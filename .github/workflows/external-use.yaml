@@ -46,6 +46,16 @@ jobs:
           && sudo apt-get clean \
 
           && sudo rm -rf /var/lib/apt/lists/*
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install netcdf gettext openssl@3
+          mkdir -p ~/.R
+          cat > ~/.R/Makevars <<EOF
+          LDFLAGS=-L$(brew --prefix openssl@3)/lib
+          CPPFLAGS=-I$(brew --prefix openssl@3)/include
+          EOF
       - name: Install
         run: >
           install.packages(
@@ -60,5 +70,5 @@ jobs:
         shell: Rscript {0}
       - name: Run pipeline
         run: |
-          message("TODO")
+          CentroidR:::.packageName
         shell: Rscript {0}

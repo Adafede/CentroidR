@@ -1,3 +1,5 @@
+
+
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
 # CentroidR <img src='https://raw.githubusercontent.com/adafede/CentroidR/main/man/figures/logo.svg' align="right" height="139" />
@@ -17,8 +19,9 @@ badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style
 
 Repository to centroid profile spectra.
 
-This repository is experimental. Use it at your own risks. Inspired from the
-original work at <https://github.com/EuracBiomedicalResearch/batch_centroid>
+This repository is experimental. Use it at your own risks. Inspired from
+the original work at
+<https://github.com/EuracBiomedicalResearch/batch_centroid>
 
 ## Requirements
 
@@ -28,18 +31,19 @@ Here is what you *minimally* need:
 
 Here is a generic command in case:
 
-```bash
+``` bash
 docker run -it --rm -e WINEDEBUG=-all -v .:/data proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses wine msconvert "path_to_your/raw/spectra.wiff" --ignoreUnknownInstrumentError
 ```
 
-Note: If using Sciex raw format, you can use both the `.wiff` and the `.wiff2`
-format for this step.
+Note: If using Sciex raw format, you can use both the `.wiff` and the
+`.wiff2` format for this step.
 
 ## Installation
 
-As the package is not (yet) available on CRAN, you will need to install with:
+As the package is not (yet) available on CRAN, you will need to install
+with:
 
-```r
+``` r
 install.packages(
   "CentroidR",
   repos = c(
@@ -47,7 +51,7 @@ install.packages(
     "https://bioconductor.org/packages/release/bioc",
     "https://cloud.r-project.org"
   ),
-  type = "source"
+    type = "source"
 )
 ```
 
@@ -55,19 +59,19 @@ install.packages(
 
 ### Single file
 
-```r
+``` r
 CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
                              pattern = "/profile/",
                              replacement = "/profile_centroided/")
 ```
 
-```bash
+``` bash
 Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
 
 ### Multiple files
 
-```r
+``` r
 "path_to_your/profiles/" |>
     list.files(pattern = ".mzML", full.names = TRUE) |>
     purrr::walk(
@@ -77,29 +81,29 @@ Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --
       .progress = TRUE)
 ```
 
-```bash
+``` bash
 Rscript inst/scripts/centroiding.R --directory "path_to_your/profiles/" --pattern "/profiles/" --replacement "/profiles_centroided/"
 ```
 
-```bash
+``` bash
 Rscript inst/scripts/centroiding.R --help
 ```
 
 ### Docker
 
-```bash
+``` bash
 docker pull adafede/centroidr
 # docker build . -t adafede/centroidr
 ```
 
-```bash
+``` bash
  docker run --rm \
   -v path_to_your:/home \
   adafede/centroidr \
   Rscript centroiding.R --file "home/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
 
-```bash
+``` bash
  docker run --rm \
   -v path_to_your:/home \
   adafede/centroidr \
@@ -108,7 +112,7 @@ docker pull adafede/centroidr
 
 To see all parameters
 
-```bash
+``` bash
  docker run --rm \
    -v path_to_your:/home \
   adafede/centroidr \
@@ -121,30 +125,29 @@ TODO
 
 ## Additional software credits
 
-  | Package      | Version    | Citation                                                                                                           |
-  | :----------- | :--------- | :----------------------------------------------------------------------------------------------------------------- |
-  | base         | 4.5.1      | R Core Team (2025)                                                                                                 |
-  | BiocManager  | 1.30.26    | Morgan and Ramos (2025)                                                                                            |
-  | BiocParallel | 1.43.4     | Wang et al. (2025)                                                                                                 |
-  | BiocVersion  | 3.22.0     | Morgan (2025)                                                                                                      |
-  | CentroidR    | 0.0.0.9001 | Rutz and Rainer (2025)                                                                                             |
-  | knitr        | 1.50       | Xie (2014); Xie (2015); Xie (2025)                                                                                 |
-  | logger       | 0.4.1      | Daróczi and Wickham (2025)                                                                                         |
-  | MsCoreUtils  | 1.21.0     | Rainer et al. (2022a)                                                                                              |
-  | mzR          | 2.43.1     | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
-  | optparse     | 1.7.5      | Davis (2024)                                                                                                       |
-  | rmarkdown    | 2.30       | Xie, Allaire, and Grolemund (2018); Xie, Dervieux, and Riederer (2020); Allaire et al. (2025)                      |
-  | Spectra      | 1.19.4     | Rainer et al. (2022b)                                                                                              |
-  | testthat     | 3.2.3      | Wickham (2011)                                                                                                     |
-  | tidyverse    | 2.0.0      | Wickham et al. (2019)                                                                                              |
+| Package | Version | Citation |
+|:---|:---|:---|
+| base | 4.6.1 | R Core Team (2026) |
+| BiocManager | 1.30.27 | Morgan and Ramos (2025) |
+| BiocParallel | 1.46.0 | Wang et al. (2026) |
+| BiocVersion | 3.23.1 | Morgan (2025) |
+| CentroidR | 0.0.0.9003 | Rutz and Rainer (2026) |
+| knitr | 1.51 | Xie (2014); Xie (2015); Xie (2025) |
+| logger | 0.4.2 | Daróczi and Wickham (2026) |
+| MsCoreUtils | 1.24.0 | Rainer et al. (2022a) |
+| mzR | 2.46.0 | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
+| optparse | 1.8.2 | Davis and Day (2026) |
+| rmarkdown | 2.31 | Xie et al. (2018); Xie et al. (2020); Allaire et al. (2026) |
+| Spectra | 1.22.2 | Rainer et al. (2022b) |
+| spelling | 2.3.2 | Ooms and Hester (2025) |
+| testthat | 3.3.2 | Wickham (2011) |
+| tidyverse | 2.0.0 | Wickham et al. (2019) |
 
-<div id="refs" class="references csl-bib-body hanging-indent"
-entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 
-<div id="ref-rmarkdown2025" class="csl-entry">
+<div id="ref-rmarkdown2026" class="csl-entry">
 
-Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
-Luraschi, Kevin Ushey, Aron Atkins, et al. 2025.
+Allaire, JJ, Yihui Xie, Christophe Dervieux, et al. 2026.
 *<span class="nocase">rmarkdown</span>: Dynamic Documents for r*.
 <https://github.com/rstudio/rmarkdown>.
 
@@ -152,16 +155,15 @@ Luraschi, Kevin Ushey, Aron Atkins, et al. 2025.
 
 <div id="ref-mzR2012" class="csl-entry">
 
-Chambers, Matthew C., Maclean, Brendan, Burke, Robert, Amodei, et al.
-2012. “<span class="nocase">A cross-platform toolkit for mass
-spectrometry and proteomics</span>.” *Nat Biotech* 30 (10): 918–20.
-<https://doi.org/10.1038/nbt.2377>.
+Chambers, Matthew C., Maclean, et al. 2012. “<span class="nocase">A
+cross-platform toolkit for mass spectrometry and proteomics</span>.”
+*Nat Biotech* 30 (10): 918–20. <https://doi.org/10.1038/nbt.2377>.
 
 </div>
 
 <div id="ref-logger" class="csl-entry">
 
-Daróczi, Gergely, and Hadley Wickham. 2025.
+Daróczi, Gergely, and Hadley Wickham. 2026.
 *<span class="nocase">logger</span>: A Lightweight, Modern and Flexible
 Logging Utility*. <https://doi.org/10.32614/CRAN.package.logger>.
 
@@ -169,8 +171,9 @@ Logging Utility*. <https://doi.org/10.32614/CRAN.package.logger>.
 
 <div id="ref-optparse" class="csl-entry">
 
-Davis, Trevor L. 2024. *<span class="nocase">optparse</span>: Command
-Line Option Parser*. <https://doi.org/10.32614/CRAN.package.optparse>.
+Davis, Trevor L., and Allen Day. 2026.
+*<span class="nocase">optparse</span>: Command Line Option Parser*.
+<https://doi.org/10.32614/CRAN.package.optparse>.
 
 </div>
 
@@ -193,17 +196,16 @@ Tools Development.” *Bioinformatics* 24 (21): 2534–36.
 
 <div id="ref-mzR2010" class="csl-entry">
 
-Martens, Lennart, Matthew Chambers, Marc Sturm, Darren Kessner, Fredrik
-Levander, Jim Shofstahl, Wilfred H Tang, et al. 2010. “MzML - a
-Community Standard for Mass Spectrometry Data.” *Mol Cell Proteomics*.
-<https://doi.org/10.1074/mcp.R110.000133>.
+Martens, Lennart, Matthew Chambers, Marc Sturm, et al. 2010. “MzML - a
+Community Standard for Mass Spectrometry Data.” *Mol Cell Proteomics*,
+ahead of print. <https://doi.org/10.1074/mcp.R110.000133>.
 
 </div>
 
 <div id="ref-BiocVersion" class="csl-entry">
 
 Morgan, Martin. 2025. *BiocVersion: Set the Appropriate Version of
-Bioconductor Packages*. <https://doi.org/10.18129/B9.bioc.BiocVersion>.
+Bioconductor Packages*.
 
 </div>
 
@@ -215,44 +217,50 @@ Bioconductor Project Package Repository*.
 
 </div>
 
+<div id="ref-spelling" class="csl-entry">
+
+Ooms, Jeroen, and Jim Hester. 2025.
+*<span class="nocase">spelling</span>: Tools for Spell Checking in r*.
+<https://doi.org/10.32614/CRAN.package.spelling>.
+
+</div>
+
 <div id="ref-mzR2004" class="csl-entry">
 
-Pedrioli, Patrick G A, Jimmy K Eng, Robert Hubley, Mathijs Vogelzang,
-Eric W Deutsch, Brian Raught, Brian Pratt, et al. 2004. “A Common Open
-Representation of Mass Spectrometry Data and Its Application to
-Proteomics Research.” *Nat Biotechnol* 22 (11): 1459–66.
+Pedrioli, Patrick G A, Jimmy K Eng, Robert Hubley, et al. 2004. “A
+Common Open Representation of Mass Spectrometry Data and Its Application
+to Proteomics Research.” *Nat Biotechnol* 22 (11): 1459–66.
 <https://doi.org/10.1038/nbt1031>.
 
 </div>
 
 <div id="ref-base" class="csl-entry">
 
-R Core Team. 2025. *R: A Language and Environment for Statistical
-Computing*. Vienna, Austria: R Foundation for Statistical Computing.
-<https://www.R-project.org/>.
+R Core Team. 2026. *R: A Language and Environment for Statistical
+Computing*. R Foundation for Statistical Computing.
+<https://doi.org/10.32614/R.manuals>.
 
 </div>
 
 <div id="ref-MsCoreUtils" class="csl-entry">
 
-Rainer, Johannes, Andrea Vicini, Liesa Salzer, Jan Stanstrup, Josep M.
-Badia, Steffen Neumann, Michael A. Stravs, et al. 2022a. “A Modular and
-Expandable Ecosystem for Metabolomics Data Annotation in r.”
+Rainer, Johannes, Andrea Vicini, Liesa Salzer, et al. 2022a. “A Modular
+and Expandable Ecosystem for Metabolomics Data Annotation in r.”
 *Metabolites* 12: 173. <https://doi.org/10.3390/metabo12020173>.
 
 </div>
 
 <div id="ref-Spectra" class="csl-entry">
 
-———, et al. 2022b. “A Modular and Expandable Ecosystem for Metabolomics
-Data Annotation in r.” *Metabolites* 12: 173.
-<https://doi.org/10.3390/metabo12020173>.
+Rainer, Johannes, Andrea Vicini, Liesa Salzer, et al. 2022b. “A Modular
+and Expandable Ecosystem for Metabolomics Data Annotation in r.”
+*Metabolites* 12: 173. <https://doi.org/10.3390/metabo12020173>.
 
 </div>
 
 <div id="ref-CentroidR" class="csl-entry">
 
-Rutz, Adriano, and Johannes Rainer. 2025. *CentroidR: CentroidR Provides
+Rutz, Adriano, and Johannes Rainer. 2026. *CentroidR: CentroidR Provides
 the Infrastructure to Centroid Profile Spectra*.
 
 </div>
@@ -260,7 +268,7 @@ the Infrastructure to Centroid Profile Spectra*.
 <div id="ref-BiocParallel" class="csl-entry">
 
 Wang, Jiefei, Martin Morgan, Valerie Obenchain, Michel Lang, Ryan
-Thompson, and Nitesh Turaga. 2025. *BiocParallel: Bioconductor
+Thompson, and Nitesh Turaga. 2026. *BiocParallel: Bioconductor
 Facilities for Parallel Evaluation*.
 <https://doi.org/10.18129/B9.bioc.BiocParallel>.
 
@@ -270,16 +278,15 @@ Facilities for Parallel Evaluation*.
 
 Wickham, Hadley. 2011. “<span class="nocase">testthat</span>: Get
 Started with Testing.” *The R Journal* 3: 5–10.
-<https://journal.r-project.org/archive/2011-1/RJournal_2011-1_Wickham.pdf>.
+<https://journal.r-project.org/articles/RJ-2011-002/>.
 
 </div>
 
 <div id="ref-tidyverse" class="csl-entry">
 
-Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
-D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
-“Welcome to the <span class="nocase">tidyverse</span>.” *Journal of Open
-Source Software* 4 (43): 1686. <https://doi.org/10.21105/joss.01686>.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, et al. 2019. “Welcome to
+the <span class="nocase">tidyverse</span>.” *Journal of Open Source
+Software* 4 (43): 1686. <https://doi.org/10.21105/joss.01686>.
 
 </div>
 
@@ -294,31 +301,29 @@ and Roger D. Peng. Chapman; Hall/CRC.
 
 <div id="ref-knitr2015" class="csl-entry">
 
-———. 2015. *Dynamic Documents with R and Knitr*. 2nd ed. Boca Raton,
-Florida: Chapman; Hall/CRC. <https://yihui.org/knitr/>.
+Xie, Yihui. 2015. *Dynamic Documents with R and Knitr*. 2nd ed. Chapman;
+Hall/CRC. <https://yihui.org/knitr/>.
 
 </div>
 
 <div id="ref-knitr2025" class="csl-entry">
 
-———. 2025. *<span class="nocase">knitr</span>: A General-Purpose Package
-for Dynamic Report Generation in R*. <https://yihui.org/knitr/>.
+Xie, Yihui. 2025. *<span class="nocase">knitr</span>: A General-Purpose
+Package for Dynamic Report Generation in R*. <https://yihui.org/knitr/>.
 
 </div>
 
 <div id="ref-rmarkdown2018" class="csl-entry">
 
 Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. *R Markdown: The
-Definitive Guide*. Boca Raton, Florida: Chapman; Hall/CRC.
-<https://bookdown.org/yihui/rmarkdown>.
+Definitive Guide*. Chapman; Hall/CRC. <https://yihui.org/rmarkdown/>.
 
 </div>
 
 <div id="ref-rmarkdown2020" class="csl-entry">
 
 Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. *R Markdown
-Cookbook*. Boca Raton, Florida: Chapman; Hall/CRC.
-<https://bookdown.org/yihui/rmarkdown-cookbook>.
+Cookbook*. Chapman; Hall/CRC. <https://yihui.org/rmarkdown-cookbook>.
 
 </div>
 

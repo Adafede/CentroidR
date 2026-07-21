@@ -50,8 +50,7 @@ install.packages(
     "https://adafede.r-universe.dev",
     "https://bioconductor.org/packages/release/bioc",
     "https://cloud.r-project.org"
-  ),
-    type = "source"
+  )
 )
 ```
 

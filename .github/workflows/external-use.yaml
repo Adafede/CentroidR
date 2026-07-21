@@ -49,13 +49,14 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           brew update
-          brew install netcdf
+          brew install netcdf libomp
           mkdir -p ~/.R
           cat >> ~/.R/Makevars <<EOF
-          CFLAGS   = -mcpu=native -mtune=native -g -O3 -Wall -pedantic -Wconversion
+          CFLAGS   = -mcpu=native -mtune=native -g -O3 -Wall -pedantic -Wconversion -Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include
+          CXXFLAGS = -mcpu=native -mtune=native -g -O3 -Wall -pedantic -Wconversion -Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include
           CPPFLAGS += -I/opt/homebrew/include
-          CXXFLAGS = -mcpu=native -mtune=native -g -O3 -Wall -pedantic -Wconversion
           LDFLAGS += -L/opt/homebrew/lib
+          LDFLAGS += -L$(brew --prefix libomp)/lib -lomp
           NCDF_LDFLAGS  = -L/opt/homebrew/opt/netcdf/lib
           NCDF_CPPFLAGS = -I/opt/homebrew/opt/netcdf/include
           OPENSSL_CPPFLAGS = -I$(brew --prefix openssl@3)/include

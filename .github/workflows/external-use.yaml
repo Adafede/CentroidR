@@ -63,11 +63,14 @@ jobs:
           NETCDF_PREFIX="$(brew --prefix netcdf)"
           mkdir -p ~/.R
 
-          if [[ $(uname -m) == "arm64" ]]; then
-            ARCH_FLAGS="-mcpu=native"
-          else
-            ARCH_FLAGS="-march=native -mtune=native"
-          fi
+          case "$(uname -m)" in
+            arm64|aarch64)
+              ARCH_FLAGS="-mcpu=native"
+              ;;
+            *)
+              ARCH_FLAGS="-march=native -mtune=native"
+              ;;
+          esac
 
           cat >> ~/.R/Makevars <<EOF
           CPPFLAGS += -I${LIBOMP_PREFIX}/include -I${NETCDF_PREFIX}/include

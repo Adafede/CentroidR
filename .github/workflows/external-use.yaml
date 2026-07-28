@@ -43,8 +43,7 @@ jobs:
         if: contains(matrix.os, 'macos')
         run: |
           brew update
-          brew install libomp netcdf
-          LIBOMP_PREFIX="$(brew --prefix libomp)"
+          brew install netcdf
           NETCDF_PREFIX="$(brew --prefix netcdf)"
 
       - name: Install dependencies (Windows)

@@ -89,14 +89,14 @@ File path modifications are supported via \code{pattern} and \code{replacement}.
 }
 \examples{
 \dontrun{
-  # Example usage (requires an mzML file):
-  # centroid_one_file(
-  #   file = "raw_data.mzML",
-  #   pattern = "\\.mzML$",
-  #   replacement = "_centroided.mzML",
-  #   min_datapoints_ms1 = 5L,
-  #   min_datapoints_ms2 = 1L
-  # )
+# Example usage (requires an mzML file):
+# centroid_one_file(
+#   file = "raw_data.mzML",
+#   pattern = "\.mzML$",
+#   replacement = "_centroided.mzML",
+#   min_datapoints_ms1 = 5L,
+#   min_datapoints_ms2 = 1L
+# )
 }
 }
 \author{

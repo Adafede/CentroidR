@@ -9,9 +9,6 @@
 # usethis namespace: end
 NULL
 
-# Set data.table awareness for compatibility
-.datatable.aware <- TRUE
-
 #' .onLoad: Package load hook
 #'
 #' Ensures required S4 classes and external dependencies are registered on load.

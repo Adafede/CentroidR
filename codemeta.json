@@ -14,7 +14,7 @@
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.6.0 (2026-04-24)",
+  "runtimePlatform": "R version 4.6.1 (2026-06-24)",
   "author": [
     {
       "@type": "Person",
@@ -43,58 +43,6 @@
   "softwareSuggestions": [
     {
       "@type": "SoftwareApplication",
-      "identifier": "altdoc",
-      "name": "altdoc",
-      "version": ">= 0.7.2",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=altdoc"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "BiocManager",
-      "name": "BiocManager",
-      "version": ">= 1.30.27",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=BiocManager"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "BiocVersion",
-      "name": "BiocVersion",
-      "version": ">= 3.22.0",
-      "provider": {
-        "@id": "https://www.bioconductor.org",
-        "@type": "Organization",
-        "name": "Bioconductor",
-        "url": "https://www.bioconductor.org"
-      },
-      "sameAs": "https://bioconductor.org/packages/release/bioc/html/BiocVersion.html"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "grateful",
-      "name": "grateful",
-      "version": ">= 0.3.0",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=grateful"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "R.utils",
       "name": "R.utils",
       "version": ">= 2.13.0",
@@ -118,18 +66,6 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=rlang"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "spelling",
-      "name": "spelling",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=spelling"
     },
     {
       "@type": "SoftwareApplication",
@@ -246,7 +182,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra", "centroid", "mass-spectra", "mass-spectrometry", "r"],
-  "fileSize": "242.424KB",
+  "fileSize": "242.407KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

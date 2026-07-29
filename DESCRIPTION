@@ -2,17 +2,21 @@ Package: CentroidR
 Title: CentroidR
 Version: 0.0.0.9003
 Authors@R: c(
-    person(given = "Adriano",
-           family = "Rutz",
-           email = "adafede@gmail.com",
-           role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0003-0443-9902")),
-    person(given = "Johannes",
-           family = "Rainer",
-           email = "Johannes.Rainer@eurac.edu",
-           role = "aut",
-           comment = c(ORCID = "0000-0002-6977-7147"))
-  )
+    person(
+        given = "Adriano",
+        family = "Rutz",
+        email = "adafede@gmail.com",
+        role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0003-0443-9902")
+        ),
+    person(
+        given = "Johannes",
+        family = "Rainer",
+        email = "Johannes.Rainer@eurac.edu",
+        role = "aut",
+        comment = c(ORCID = "0000-0002-6977-7147")
+        )
+    )
 Maintainer: Adriano Rutz <adafede@gmail.com>
 Description: CentroidR provides the infrastructure to centroid profile spectra.
 License: AGPL (>= 3)

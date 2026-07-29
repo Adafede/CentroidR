@@ -134,7 +134,6 @@ TODO
   | optparse     | 1.8.2      | Davis and Day (2026)                                                                                               |
   | rmarkdown    | 2.31       | Xie et al. (2018); Xie et al. (2020); Allaire et al. (2026)                                                        |
   | Spectra      | 1.22.2     | Rainer et al. (2022b)                                                                                              |
-  | spelling     | 2.3.2      | Ooms and Hester (2025)                                                                                             |
   | testthat     | 3.3.2      | Wickham (2011)                                                                                                     |
   | tidyverse    | 2.0.0      | Wickham et al. (2019)                                                                                              |
 
@@ -209,14 +208,6 @@ Bioconductor Packages*.
 Morgan, Martin, and Marcel Ramos. 2025. *BiocManager: Access the
 Bioconductor Project Package Repository*.
 <https://doi.org/10.32614/CRAN.package.BiocManager>.
-
-</div>
-
-<div id="ref-spelling" class="csl-entry">
-
-Ooms, Jeroen, and Jim Hester. 2025.
-*<span class="nocase">spelling</span>: Tools for Spell Checking in r*.
-<https://doi.org/10.32614/CRAN.package.spelling>.
 
 </div>
 

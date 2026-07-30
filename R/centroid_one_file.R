@@ -129,6 +129,7 @@ centroid_one_file <- function(
     }
     mzs_split <- split(x[, "mz"], grps)
     ints_split <- split(x[, "intensity"], grps)
+
     # Compute m/z
     if (weighted) {
       mzs <- vapply(
@@ -136,15 +137,20 @@ centroid_one_file <- function(
         function(i) {
           mz <- mzs_split[[i]]
           int <- ints_split[[i]]
-          stats::weighted.mean(mz, int^intensity_exponent + 1)
+          stats::weighted.mean(mz, int^intensity_exponent)
         },
         numeric(1)
       )
     } else {
       mzs <- MsCoreUtils::vapply1d(mzs_split, mzFun)
     }
+
     # Compute intensities
     ints <- MsCoreUtils::vapply1d(ints_split, intensityFun)
+    
+    # Ensure mzs and ints names match to prevent index misalignment
+    # This addresses the indexing bug where mz and intensity arrays could be misaligned
+    names(ints) <- names(mzs)
     # Handle metadata columns, if present
     if (ncol(x) > 2L) {
       meta <- x[, !colnames(x) %in% c("mz", "intensity"), drop = FALSE]
@@ -157,6 +163,8 @@ centroid_one_file <- function(
         as.data.frame(colapply, stringsAsFactors = FALSE)
       })
       meta_final <- do.call(rbind, meta_combined)
+      # Ensure row names match mzs and ints for proper alignment
+      rownames(meta_final) <- names(mzs)
       return(cbind(mz = mzs, intensity = ints, meta_final))
     } else {
       return(cbind(mz = mzs, intensity = ints))

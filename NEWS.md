@@ -4,6 +4,7 @@
 
 - Fix centroid m/z/intensity alignment bug.
 - Add regression tests for the reported m/z 164.0528 case.
+- Reduce centroid allocation overhead for faster, leaner processing.
 
 ## CentroidR 0.0.9003
 

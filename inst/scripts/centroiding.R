@@ -182,6 +182,8 @@ if (!is.null(opt$file)) {
   centroid_one_file_cli(opt$file)
 } else {
   # Process all .mzML files in the directory
-  list.files(opt$directory, pattern = ".mzML$", full.names = TRUE) |>
-    purrr::walk(.f = centroid_one_file_cli, .progress = TRUE)
+  lapply(
+    list.files(opt$directory, pattern = ".mzML$", full.names = TRUE),
+    centroid_one_file_cli
+  )
 }

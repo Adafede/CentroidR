@@ -117,7 +117,9 @@ centroid_one_file <- function(
     if (!spectrumMsLevel %in% msLevel || !length(x)) {
       return(x)
     }
-    mz_vals <- if (timeDomain) sqrt(x[, "mz"]) else x[, "mz"]
+    mz_raw <- x[, "mz"]
+    int_raw <- x[, "intensity"]
+    mz_vals <- if (timeDomain) sqrt(mz_raw) else mz_raw
     mz_base <- if (timeDomain) min(mz_vals) else 1
     grps <- MsCoreUtils::group(
       x = mz_vals,
@@ -127,44 +129,39 @@ centroid_one_file <- function(
     if (!anyDuplicated(grps)) {
       return(x)
     }
-    mzs_split <- split(x[, "mz"], grps)
-    ints_split <- split(x[, "intensity"], grps)
+    grp_idx <- split(seq_along(grps), grps)
+    grp_names <- names(grp_idx)
 
     # Compute m/z
     if (weighted) {
       mzs <- vapply(
-        seq_along(mzs_split),
+        grp_idx,
         function(i) {
-          mz <- mzs_split[[i]]
-          int <- ints_split[[i]]
-          stats::weighted.mean(mz, int^intensity_exponent)
+          stats::weighted.mean(mz_raw[i], int_raw[i]^intensity_exponent)
         },
         numeric(1)
       )
     } else {
-      mzs <- MsCoreUtils::vapply1d(mzs_split, mzFun)
+      mzs <- vapply(grp_idx, function(i) mzFun(mz_raw[i]), numeric(1))
     }
+    names(mzs) <- grp_names
 
     # Compute intensities
-    ints <- MsCoreUtils::vapply1d(ints_split, intensityFun)
-    
-    # Ensure mzs and ints names match to prevent index misalignment
-    # This addresses the indexing bug where mz and intensity arrays could be misaligned
-    names(ints) <- names(mzs)
+    ints <- vapply(grp_idx, function(i) intensityFun(int_raw[i]), numeric(1))
+    names(ints) <- grp_names
+
     # Handle metadata columns, if present
     if (ncol(x) > 2L) {
       meta <- x[, !colnames(x) %in% c("mz", "intensity"), drop = FALSE]
-      meta_split <- split.data.frame(meta, grps)
-      meta_combined <- lapply(seq_along(meta_split), function(i) {
-        colapply <- lapply(meta_split[[i]], function(col) {
+      meta_combined <- lapply(grp_idx, function(i) {
+        colapply <- lapply(meta[i, , drop = FALSE], function(col) {
           u <- unique(col)
           if (length(u) == 1L) u else NA
         })
         as.data.frame(colapply, stringsAsFactors = FALSE)
       })
       meta_final <- do.call(rbind, meta_combined)
-      # Ensure row names match mzs and ints for proper alignment
-      rownames(meta_final) <- names(mzs)
+      rownames(meta_final) <- grp_names
       return(cbind(mz = mzs, intensity = ints, meta_final))
     } else {
       return(cbind(mz = mzs, intensity = ints))
@@ -203,7 +200,7 @@ centroid_one_file <- function(
       logger::log_trace("Restoring {sum(is_empty)} empty spectra to original")
       original_peaks <- Spectra::peaksData(original)
       empty_indices <- which(is_empty)
-      restored_peaks <- purrr::map(empty_indices, function(i) {
+      restored_peaks <- lapply(empty_indices, function(i) {
         pk <- original_peaks[[i]]
         if (nrow(pk) == 0L) {
           return(pk)
@@ -257,16 +254,13 @@ centroid_one_file <- function(
     "m/z weighted" = mz_weighted,
     "Time domain" = time_domain
   )
-  purrr::walk(
-    .x = names(params),
-    .f = function(param) {
-      logger::log_info("{param} : {params[[param]]}")
-    }
-  )
+  for (param in names(params)) {
+   logger::log_info("{param} : {params[[param]]}")
+  }
 
   # Custom intensity aggregation functions
   custom_int_fun <- function(int_fun, intensities, min_datapoints) {
-    if (length(intensities[intensities > 0]) >= min_datapoints) {
+    if (sum(intensities > 0, na.rm = TRUE) >= min_datapoints) {
       int_fun(intensities)
     } else {
       0
@@ -338,10 +332,14 @@ centroid_one_file <- function(
         ) |>
         Spectra::dropNaSpectraVariables()
       sd <- Spectra::spectraData(sp)
-      sp@backend@spectraData <- purrr::discard(
-        .x = sd,
-        .p = ~ all(is.na(.x) | .x == 0)
-      )
+      keep <- vapply(as.list(sd), function(col) {
+        if (is.numeric(col) || is.integer(col) || is.logical(col)) {
+          !all(is.na(col) | col == 0)
+        } else {
+          !all(is.na(col))
+        }
+      }, logical(1))
+      sp@backend@spectraData <- sd[, keep, drop = FALSE]
       # Ensure required columns exist for downstream processing
       if (!"polarity" %in% colnames(sp@backend@spectraData)) {
         sp@backend@spectraData$polarity <- 0L
@@ -371,37 +369,39 @@ centroid_one_file <- function(
       if (!dir.exists(tmp_batch_dir)) {
         dir.create(tmp_batch_dir, recursive = TRUE)
       }
-      temp_files <- purrr::imap_chr(batch_starts, function(start_idx, i) {
-        idx <- start_idx:min(start_idx + batch_size - 1L, n)
-        sp_batch <- sp[idx] |>
-          Spectra::setBackend(Spectra::MsBackendMemory())
-        logger::log_trace("Processing batch {i} / {length(batch_starts)}")
-        result <- process_spectra(
-          spectra = sp_batch,
-          mz_tol_da_ms1 = mz_tol_da_ms1,
-          mz_tol_da_ms2 = mz_tol_da_ms2,
-          mz_tol_ppm_ms1 = mz_tol_ppm_ms1,
-          mz_tol_ppm_ms2 = mz_tol_ppm_ms2,
-          custom_int_fun_ms1 = custom_int_fun_ms1,
-          custom_int_fun_ms2 = custom_int_fun_ms2,
-          mz_fun_ms1 = mz_fun_ms1,
-          mz_fun_ms2 = mz_fun_ms2,
-          mz_weighted = mz_weighted,
-          time_domain = time_domain
-        )
-        # COMMENT: Feels dirty but works
-        # Mark spectra as centroided
-        result@backend@spectraData$centroided <- TRUE
-        temp_file <- tempfile(fileext = ".mzML", tmpdir = tmp_batch_dir)
-        Spectra::export(
-          result,
-          file = temp_file,
-          backend = Spectra::MsBackendMzR(),
-          BPPARAM = BiocParallel::SerialParam()
-        )
-        rm(idx, sp_batch, result)
-        return(temp_file)
+      temp_files <- lapply(seq_along(batch_starts), function(i) {
+          start_idx <- batch_starts[[i]]
+          idx <- start_idx:min(start_idx + batch_size - 1L, n)
+          sp_batch <- sp[idx] |>
+            Spectra::setBackend(Spectra::MsBackendMemory())
+          logger::log_trace("Processing batch {i} / {length(batch_starts)}")
+          result <- process_spectra(
+            spectra = sp_batch,
+            mz_tol_da_ms1 = mz_tol_da_ms1,
+            mz_tol_da_ms2 = mz_tol_da_ms2,
+            mz_tol_ppm_ms1 = mz_tol_ppm_ms1,
+            mz_tol_ppm_ms2 = mz_tol_ppm_ms2,
+            custom_int_fun_ms1 = custom_int_fun_ms1,
+            custom_int_fun_ms2 = custom_int_fun_ms2,
+            mz_fun_ms1 = mz_fun_ms1,
+            mz_fun_ms2 = mz_fun_ms2,
+            mz_weighted = mz_weighted,
+            time_domain = time_domain
+          )
+          # COMMENT: Feels dirty but works
+          # Mark spectra as centroided
+          result@backend@spectraData$centroided <- TRUE
+          temp_file <- tempfile(fileext = ".mzML", tmpdir = tmp_batch_dir)
+          Spectra::export(
+            result,
+            file = temp_file,
+            backend = Spectra::MsBackendMzR(),
+            BPPARAM = BiocParallel::SerialParam()
+          )
+          rm(idx, sp_batch, result)
+          temp_file
       })
+      temp_files <- unlist(temp_files, use.names = FALSE)
       logger::log_trace("Concatenating all processed batches")
       sp_cen <- Spectra::Spectra(temp_files, backend = Spectra::MsBackendMzR())
       logger::log_trace("Exporting: {basename(file)}")

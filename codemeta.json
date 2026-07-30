@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/adafede/CentroidR",
   "issueTracker": "https://github.com/adafede/CentroidR/issues",
   "license": "https://spdx.org/licenses/AGPL-3.0",
-  "version": "0.0.0.9003",
+  "version": "0.0.0.9004",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -155,19 +155,6 @@
     },
     "7": {
       "@type": "SoftwareApplication",
-      "identifier": "purrr",
-      "name": "purrr",
-      "version": ">= 1.2.2",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=purrr"
-    },
-    "8": {
-      "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
       "version": ">= 1.20.1",
@@ -182,7 +169,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra", "centroid", "mass-spectra", "mass-spectrometry", "r"],
-  "fileSize": "241.799KB",
+  "fileSize": "878.685KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -204,7 +191,7 @@
         }
       ],
       "name": "CentroidR: CentroidR provides the infrastructure to centroid profile spectra",
-      "description": "R package, version 0.0.9003"
+      "description": "R package, version 0.0.9004"
     }
   ],
   "releaseNotes": "https://github.com/adafede/CentroidR/blob/main/NEWS.md",

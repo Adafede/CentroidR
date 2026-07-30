@@ -5,6 +5,8 @@
 - Fix centroid m/z/intensity alignment bug.
 - Add regression tests for the reported m/z 164.0528 case.
 - Reduce centroid allocation overhead for faster, leaner processing.
+- Split dense profile peaks at local valleys so close peaks centroid separately.
+  (#52)
 
 ## CentroidR 0.0.9003
 

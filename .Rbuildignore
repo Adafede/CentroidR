@@ -1,4 +1,5 @@
 ^.*\.Rproj$
+^.*\.iml$
 ^.*\.log$
 ^CITATION\.cff$
 ^CRAN-SUBMISSION$

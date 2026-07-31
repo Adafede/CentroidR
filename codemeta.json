@@ -43,42 +43,16 @@
   "softwareSuggestions": [
     {
       "@type": "SoftwareApplication",
-      "identifier": "R.utils",
-      "name": "R.utils",
-      "version": ">= 2.13.0",
+      "identifier": "tinytest",
+      "name": "tinytest",
+      "version": ">= 1.4.3",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=R.utils"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "rlang",
-      "name": "rlang",
-      "version": ">= 1.2.0",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=rlang"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "testthat",
-      "name": "testthat",
-      "version": ">= 3.3.2",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=testthat"
+      "sameAs": "https://CRAN.R-project.org/package=tinytest"
     }
   ],
   "softwareRequirements": {
@@ -169,7 +143,7 @@
     "SystemRequirements": null
   },
   "keywords": ["centroiding", "spectra", "centroid", "mass-spectra", "mass-spectrometry", "r"],
-  "fileSize": "888.897KB",
+  "fileSize": "767.891KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

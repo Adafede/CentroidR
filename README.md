@@ -116,7 +116,7 @@ To see all parameters
 
 ## Citation
 
-TODO
+Rutz, Adriano, and Johannes Rainer. 2026. *CentroidR: CentroidR provides the infrastructure to centroid profile spectra*. R package version 0.0.9004.
 
 ## Additional software credits
 

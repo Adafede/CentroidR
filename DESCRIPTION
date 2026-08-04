@@ -33,6 +33,7 @@ Imports:
     optparse (>= 1.8.2),
     Spectra (>= 1.20.1)
 Suggests:
+    S4Vectors (>= 0.46.0),
     tinytest (>= 1.4.3)
 ByteCompile: TRUE
 Collate:

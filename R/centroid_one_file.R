@@ -138,7 +138,8 @@ centroid_one_file <- function(
     "Intensity function (MS1)" = deparse(int_fun_ms1),
     "Intensity function (MS2)" = deparse(int_fun_ms2),
     "m/z weighted" = mz_weighted,
-    "Time domain" = time_domain
+    "Time domain" = time_domain,
+    "Intensity exponent" = intensity_exponent
   )
   for (param in names(params)) {
     logger::log_info("{param} : {params[[param]]}")
@@ -201,7 +202,8 @@ centroid_one_file <- function(
         int_fun_ms1 = int_fun_ms1,
         int_fun_ms2 = int_fun_ms2,
         mz_weighted = mz_weighted,
-        time_domain = time_domain
+        time_domain = time_domain,
+        intensity_exponent = intensity_exponent
       )
     },
     error = function(e) {
@@ -489,6 +491,7 @@ setup_logger <- function(
   int_fun_ms2,
   mz_weighted,
   time_domain,
+  intensity_exponent,
   batch_size = 4096L
 ) {
   setup_logger(dir = outd)
@@ -528,7 +531,8 @@ setup_logger <- function(
       mz_fun_ms1 = mz_fun_ms1,
       mz_fun_ms2 = mz_fun_ms2,
       mz_weighted = mz_weighted,
-      time_domain = time_domain
+      time_domain = time_domain,
+      intensity_exponent = intensity_exponent
     )
     result@backend@spectraData$centroided <- TRUE
     temp_file <- tempfile(fileext = ".mzML", tmpdir = tmp_batch_dir)

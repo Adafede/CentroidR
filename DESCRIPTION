@@ -33,14 +33,13 @@ Imports:
     optparse (>= 1.8.2),
     Spectra (>= 1.20.1)
 Suggests:
-    S4Vectors (>= 0.46.0),
     tinytest (>= 1.4.3)
 ByteCompile: TRUE
 Collate:
     'CentroidR-package.R'
     'centroid_one_file.R'
 Config/roxygen2/markdown: TRUE
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
 Encoding: UTF-8
 Language: en-US
 LazyData: TRUE

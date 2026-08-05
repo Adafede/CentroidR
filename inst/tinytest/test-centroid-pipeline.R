@@ -4,20 +4,20 @@ library(tinytest)
 .fix_xml <- getFromNamespace(".fix_xml", "CentroidR")
 
 make_test_spectra <- function() {
-  spd <- S4Vectors::DataFrame(
+  spd <- data.frame(
     msLevel = c(1L, 2L, 1L),
     polarity = c(0L, 0L, 0L),
-    rtime = c(1, 2, 3)
-  )
-  spd$mz <- list(
-    c(100, 100.0004, 100.0008),
-    c(200, 200.0004, 200.0008),
-    numeric(0)
-  )
-  spd$intensity <- list(
-    c(10, 50, 10),
-    c(5, 25, 5),
-    numeric(0)
+    rtime = c(1, 2, 3),
+    mz = I(list(
+      c(100, 100.0004, 100.0008),
+      c(200, 200.0004, 200.0008),
+      numeric(0)
+    )),
+    intensity = I(list(
+      c(10, 50, 10),
+      c(5, 25, 5),
+      numeric(0)
+    ))
   )
   Spectra::Spectra(spd)
 }

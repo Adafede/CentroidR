@@ -1,15 +1,15 @@
-# --------------------------------------------
-# CITATION file created with {cffr} R package
+# ------------------------------------------------
+# CITATION.cff file created with {cffr} R package
 # See also: https://docs.ropensci.org/cffr/
-# --------------------------------------------
+# ------------------------------------------------
 
 cff-version: 1.2.0
 message: 'To cite package "CentroidR" in publications use:'
 type: software
-license: GPL-3.0-or-later
-title: 'CentroidR: Repository to centroid profile spectra.'
+license: AGPL-3.0-or-later
+title: 'CentroidR: CentroidR'
 version: 0.0.0.9004
-abstract: CentroidR provides the infrastructure to centroid profile spectra
+abstract: CentroidR provides the infrastructure to centroid profile spectra.
 authors:
 - family-names: Rutz
   given-names: Adriano
@@ -21,7 +21,7 @@ authors:
   orcid: https://orcid.org/0000-0002-6977-7147
 preferred-citation:
   type: manual
-  title: 'CentroidR: Repository to centroid profile spectra.'
+  title: 'CentroidR: CentroidR provides the infrastructure to centroid profile spectra'
   authors:
   - family-names: Rutz
     given-names: Adriano
@@ -32,8 +32,8 @@ preferred-citation:
     email: Johannes.Rainer@eurac.edu
     orcid: https://orcid.org/0000-0002-6977-7147
   year: '2026'
-  notes: R package, version 0.0.9000
-repository: https://r-universe.dev
+  notes: R package, version 0.0.9004
+repository: https://bioconductor.org/
 repository-code: https://github.com/adafede/CentroidR
 url: https://adafede.github.io/CentroidR
 contact:
@@ -44,3 +44,176 @@ contact:
 keywords:
 - centroiding
 - spectra
+- centroid
+- mass-spectra
+- mass-spectrometry
+- r
+references:
+- type: software
+  title: 'R: A Language and Environment for Statistical Computing'
+  notes: Depends
+  url: https://www.R-project.org/
+  authors:
+  - name: R Core Team
+    website: https://ror.org/02zz1nj61
+  institution:
+    name: R Foundation for Statistical Computing
+    website: https://ror.org/05qewa988
+    address: Vienna, Austria
+  year: '2026'
+  doi: 10.32614/R.manuals
+  version: '>= 4.5.0'
+- type: software
+  title: BiocParallel
+  abstract: 'BiocParallel: Bioconductor facilities for parallel evaluation'
+  notes: Imports
+  url: https://github.com/Bioconductor/BiocParallel
+  repository: https://bioconductor.org/
+  authors:
+  - family-names: Wang
+    given-names: Jiefei
+    email: jiefei0804@gmail.com
+  - family-names: Morgan
+    given-names: Martin
+    email: mtmorgan.bioc@gmail.com
+  - family-names: Obenchain
+    given-names: Valerie
+  - family-names: Lang
+    given-names: Michel
+    email: michellang@gmail.com
+  - family-names: Thompson
+    given-names: Ryan
+    email: rct@thompsonclan.org
+  - family-names: Turaga
+    given-names: Nitesh
+  year: '2026'
+  doi: 10.18129/B9.bioc.BiocParallel
+  version: '>= 1.44.0'
+- type: software
+  title: logger
+  abstract: 'logger: A Lightweight, Modern and Flexible Logging Utility'
+  notes: Imports
+  url: https://daroczig.github.io/logger/
+  repository: https://CRAN.R-project.org/package=logger
+  authors:
+  - family-names: Daróczi
+    given-names: Gergely
+    email: daroczig@rapporter.net
+    orcid: https://orcid.org/0000-0003-3149-8537
+  - family-names: Wickham
+    given-names: Hadley
+    email: hadley@posit.co
+    orcid: https://orcid.org/0000-0003-4757-117X
+  year: '2026'
+  doi: 10.32614/CRAN.package.logger
+  version: '>= 0.4.2'
+- type: software
+  title: MsCoreUtils
+  abstract: 'MsCoreUtils: Core Utils for Mass Spectrometry Data'
+  notes: Imports
+  url: https://github.com/RforMassSpectrometry/MsCoreUtils
+  repository: https://bioconductor.org/
+  authors:
+  - family-names: Gatto
+    given-names: Laurent
+    email: laurent.gatto@uclouvain.be
+    orcid: https://orcid.org/0000-0002-1520-2268
+  - family-names: Rainer
+    given-names: Johannes
+    email: Johannes.Rainer@eurac.edu
+    orcid: https://orcid.org/0000-0002-6977-7147
+  - family-names: Gibb
+    given-names: Sebastian
+    email: mail@sebastiangibb.de
+    orcid: https://orcid.org/0000-0001-7406-4443
+  - family-names: Louail
+    given-names: Philippine
+    email: philippine.louail@eurac.edu
+    orcid: https://orcid.org/0009-0007-5429-6846
+  - family-names: Rutz
+    given-names: Adriano
+    email: rutz@imsb.biol.ethz.ch
+    orcid: https://orcid.org/0000-0003-0443-9902
+  year: '2026'
+  doi: 10.18129/B9.bioc.MsCoreUtils
+  version: '>= 1.22.1'
+- type: software
+  title: mzR
+  abstract: 'mzR: parser for netCDF, mzXML and mzML and mzIdentML files (mass spectrometry
+    data)'
+  notes: Imports
+  url: https://github.com/sneumann/mzR/
+  repository: https://bioconductor.org/
+  authors:
+  - family-names: Neumann
+    given-names: Steffen
+    email: sneumann@ipb-halle.de
+  - family-names: Gatto
+    given-names: Laurent
+    email: laurent.gatto@uclouvain.be
+  - family-names: Kou
+    given-names: Qiakng
+    email: qkou@umail.iu.edu
+  - family-names: Rainer
+    given-names: Johannes
+    email: Johannes.Rainer@eurac.edu
+    orcid: https://orcid.org/0000-0002-6977-7147
+  year: '2026'
+  doi: 10.18129/B9.bioc.mzR
+  version: '>= 2.44.0'
+- type: software
+  title: optparse
+  abstract: 'optparse: Command Line Option Parser'
+  notes: Imports
+  url: https://trevorldavis.com/R/optparse/
+  repository: https://CRAN.R-project.org/package=optparse
+  authors:
+  - family-names: Davis
+    given-names: Trevor L.
+    email: trevor.l.davis@gmail.com
+    orcid: https://orcid.org/0000-0001-6341-4639
+  - family-names: Day
+    given-names: Allen
+  year: '2026'
+  doi: 10.32614/CRAN.package.optparse
+  version: '>= 1.8.2'
+- type: software
+  title: Spectra
+  abstract: 'Spectra: Spectra Infrastructure for Mass Spectrometry Data'
+  notes: Imports
+  url: https://github.com/RforMassSpectrometry/Spectra
+  repository: https://bioc-release.r-universe.dev
+  authors:
+  - family-names: Gatto
+    given-names: Laurent
+    email: laurent.gatto@uclouvain.be
+    orcid: https://orcid.org/0000-0002-1520-2268
+  - family-names: Rainer
+    given-names: Johannes
+    email: Johannes.Rainer@eurac.edu
+    orcid: https://orcid.org/0000-0002-6977-7147
+  - family-names: Gibb
+    given-names: Sebastian
+    email: mail@sebastiangibb.de
+    orcid: https://orcid.org/0000-0001-7406-4443
+  - family-names: Louail
+    given-names: Philippine
+    email: philippine.louail@eurac.edu
+    orcid: https://orcid.org/0009-0007-5429-6846
+  year: '2026'
+  version: '>= 1.20.1'
+- type: software
+  title: tinytest
+  abstract: 'tinytest: Lightweight and Feature Complete Unit Testing Framework'
+  notes: Suggests
+  url: https://github.com/markvanderloo/tinytest
+  repository: https://CRAN.R-project.org/package=tinytest
+  authors:
+  - family-names: Loo
+    given-names: Mark
+    name-particle: van der
+    email: mark.vanderloo@gmail.com
+    orcid: https://orcid.org/0000-0002-9807-4686
+  year: '2026'
+  doi: 10.32614/CRAN.package.tinytest
+  version: '>= 1.4.3'

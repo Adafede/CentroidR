@@ -9,12 +9,19 @@ make_profile_mzml <- function(mz, intensity) {
     intensity = I(list(intensity))
   )
   infile <- tempfile(pattern = "profile_", fileext = ".mzML")
-  Spectra::export(Spectra::Spectra(spd), file = infile, backend = Spectra::MsBackendMzR())
+  Spectra::export(
+    Spectra::Spectra(spd),
+    file = infile,
+    backend = Spectra::MsBackendMzR()
+  )
   infile
 }
 
 read_centroid_peaks <- function(file) {
-  Spectra::peaksData(Spectra::Spectra(file, backend = Spectra::MsBackendMzR()))[[1]]
+  Spectra::peaksData(Spectra::Spectra(
+    file,
+    backend = Spectra::MsBackendMzR()
+  ))[[1]]
 }
 
 centroid_profile <- function(
@@ -28,10 +35,13 @@ centroid_profile <- function(
 ) {
   infile <- make_profile_mzml(mz, intensity)
   outfile <- sub("profile_", "centroided_", infile, fixed = TRUE)
-  on.exit({
-    unlink(infile)
-    unlink(outfile)
-  }, add = TRUE)
+  on.exit(
+    {
+      unlink(infile)
+      unlink(outfile)
+    },
+    add = TRUE
+  )
 
   expect_true(
     CentroidR::centroid_one_file(

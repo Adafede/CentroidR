@@ -133,9 +133,10 @@ for (i in seq_len(3)) {
 expect_true(all(res$centroided))
 
 ## The per-chunk temporary directory is cleaned up on exit.
+## No top level on.exit() here: in tinytest's evaluation context it can fire
+## before the assertions below run, which would make them vacuous.
 outd <- tempfile("batch_clean_")
 dir.create(outd)
-on.exit(unlink(outd, recursive = TRUE), add = TRUE)
 invisible(.process_spectra_batches(
   spectra = make_spectra(3),
   outf = file.path(outd, "out.mzML"),
@@ -156,8 +157,9 @@ invisible(.process_spectra_batches(
   batch_size = 2L
 ))
 centroidr_reset_logging()
-expect_false(dir.exists(file.path(outd, "tmp")))
 expect_true(file.exists(file.path(outd, "out.mzML")))
+expect_false(dir.exists(file.path(outd, "tmp")))
+unlink(outd, recursive = TRUE)
 
 ## ---------------------------------------------------------------------------
 ## MS levels are kept apart across chunk boundaries

@@ -123,6 +123,9 @@ centroid_one_file <- function(
   if (!dir.exists(outd)) {
     dir.create(path = outd, recursive = TRUE)
   }
+  # Start the provenance log before anything is logged, so that the entries
+  # below reach the log file and not only the console.
+  setup_logger(dir = outd)
   logger::log_info("Processing mzML file: {file}")
 
   # Logging parameter settings

@@ -315,3 +315,48 @@ expect_false(any(abs(rt2[, "mz"] - 500) < 1))
 ## The MS2 peaks appear exactly once in the whole output, on their own spectrum.
 all_mz <- sort(unlist(lapply(Spectra::peaksData(inter_out), function(p) p[, "mz"])))
 expect_equal(sum(abs(all_mz - 500.0005) < 1e-6), 1L)
+
+## ---------------------------------------------------------------------------
+## order_map must describe the processed result
+## ---------------------------------------------------------------------------
+## .process_spectra() supplies the map that ties each processed spectrum back to
+## its input. A map of the wrong length would silently restore the wrong peaks,
+## so the length is validated before anything is used.
+
+expect_error(
+  .keep_empty(orig, empty_spectra(2L), order_map = 1L),
+  info = "a short order_map must be rejected"
+)
+expect_error(
+  .keep_empty(orig, empty_spectra(2L), order_map = c(1L, 2L, 3L)),
+  info = "a long order_map must be rejected"
+)
+expect_error(
+  .keep_empty(orig, empty_spectra(2L), order_map = integer(0))
+)
+
+## The check only fires when a spectrum actually has to be restored; a consistent
+## map is accepted.
+expect_equal(
+  length(.keep_empty(orig, empty_spectra(2L), order_map = c(1L, 2L))),
+  2L
+)
+
+## order_map also reorders: passing a reversed map swaps which original peaks
+## are used, which is exactly the mapping the pipeline relies on.
+reversed <- .keep_empty(orig, empty_spectra(2L), order_map = c(2L, 1L))
+expect_equal(as.numeric(Spectra::peaksData(reversed)[[1]][, "mz"]), c(200, 200.001))
+expect_equal(as.numeric(Spectra::peaksData(reversed)[[2]][, "mz"]), c(100, 100.001))
+
+## ---------------------------------------------------------------------------
+## An original spectrum that is itself empty stays empty
+## ---------------------------------------------------------------------------
+## Restoring an empty spectrum must not invent peaks for it.
+
+orig_empty_one <- make_spectra(
+  list(c(100, 100.001), numeric(0)),
+  list(c(1, 10), numeric(0))
+)
+restored_empty <- .keep_empty(orig_empty_one, empty_spectra(2L))
+expect_equal(nrow(Spectra::peaksData(restored_empty)[[1]]), 2L)
+expect_equal(nrow(Spectra::peaksData(restored_empty)[[2]]), 0L)

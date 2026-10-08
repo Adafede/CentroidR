@@ -79,3 +79,52 @@ writeLines(
 fixed <- readLines(xml, warn = FALSE)
 expect_true(any(grepl('value="NaN"', fixed, fixed = TRUE)))
 expect_true(any(grepl(basename(xml), fixed, fixed = TRUE)))
+
+## ---------------------------------------------------------------------------
+## The exported output really is passed through .fix_xml
+## ---------------------------------------------------------------------------
+## centroid_one_file() rewrites the exported mzML with .fix_xml(), replacing the
+## placeholder run id with the output file name. The existing test only checks
+## .fix_xml() in isolation, which cannot see whether the pipeline calls it.
+
+.fix_xml <- getFromNamespace(".fix_xml", "CentroidR")
+
+fix_infile <- tempfile(pattern = "profile_", fileext = ".mzML")
+Spectra::export(sp, file = fix_infile, backend = Spectra::MsBackendMzR())
+fix_outfile <- sub("profile_", "centroided_", fix_infile, fixed = TRUE)
+expect_equal(
+  CentroidR::centroid_one_file(
+    file = fix_infile,
+    pattern = "profile_",
+    replacement = "centroided_"
+  ),
+  TRUE
+)
+centroidr_reset_logging()
+expect_true(file.exists(fix_outfile))
+fixed_lines <- readLines(fix_outfile, warn = FALSE)
+
+## The run id now carries the output file name rather than the placeholder.
+expect_true(any(grepl(basename(fix_outfile), fixed_lines, fixed = TRUE)))
+expect_false(any(grepl("<run id=\"Experiment_1\"", fixed_lines, fixed = TRUE)))
+
+## The rewritten file is still readable by the mzML backend.
+expect_equal(length(Spectra::Spectra(fix_outfile, backend = Spectra::MsBackendMzR())), 3L)
+
+unlink(c(fix_infile, fix_outfile, file.path(dirname(fix_infile), "centroiding.log")))
+
+## ---------------------------------------------------------------------------
+## .fix_xml leaves no temporary file behind
+## ---------------------------------------------------------------------------
+
+tf <- tempfile(fileext = ".mzML")
+writeLines(
+  c('<?xml version="1.0" encoding="UTF-8"?>', '<mzML>', '<run id="Experiment_1"/>', '</mzML>'),
+  tf
+)
+before <- length(list.files(tempdir(), pattern = "^file"))
+.fix_xml(tf)
+after <- length(list.files(tempdir(), pattern = "^file"))
+expect_equal(after, before, info = ".fix_xml should remove its temporary file")
+expect_true(file.exists(tf), info = ".fix_xml should keep the file it rewrote")
+unlink(tf)

@@ -464,7 +464,7 @@ setup_logger <- function(
       weighted = mz_weighted,
       timeDomain = time_domain,
       intensity_exponent = intensity_exponent,
-      msLevel = 2L
+      msLevel. = 2L
     ) |>
     Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
     Spectra::applyProcessing()
@@ -479,7 +479,7 @@ setup_logger <- function(
       weighted = mz_weighted,
       timeDomain = time_domain,
       intensity_exponent = intensity_exponent,
-      msLevel = 1L
+      msLevel. = 1L
     ) |>
     Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
     Spectra::applyProcessing()

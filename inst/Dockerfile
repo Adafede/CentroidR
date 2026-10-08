@@ -1,11 +1,17 @@
-FROM bioconductor/bioconductor_docker:RELEASE_3_22-R-4.5.2
+FROM bioconductor/bioconductor_docker:RELEASE_3_23-R-4.6.0
 
-# Install R dependencies
-RUN Rscript -e "devtools::install_github('adafede/CentroidR')"
-# RUN Rscript -e "install.packages('CentroidR', repos = c('https://adafede.r-universe.dev', 'https://bioc.r-universe.dev', 'https://cran.r-universe.dev'))"
+# Invalidate Docker layer cache when a new commit is pushed
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=${GIT_COMMIT}
 
-# Copy the script
-COPY inst/scripts/centroiding.R centroiding.R
+# Install CentroidR and force latest GitHub version
+RUN Rscript -e "install.packages('remotes')" && \
+    Rscript -e "remotes::install_github('adafede/CentroidR', force = TRUE)"
 
-# Define default command
-# CMD ["Rscript", "centroiding.R"]
+# Copy script
+COPY inst/scripts/centroiding.R /home/bioc-user/centroiding.R
+
+WORKDIR /home/bioc-user
+
+# Default command
+CMD ["Rscript", "centroiding.R"]

@@ -14,6 +14,10 @@
 
 library(tinytest)
 
+## Repairs the global logger appender that setup_logger() installs and never
+## removes; see helper-logging.R.
+source("helper-logging.R")
+
 .keep_empty <- getFromNamespace(".keep_empty", "CentroidR")
 .process_spectra <- getFromNamespace(".process_spectra", "CentroidR")
 

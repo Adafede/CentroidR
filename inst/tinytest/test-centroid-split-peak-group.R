@@ -8,6 +8,10 @@
 
 library(tinytest)
 
+## Repairs the global logger appender that setup_logger() installs and never
+## removes; see helper-logging.R.
+source("helper-logging.R")
+
 .split_peak_group <- getFromNamespace(".split_peak_group", "CentroidR")
 
 peak_centroid <- function(int_raw, idx, exponent = 3) {

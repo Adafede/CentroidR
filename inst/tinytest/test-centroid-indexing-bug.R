@@ -22,6 +22,10 @@
 
 library(tinytest)
 
+## Repairs the global logger appender that setup_logger() installs and never
+## removes; see helper-logging.R.
+source("helper-logging.R")
+
 # ============================================================================
 # TEST 1: Show why the intensity weighting formula was wrong
 # ============================================================================

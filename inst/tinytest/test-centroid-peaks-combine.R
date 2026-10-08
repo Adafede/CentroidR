@@ -7,6 +7,10 @@
 
 library(tinytest)
 
+## Repairs the global logger appender that setup_logger() installs and never
+## removes; see helper-logging.R.
+source("helper-logging.R")
+
 .peaks_combine <- getFromNamespace(".peaks_combine", "CentroidR")
 
 pk <- function(mz, intensity) cbind(mz = mz, intensity = intensity)

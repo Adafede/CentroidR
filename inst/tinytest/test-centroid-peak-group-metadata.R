@@ -7,6 +7,10 @@
 
 library(tinytest)
 
+## Repairs the global logger appender that setup_logger() installs and never
+## removes; see helper-logging.R.
+source("helper-logging.R")
+
 .peak_group_metadata <- getFromNamespace(".peak_group_metadata", "CentroidR")
 
 ## ---------------------------------------------------------------------------

@@ -12,6 +12,8 @@ library(tinytest)
 .onLoad <- getFromNamespace(".onLoad", "CentroidR")
 .onAttach <- getFromNamespace(".onAttach", "CentroidR")
 
+source("helper-logging.R")
+
 expect_equal(.split_peak_group(1:2, c(10, 20)), list(1:2))
 expect_equal(.split_peak_group(1:5, c(1, 4, 3, 4, 1)), list(1:5))
 expect_equal(
@@ -86,6 +88,7 @@ expect_equal(
   ),
   TRUE
 )
+centroidr_reset_logging()
 expect_equal(
   CentroidR::centroid_one_file(
     file = tempfile(fileext = ".mzML"),
@@ -94,6 +97,7 @@ expect_equal(
   ),
   FALSE
 )
+centroidr_reset_logging()
 expect_error(
   CentroidR::centroid_one_file(
     file = 1,

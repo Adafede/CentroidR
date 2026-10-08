@@ -15,6 +15,12 @@ library(tinytest)
   "CentroidR"
 )
 
+## setup_logger() installs a file appender pointing into the output directory
+## and never removes it, so once that directory is deleted any later logging
+## would fail with "cannot open the connection". Reset the logger to the console
+## right after each run, while the output directory still exists.
+source("helper-logging.R")
+
 make_spectra <- function(n) {
   Spectra::Spectra(data.frame(
     msLevel = 1L,
@@ -57,6 +63,7 @@ run_batches <- function(spectra, batch_size, tag) {
   expect_true(file.exists(outf))
   ## Force the peak data now: MsBackendMzR reads lazily, so anything not
   ## materialised here would fail once the temporary directory is removed.
+  centroidr_reset_logging()
   out <- Spectra::Spectra(outf, backend = Spectra::MsBackendMzR())
   peaks <- Spectra::peaksData(out)
   list(
@@ -129,7 +136,7 @@ expect_true(all(res$centroided))
 outd <- tempfile("batch_clean_")
 dir.create(outd)
 on.exit(unlink(outd, recursive = TRUE), add = TRUE)
-.process_spectra_batches(
+invisible(.process_spectra_batches(
   spectra = make_spectra(3),
   outf = file.path(outd, "out.mzML"),
   outd = outd,
@@ -147,7 +154,8 @@ on.exit(unlink(outd, recursive = TRUE), add = TRUE)
   time_domain = FALSE,
   intensity_exponent = 3,
   batch_size = 2L
-)
+))
+centroidr_reset_logging()
 expect_false(dir.exists(file.path(outd, "tmp")))
 expect_true(file.exists(file.path(outd, "out.mzML")))
 

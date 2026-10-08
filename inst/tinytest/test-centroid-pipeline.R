@@ -3,6 +3,8 @@ library(tinytest)
 .process_spectra <- getFromNamespace(".process_spectra", "CentroidR")
 .fix_xml <- getFromNamespace(".fix_xml", "CentroidR")
 
+source("helper-logging.R")
+
 make_test_spectra <- function() {
   spd <- data.frame(
     msLevel = c(1L, 2L, 1L),
@@ -55,6 +57,7 @@ expect_equal(
   ),
   TRUE
 )
+centroidr_reset_logging()
 
 outf <- sub("profile_", "centroided_", infile, fixed = TRUE)
 expect_true(file.exists(outf))

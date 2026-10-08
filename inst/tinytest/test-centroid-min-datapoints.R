@@ -10,6 +10,8 @@
 
 library(tinytest)
 
+source("helper-logging.R")
+
 write_profile_mzml <- function(mzs, intensities, tag) {
   infile <- tempfile(pattern = paste0("profile_", tag, "_"), fileext = ".mzML")
   Spectra::export(
@@ -43,7 +45,9 @@ centroid <- function(mzs, intensities, tag, ...) {
     ),
     info = "centroiding should succeed"
   )
-  read_peaks(outfile)
+  pk <- read_peaks(outfile)
+  centroidr_reset_logging()
+  pk
 }
 
 ## ---------------------------------------------------------------------------

@@ -112,11 +112,11 @@ centroid_one_file <- function(
 
   # Input validation for file existence
   if (!file.exists(file)) {
-    logger::log_error("Input file does not exist: {file}")
+    logger::log_error(paste0("Input file does not exist: ", file))
     return(FALSE)
   }
   if (file.exists(outf)) {
-    logger::log_info("Skipping. Output file already exists: {outf}")
+    logger::log_info(paste0("Skipping. Output file already exists: ", outf))
     return(TRUE)
   }
   # Ensure output directory exists
@@ -126,9 +126,16 @@ centroid_one_file <- function(
   # Start the provenance log before anything is logged, so that the entries
   # below reach the log file and not only the console.
   setup_logger(dir = outd)
-  logger::log_info("Processing mzML file: {file}")
+  logger::log_info(paste0("Processing mzML file: ", file))
 
   # Logging parameter settings
+  # deparse() returns one element per source line, so a function argument can
+  # come back as a multi element character vector. The log entry has to be a
+  # single line, so collapse it here rather than let the logger deal with a
+  # length > 1 value.
+  fun_label <- function(f) {
+    paste(deparse(f), collapse = " ")
+  }
   params <- list(
     "min datapoints MS1" = min_datapoints_ms1,
     "min datapoints MS2" = min_datapoints_ms2,
@@ -136,21 +143,24 @@ centroid_one_file <- function(
     "m/z tolerance (Da, MS2)" = mz_tol_da_ms2,
     "m/z tolerance (ppm, MS1)" = mz_tol_ppm_ms1,
     "m/z tolerance (ppm, MS2)" = mz_tol_ppm_ms2,
-    "m/z function (MS1)" = deparse(mz_fun_ms1),
-    "m/z function (MS2)" = deparse(mz_fun_ms2),
-    "Intensity function (MS1)" = deparse(int_fun_ms1),
-    "Intensity function (MS2)" = deparse(int_fun_ms2),
+    "m/z function (MS1)" = fun_label(mz_fun_ms1),
+    "m/z function (MS2)" = fun_label(mz_fun_ms2),
+    "Intensity function (MS1)" = fun_label(int_fun_ms1),
+    "Intensity function (MS2)" = fun_label(int_fun_ms2),
     "m/z weighted" = mz_weighted,
     "Time domain" = time_domain,
     "Intensity exponent" = intensity_exponent
   )
   for (param in names(params)) {
-    logger::log_info("{param} : {params[[param]]}")
+    logger::log_info(paste0(param, " : ", params[[param]]))
   }
 
   tryCatch(
     {
-      logger::log_trace("Starting centroiding process for: {basename(file)}")
+      logger::log_trace(paste0(
+        "Starting centroiding process for: ",
+        basename(file)
+      ))
       sp <- file |>
         Spectra::Spectra(
           backend = Spectra::MsBackendMzR(),
@@ -210,7 +220,14 @@ centroid_one_file <- function(
       )
     },
     error = function(e) {
-      logger::log_error("Error processing {basename(file)}: {e$message}")
+      logger::log_error(
+        paste0(
+          "Error processing ",
+          basename(file),
+          ": ",
+          conditionMessage(e)
+        )
+      )
       return(FALSE)
     }
   )
@@ -413,7 +430,9 @@ setup_logger <- function(
   processed_peaks <- Spectra::peaksData(processed)
   is_empty <- lengths(processed_peaks) == 0L
   if (any(is_empty)) {
-    logger::log_trace("Restoring {sum(is_empty)} empty spectra to original")
+    logger::log_trace(
+      paste0("Restoring ", sum(is_empty), " empty spectra to original")
+    )
     if (length(order_map) != length(processed_peaks)) {
       stop(
         "order_map must have one entry per processed spectrum, got ",
@@ -549,7 +568,9 @@ setup_logger <- function(
     idx <- start_idx:min(start_idx + batch_size - 1L, length(spectra))
     sp_batch <- spectra[idx] |>
       Spectra::setBackend(Spectra::MsBackendMemory())
-    logger::log_trace("Processing batch {i} / {length(batch_starts)}")
+    logger::log_trace(
+      paste0("Processing batch ", i, " / ", length(batch_starts))
+    )
     result <- .process_spectra(
       spectra = sp_batch,
       mz_tol_da_ms1 = mz_tol_da_ms1,
@@ -578,13 +599,13 @@ setup_logger <- function(
   temp_files <- unlist(temp_files, use.names = FALSE)
   logger::log_trace("Concatenating all processed batches")
   sp_cen <- Spectra::Spectra(temp_files, backend = Spectra::MsBackendMzR())
-  logger::log_trace("Exporting: {basename(outf)}")
+  logger::log_trace(paste0("Exporting: ", basename(outf)))
   Spectra::export(sp_cen, file = outf, backend = Spectra::MsBackendMzR())
   rm(sp_cen)
-  logger::log_trace("Exported: {basename(outf)}")
-  logger::log_trace("Making a few fixes inside mzML: {basename(outf)}")
+  logger::log_trace(paste0("Exported: ", basename(outf)))
+  logger::log_trace(paste0("Making a few fixes inside mzML: ", basename(outf)))
   .fix_xml(outf)
-  logger::log_trace("Made fixes inside mzML: {basename(outf)}")
-  logger::log_success("Successfully centroided: {basename(outf)}")
+  logger::log_trace(paste0("Made fixes inside mzML: ", basename(outf)))
+  logger::log_success(paste0("Successfully centroided: ", basename(outf)))
   TRUE
 }

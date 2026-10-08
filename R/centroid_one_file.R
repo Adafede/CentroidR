@@ -406,12 +406,18 @@ setup_logger <- function(
 }
 
 #' @noRd
-.keep_empty <- function(original, processed) {
+.keep_empty <- function(original, processed, order_map = seq_along(processed)) {
   processed_peaks <- Spectra::peaksData(processed)
   is_empty <- lengths(processed_peaks) == 0L
   if (any(is_empty)) {
     logger::log_trace("Restoring {sum(is_empty)} empty spectra to original")
-    original_peaks <- Spectra::peaksData(original)
+    if (length(order_map) != length(processed_peaks)) {
+      stop(
+        "order_map must have one entry per processed spectrum, got ",
+        length(order_map), " and ", length(processed_peaks), "."
+      )
+    }
+    original_peaks <- Spectra::peaksData(original)[order_map]
     empty_indices <- which(is_empty)
     restored_peaks <- lapply(empty_indices, function(i) {
       pk <- original_peaks[[i]]
@@ -440,6 +446,13 @@ setup_logger <- function(
   time_domain,
   intensity_exponent = 3
 ) {
+  ## concatenateSpectra() below emits the MS1 spectra before the MS2 spectra, so
+  ## the processed order only matches the acquisition order when the input is
+  ## already grouped by MS level. Record which input spectrum each processed
+  ## spectrum came from so .keep_empty() can restore the right one.
+  ms_levels <- Spectra::msLevel(spectra)
+  order_map <- c(which(ms_levels == 1L), which(ms_levels == 2L))
+
   centroided_2 <- spectra |>
     Spectra::filterMsLevel(2L) |>
     Spectra::addProcessing(
@@ -451,7 +464,7 @@ setup_logger <- function(
       weighted = mz_weighted,
       timeDomain = time_domain,
       intensity_exponent = intensity_exponent,
-      msLevel. = 2L
+      msLevel = 2L
     ) |>
     Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
     Spectra::applyProcessing()
@@ -466,12 +479,23 @@ setup_logger <- function(
       weighted = mz_weighted,
       timeDomain = time_domain,
       intensity_exponent = intensity_exponent,
-      msLevel. = 1L
+      msLevel = 1L
     ) |>
     Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
     Spectra::applyProcessing()
   centroided <- Spectra::concatenateSpectra(centroided_1, centroided_2)
-  .keep_empty(spectra, centroided)
+  if (length(order_map) == length(centroided)) {
+    .keep_empty(spectra, centroided, order_map)
+  } else {
+    ## Input carried MS levels other than 1 and 2, which are not centroided and
+    ## therefore absent from the result. Position based restoring cannot be
+    ## trusted here, so the result is returned as is.
+    logger::log_warn(
+      "Input contains MS levels other than 1 and 2; empty spectra are not ",
+      "restored."
+    )
+    centroided
+  }
 }
 
 #' @noRd

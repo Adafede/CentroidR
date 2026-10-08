@@ -2,7 +2,7 @@
 name: docker
 
 permissions:
-  contents: read-all
+  contents: read
 
 on:
   push:

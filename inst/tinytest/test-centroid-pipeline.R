@@ -109,9 +109,16 @@ expect_true(any(grepl(basename(fix_outfile), fixed_lines, fixed = TRUE)))
 expect_false(any(grepl("<run id=\"Experiment_1\"", fixed_lines, fixed = TRUE)))
 
 ## The rewritten file is still readable by the mzML backend.
-expect_equal(length(Spectra::Spectra(fix_outfile, backend = Spectra::MsBackendMzR())), 3L)
+expect_equal(
+  length(Spectra::Spectra(fix_outfile, backend = Spectra::MsBackendMzR())),
+  3L
+)
 
-unlink(c(fix_infile, fix_outfile, file.path(dirname(fix_infile), "centroiding.log")))
+unlink(c(
+  fix_infile,
+  fix_outfile,
+  file.path(dirname(fix_infile), "centroiding.log")
+))
 
 ## ---------------------------------------------------------------------------
 ## .fix_xml leaves no temporary file behind
@@ -119,7 +126,12 @@ unlink(c(fix_infile, fix_outfile, file.path(dirname(fix_infile), "centroiding.lo
 
 tf <- tempfile(fileext = ".mzML")
 writeLines(
-  c('<?xml version="1.0" encoding="UTF-8"?>', '<mzML>', '<run id="Experiment_1"/>', '</mzML>'),
+  c(
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<mzML>',
+    '<run id="Experiment_1"/>',
+    '</mzML>'
+  ),
   tf
 )
 before <- length(list.files(tempdir(), pattern = "^file"))

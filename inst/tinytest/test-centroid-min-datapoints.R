@@ -69,7 +69,13 @@ ints <- list(
 ## The default MS1 threshold of 5: the 3-point group falls short, so it is left
 ## uncentroided and its original three points come back via .keep_empty, while
 ## the 5-point group is centroided into a single peak.
-below <- centroid(mzs, ints, tag = "below", min_datapoints_ms1 = 5L, min_datapoints_ms2 = 5L)
+below <- centroid(
+  mzs,
+  ints,
+  tag = "below",
+  min_datapoints_ms1 = 5L,
+  min_datapoints_ms2 = 5L
+)
 expect_equal(length(below), 2L)
 
 expect_equal(nrow(below[[1]]), 3L)
@@ -82,7 +88,13 @@ expect_equal(as.numeric(below[[2]][1, "intensity"]), 50)
 
 ## Lowering the threshold to 3 lets the short group through, so BOTH spectra are
 ## centroided to a single peak with the apex intensity.
-at <- centroid(mzs, ints, tag = "at", min_datapoints_ms1 = 3L, min_datapoints_ms2 = 3L)
+at <- centroid(
+  mzs,
+  ints,
+  tag = "at",
+  min_datapoints_ms1 = 3L,
+  min_datapoints_ms2 = 3L
+)
 expect_equal(length(at), 2L)
 expect_equal(nrow(at[[1]]), 1L)
 expect_true(abs(at[[1]][1, "mz"] - 100.0005) < 1e-3)
@@ -92,12 +104,24 @@ expect_true(abs(at[[2]][1, "mz"] - 200.0011) < 1e-3)
 expect_equal(as.numeric(at[[2]][1, "intensity"]), 50)
 
 ## A threshold of 1 centroids everything.
-loose <- centroid(mzs, ints, tag = "loose", min_datapoints_ms1 = 1L, min_datapoints_ms2 = 1L)
+loose <- centroid(
+  mzs,
+  ints,
+  tag = "loose",
+  min_datapoints_ms1 = 1L,
+  min_datapoints_ms2 = 1L
+)
 expect_equal(nrow(loose[[1]]), 1L)
 expect_equal(nrow(loose[[2]]), 1L)
 
 ## A threshold above every group leaves both spectra uncentroided.
-tight <- centroid(mzs, ints, tag = "tight", min_datapoints_ms1 = 99L, min_datapoints_ms2 = 99L)
+tight <- centroid(
+  mzs,
+  ints,
+  tag = "tight",
+  min_datapoints_ms1 = 99L,
+  min_datapoints_ms2 = 99L
+)
 expect_equal(nrow(tight[[1]]), 3L)
 expect_equal(nrow(tight[[2]]), 5L)
 

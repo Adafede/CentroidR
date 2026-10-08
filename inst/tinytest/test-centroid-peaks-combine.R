@@ -29,7 +29,11 @@ combine <- function(x, ...) {
 ## ---------------------------------------------------------------------------
 
 ## 0.0005 Da apart, tolerance 0.0025 -> single peak
-one_peak <- combine(pk(c(100, 100.0005, 100.001), c(1, 10, 1)), tolerance = 0.0025, ppm = 0)
+one_peak <- combine(
+  pk(c(100, 100.0005, 100.001), c(1, 10, 1)),
+  tolerance = 0.0025,
+  ppm = 0
+)
 expect_equal(nrow(one_peak), 1L)
 expect_equal(as.numeric(one_peak[1, "mz"]), 100.0005)
 expect_equal(one_peak[1, "intensity"], 10)
@@ -47,7 +51,11 @@ expect_equal(as.numeric(edge[1, "mz"]), 100.00125)
 expect_equal(edge[1, "intensity"], 10)
 
 ## Just beyond the edge: 0.0026 Da span must NOT merge
-just_beyond <- combine(pk(c(100, 100.0026), c(1, 10)), tolerance = 0.0025, ppm = 0)
+just_beyond <- combine(
+  pk(c(100, 100.0026), c(1, 10)),
+  tolerance = 0.0025,
+  ppm = 0
+)
 expect_equal(nrow(just_beyond), 2L)
 
 ## ---------------------------------------------------------------------------
@@ -55,7 +63,11 @@ expect_equal(nrow(just_beyond), 2L)
 ## ---------------------------------------------------------------------------
 
 ## 0.0005 Da = 5 ppm at m/z 100 -> merges under 20 ppm
-ppm_merge <- combine(pk(c(100, 100.0005, 100.001), c(1, 10, 1)), tolerance = 0, ppm = 20)
+ppm_merge <- combine(
+  pk(c(100, 100.0005, 100.001), c(1, 10, 1)),
+  tolerance = 0,
+  ppm = 20
+)
 expect_equal(nrow(ppm_merge), 1L)
 expect_equal(as.numeric(ppm_merge[1, "mz"]), 100.0005)
 expect_equal(ppm_merge[1, "intensity"], 10)
@@ -148,7 +160,11 @@ expect_equal(colnames(empty_out), c("mz", "intensity"))
 ## Peak lists whose m/z values are all distinct are returned unchanged
 ## ---------------------------------------------------------------------------
 
-no_dups <- combine(pk(c(100, 200, 300), c(1, 10, 100)), tolerance = 0.0025, ppm = 0)
+no_dups <- combine(
+  pk(c(100, 200, 300), c(1, 10, 100)),
+  tolerance = 0.0025,
+  ppm = 0
+)
 expect_equal(nrow(no_dups), 3L)
 expect_equal(as.numeric(no_dups[, "mz"]), c(100, 200, 300))
 expect_equal(as.numeric(no_dups[, "intensity"]), c(1, 10, 100))
@@ -159,11 +175,22 @@ expect_equal(colnames(no_dups), c("mz", "intensity"))
 ## the caller's peak matrix carried (NULL for a bare cbind), not the "1","2",...
 ## labels that the grouping path would attach.
 expect_null(rownames(no_dups))
-expect_equal(rownames(combine(pk(c(100, 200, 300), c(1, 10, 100)), tolerance = 0.0025, ppm = 0)), NULL)
+expect_equal(
+  rownames(combine(
+    pk(c(100, 200, 300), c(1, 10, 100)),
+    tolerance = 0.0025,
+    ppm = 0
+  )),
+  NULL
+)
 
 ## Once any m/z values do collide, the grouping path runs and the result does
 ## carry positional row names.
-with_dups <- combine(pk(c(100, 100.0005, 200), c(1, 10, 100)), tolerance = 0.0025, ppm = 0)
+with_dups <- combine(
+  pk(c(100, 100.0005, 200), c(1, 10, 100)),
+  tolerance = 0.0025,
+  ppm = 0
+)
 expect_equal(nrow(with_dups), 2L)
 expect_equal(rownames(with_dups), c("1", "2"))
 

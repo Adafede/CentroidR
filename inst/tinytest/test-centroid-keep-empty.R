@@ -48,10 +48,22 @@ emptied <- empty_spectra(2L)
 restored <- .keep_empty(orig, emptied)
 expect_equal(length(restored), 2L)
 expect_equal(nrow(Spectra::peaksData(restored)[[1]]), 2L)
-expect_equal(as.numeric(Spectra::peaksData(restored)[[1]][, "mz"]), c(100, 100.001))
-expect_equal(as.numeric(Spectra::peaksData(restored)[[1]][, "intensity"]), c(1, 10))
-expect_equal(as.numeric(Spectra::peaksData(restored)[[2]][, "mz"]), c(200, 200.001))
-expect_equal(as.numeric(Spectra::peaksData(restored)[[2]][, "intensity"]), c(5, 20))
+expect_equal(
+  as.numeric(Spectra::peaksData(restored)[[1]][, "mz"]),
+  c(100, 100.001)
+)
+expect_equal(
+  as.numeric(Spectra::peaksData(restored)[[1]][, "intensity"]),
+  c(1, 10)
+)
+expect_equal(
+  as.numeric(Spectra::peaksData(restored)[[2]][, "mz"]),
+  c(200, 200.001)
+)
+expect_equal(
+  as.numeric(Spectra::peaksData(restored)[[2]][, "intensity"]),
+  c(5, 20)
+)
 
 ## The restored peaks are the ORIGINAL ones, not reprocessed ones: a group
 ## whose points are 0.001 Da apart is restored unmerged.
@@ -108,7 +120,10 @@ mixed_in@backend@peaksData <- c(
 mixed_out <- .keep_empty(orig, half)
 expect_equal(nrow(Spectra::peaksData(mixed_out)[[1]]), 2L)
 expect_equal(nrow(Spectra::peaksData(mixed_out)[[2]]), 2L)
-expect_equal(as.numeric(Spectra::peaksData(mixed_out)[[2]][, "mz"]), c(500, 500.001))
+expect_equal(
+  as.numeric(Spectra::peaksData(mixed_out)[[2]][, "mz"]),
+  c(500, 500.001)
+)
 
 ## ---------------------------------------------------------------------------
 ## .process_spectra: grouping is governed by the MS1 tolerance
@@ -121,11 +136,16 @@ max_fun <- function(intensities) {
 process_ms1 <- function(ms, tol_da, tol_ppm = 0) {
   .process_spectra(
     ms,
-    mz_tol_da_ms1 = tol_da, mz_tol_da_ms2 = tol_da,
-    mz_tol_ppm_ms1 = tol_ppm, mz_tol_ppm_ms2 = tol_ppm,
-    custom_int_fun_ms1 = max_fun, custom_int_fun_ms2 = max_fun,
-    mz_fun_ms1 = base::mean, mz_fun_ms2 = base::mean,
-    mz_weighted = TRUE, time_domain = FALSE
+    mz_tol_da_ms1 = tol_da,
+    mz_tol_da_ms2 = tol_da,
+    mz_tol_ppm_ms1 = tol_ppm,
+    mz_tol_ppm_ms2 = tol_ppm,
+    custom_int_fun_ms1 = max_fun,
+    custom_int_fun_ms2 = max_fun,
+    mz_fun_ms1 = base::mean,
+    mz_fun_ms2 = base::mean,
+    mz_weighted = TRUE,
+    time_domain = FALSE
   )
 }
 
@@ -149,8 +169,14 @@ expect_equal(as.numeric(Spectra::peaksData(merged)[[2]][, "intensity"]), 25)
 ## A tolerance below the 0.0005 Da spacing leaves both points as separate peaks.
 unmerged <- process_ms1(ms1, tol_da = 0.0001)
 expect_equal(nrow(Spectra::peaksData(unmerged)[[1]]), 2L)
-expect_equal(as.numeric(Spectra::peaksData(unmerged)[[1]][, "mz"]), c(100, 100.0005))
-expect_equal(as.numeric(Spectra::peaksData(unmerged)[[1]][, "intensity"]), c(10, 50))
+expect_equal(
+  as.numeric(Spectra::peaksData(unmerged)[[1]][, "mz"]),
+  c(100, 100.0005)
+)
+expect_equal(
+  as.numeric(Spectra::peaksData(unmerged)[[1]][, "intensity"]),
+  c(10, 50)
+)
 
 ## The same is reachable through the ppm tolerance, which is independent of Da.
 ppm_merged <- process_ms1(ms1, tol_da = 0, tol_ppm = 50)
@@ -200,11 +226,16 @@ ms2 <- make_spectra(
 )
 out2 <- .process_spectra(
   ms2,
-  mz_tol_da_ms1 = 0.01, mz_tol_da_ms2 = 0.01,
-  mz_tol_ppm_ms1 = 0, mz_tol_ppm_ms2 = 0,
-  custom_int_fun_ms1 = max_fun, custom_int_fun_ms2 = max_fun,
-  mz_fun_ms1 = base::mean, mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE, time_domain = FALSE
+  mz_tol_da_ms1 = 0.01,
+  mz_tol_da_ms2 = 0.01,
+  mz_tol_ppm_ms1 = 0,
+  mz_tol_ppm_ms2 = 0,
+  custom_int_fun_ms1 = max_fun,
+  custom_int_fun_ms2 = max_fun,
+  mz_fun_ms1 = base::mean,
+  mz_fun_ms2 = base::mean,
+  mz_weighted = TRUE,
+  time_domain = FALSE
 )
 expect_equal(length(out2), 2L)
 expect_equal(Spectra::msLevel(out2), c(2L, 2L))
@@ -219,11 +250,16 @@ expect_equal(as.numeric(Spectra::peaksData(out2)[[2]][, "intensity"]), 600)
 ## it, and widening the MS1 tolerance must not change the MS2 result.
 out2_wide_ms1 <- .process_spectra(
   ms2,
-  mz_tol_da_ms1 = 1000, mz_tol_da_ms2 = 0.01,
-  mz_tol_ppm_ms1 = 0, mz_tol_ppm_ms2 = 0,
-  custom_int_fun_ms1 = max_fun, custom_int_fun_ms2 = max_fun,
-  mz_fun_ms1 = base::mean, mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE, time_domain = FALSE
+  mz_tol_da_ms1 = 1000,
+  mz_tol_da_ms2 = 0.01,
+  mz_tol_ppm_ms1 = 0,
+  mz_tol_ppm_ms2 = 0,
+  custom_int_fun_ms1 = max_fun,
+  custom_int_fun_ms2 = max_fun,
+  mz_fun_ms1 = base::mean,
+  mz_fun_ms2 = base::mean,
+  mz_weighted = TRUE,
+  time_domain = FALSE
 )
 expect_equal(nrow(Spectra::peaksData(out2_wide_ms1)[[1]]), 1L)
 expect_equal(
@@ -239,15 +275,23 @@ out2_wide_ms2 <- .process_spectra(
     list(c(10, 400, 20)),
     ms_level = 2L
   ),
-  mz_tol_da_ms1 = 0.01, mz_tol_da_ms2 = 1000,
-  mz_tol_ppm_ms1 = 0, mz_tol_ppm_ms2 = 0,
-  custom_int_fun_ms1 = max_fun, custom_int_fun_ms2 = max_fun,
-  mz_fun_ms1 = base::mean, mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE, time_domain = FALSE
+  mz_tol_da_ms1 = 0.01,
+  mz_tol_da_ms2 = 1000,
+  mz_tol_ppm_ms1 = 0,
+  mz_tol_ppm_ms2 = 0,
+  custom_int_fun_ms1 = max_fun,
+  custom_int_fun_ms2 = max_fun,
+  mz_fun_ms1 = base::mean,
+  mz_fun_ms2 = base::mean,
+  mz_weighted = TRUE,
+  time_domain = FALSE
 )
 expect_equal(length(out2_wide_ms2), 1L)
 expect_equal(nrow(Spectra::peaksData(out2_wide_ms2)[[1]]), 1L)
-expect_equal(as.numeric(Spectra::peaksData(out2_wide_ms2)[[1]][, "intensity"]), 400)
+expect_equal(
+  as.numeric(Spectra::peaksData(out2_wide_ms2)[[1]][, "intensity"]),
+  400
+)
 ## ---------------------------------------------------------------------------
 ## Spectra are restored by identity, not by position
 ## ---------------------------------------------------------------------------
@@ -268,21 +312,33 @@ interleaved <- Spectra::Spectra(data.frame(
   polarity = c(0L, 0L, 0L, 0L, 0L),
   rtime = c(1, 1.5, 2, 3, 3.5),
   mz = I(list(
-    c(100, 100.0005), c(500, 500.0005), c(200, 200.0005),
-    c(300, 300.0005), c(600, 600.0005)
+    c(100, 100.0005),
+    c(500, 500.0005),
+    c(200, 200.0005),
+    c(300, 300.0005),
+    c(600, 600.0005)
   )),
   intensity = I(list(
-    c(10, 50), c(40, 400), c(1e-18, 2e-18), c(30, 300), c(60, 600)
+    c(10, 50),
+    c(40, 400),
+    c(1e-18, 2e-18),
+    c(30, 300),
+    c(60, 600)
   ))
 ))
 
 inter_out <- .process_spectra(
   interleaved,
-  mz_tol_da_ms1 = 0.01, mz_tol_da_ms2 = 0.01,
-  mz_tol_ppm_ms1 = 0, mz_tol_ppm_ms2 = 0,
-  custom_int_fun_ms1 = max_fun_mdp, custom_int_fun_ms2 = max_fun_mdp,
-  mz_fun_ms1 = base::mean, mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE, time_domain = FALSE
+  mz_tol_da_ms1 = 0.01,
+  mz_tol_da_ms2 = 0.01,
+  mz_tol_ppm_ms1 = 0,
+  mz_tol_ppm_ms2 = 0,
+  custom_int_fun_ms1 = max_fun_mdp,
+  custom_int_fun_ms2 = max_fun_mdp,
+  mz_fun_ms1 = base::mean,
+  mz_fun_ms2 = base::mean,
+  mz_weighted = TRUE,
+  time_domain = FALSE
 )
 
 ## Nothing is lost: every input spectrum is present in the output.
@@ -313,7 +369,9 @@ expect_equal(as.numeric(rt2[, "intensity"]), c(1e-18, 2e-18))
 expect_false(any(abs(rt2[, "mz"] - 500) < 1))
 
 ## The MS2 peaks appear exactly once in the whole output, on their own spectrum.
-all_mz <- sort(unlist(lapply(Spectra::peaksData(inter_out), function(p) p[, "mz"])))
+all_mz <- sort(unlist(lapply(Spectra::peaksData(inter_out), function(p) {
+  p[, "mz"]
+})))
 expect_equal(sum(abs(all_mz - 500.0005) < 1e-6), 1L)
 
 ## ---------------------------------------------------------------------------
@@ -352,8 +410,14 @@ expect_equal(
 ## order_map also reorders: passing a reversed map swaps which original peaks
 ## are used, which is exactly the mapping the pipeline relies on.
 reversed <- .keep_empty(orig, empty_spectra(2L), order_map = c(2L, 1L))
-expect_equal(as.numeric(Spectra::peaksData(reversed)[[1]][, "mz"]), c(200, 200.001))
-expect_equal(as.numeric(Spectra::peaksData(reversed)[[2]][, "mz"]), c(100, 100.001))
+expect_equal(
+  as.numeric(Spectra::peaksData(reversed)[[1]][, "mz"]),
+  c(200, 200.001)
+)
+expect_equal(
+  as.numeric(Spectra::peaksData(reversed)[[2]][, "mz"]),
+  c(100, 100.001)
+)
 
 ## ---------------------------------------------------------------------------
 ## An original spectrum that is itself empty stays empty

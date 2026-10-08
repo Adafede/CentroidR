@@ -172,16 +172,28 @@ mixed <- Spectra::Spectra(data.frame(
   polarity = 0L,
   rtime = c(1, 1.5, 2, 3, 3.5, 4),
   mz = I(list(
-    c(500, 500.0005), c(100, 100.0005), c(600, 600.0005),
-    c(200, 200.0005), c(300, 300.0005), c(700, 700.0005)
+    c(500, 500.0005),
+    c(100, 100.0005),
+    c(600, 600.0005),
+    c(200, 200.0005),
+    c(300, 300.0005),
+    c(700, 700.0005)
   )),
   intensity = I(list(
-    c(40, 400), c(10, 50), c(60, 600),
-    c(20, 200), c(30, 300), c(70, 700)
+    c(40, 400),
+    c(10, 50),
+    c(60, 600),
+    c(20, 200),
+    c(30, 300),
+    c(70, 700)
   ))
 ))
 mixres <- run_batches(mixed, batch_size = 2L, tag = "mix")
-mixed_out <- list(rtime = mixres$rtime, msLevel = mixres$msLevel, peaks = mixres$peaks)
+mixed_out <- list(
+  rtime = mixres$rtime,
+  msLevel = mixres$msLevel,
+  peaks = mixres$peaks
+)
 
 expect_equal(length(mixed_out$peaks), 6L)
 expect_equal(sum(mixed_out$msLevel == 1L), 3L)

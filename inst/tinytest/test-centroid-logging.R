@@ -25,7 +25,9 @@ read_log <- function(dir, filename = "centroiding.log") {
   ## Reset the appender before anything can log into a directory we may delete.
   centroidr_reset_logging()
   f <- file.path(dir, filename)
-  if (!file.exists(f)) return(character())
+  if (!file.exists(f)) {
+    return(character())
+  }
   readLines(f, warn = FALSE)
 }
 
@@ -36,7 +38,9 @@ logger::log_info("marker after setup_logger")
 setup_log <- read_log(log_dir)
 unlink(log_dir, recursive = TRUE)
 
-expect_true(file.exists(file.path(log_dir, "centroiding.log")) || length(setup_log) > 0)
+expect_true(
+  file.exists(file.path(log_dir, "centroiding.log")) || length(setup_log) > 0
+)
 expect_true(any(grepl("marker after setup_logger", setup_log, fixed = TRUE)))
 
 ## setup_logger raises the threshold to TRACE, so TRACE level entries reach the
@@ -70,8 +74,11 @@ write_profile <- function(tag) {
   infile <- tempfile(pattern = paste0("profile_", tag, "_"), fileext = ".mzML")
   Spectra::export(
     Spectra::Spectra(data.frame(
-      msLevel = 1L, polarity = 0L, rtime = 1,
-      mz = I(list(c(100, 100.0005))), intensity = I(list(c(10, 50)))
+      msLevel = 1L,
+      polarity = 0L,
+      rtime = 1,
+      mz = I(list(c(100, 100.0005))),
+      intensity = I(list(c(10, 50)))
     )),
     file = infile,
     backend = Spectra::MsBackendMzR()
@@ -90,7 +97,11 @@ run_and_read_log <- function(tag, ...) {
     replacement = "centroided_",
     ...
   )
-  lines <- if (file.exists(logfile)) readLines(logfile, warn = FALSE) else character()
+  lines <- if (file.exists(logfile)) {
+    readLines(logfile, warn = FALSE)
+  } else {
+    character()
+  }
   centroidr_reset_logging()
   list(ret = ret, log = lines, outfile = outfile, infile = infile)
 }
@@ -107,8 +118,16 @@ expect_true(any(grepl(basename(run$infile), run$log, fixed = TRUE)))
 ## that make the log a usable provenance record, so a silent omission matters.
 expect_true(any(grepl("min datapoints MS1 : 5", run$log, fixed = TRUE)))
 expect_true(any(grepl("min datapoints MS2 : 1", run$log, fixed = TRUE)))
-expect_true(any(grepl("m/z tolerance (Da, MS1) : 0.0025", run$log, fixed = TRUE)))
-expect_true(any(grepl("m/z tolerance (Da, MS2) : 0.0025", run$log, fixed = TRUE)))
+expect_true(any(grepl(
+  "m/z tolerance (Da, MS1) : 0.0025",
+  run$log,
+  fixed = TRUE
+)))
+expect_true(any(grepl(
+  "m/z tolerance (Da, MS2) : 0.0025",
+  run$log,
+  fixed = TRUE
+)))
 expect_true(any(grepl("m/z tolerance (ppm, MS1) : 5", run$log, fixed = TRUE)))
 expect_true(any(grepl("m/z tolerance (ppm, MS2) : 5", run$log, fixed = TRUE)))
 expect_true(any(grepl("m/z weighted : TRUE", run$log, fixed = TRUE)))
@@ -136,8 +155,16 @@ custom <- run_and_read_log(
 )
 expect_equal(custom$ret, TRUE)
 expect_true(any(grepl("min datapoints MS1 : 7", custom$log, fixed = TRUE)))
-expect_true(any(grepl("m/z tolerance (Da, MS1) : 0.125", custom$log, fixed = TRUE)))
-expect_true(any(grepl("m/z tolerance (ppm, MS1) : 42", custom$log, fixed = TRUE)))
+expect_true(any(grepl(
+  "m/z tolerance (Da, MS1) : 0.125",
+  custom$log,
+  fixed = TRUE
+)))
+expect_true(any(grepl(
+  "m/z tolerance (ppm, MS1) : 42",
+  custom$log,
+  fixed = TRUE
+)))
 expect_true(any(grepl("m/z weighted : FALSE", custom$log, fixed = TRUE)))
 expect_true(any(grepl("Time domain : FALSE", custom$log, fixed = TRUE)))
 expect_true(any(grepl("Intensity exponent : 5", custom$log, fixed = TRUE)))
@@ -147,10 +174,18 @@ expect_true(any(grepl("Intensity exponent : 5", custom$log, fixed = TRUE)))
 ## ---------------------------------------------------------------------------
 
 expect_true(any(grepl("Processing batch 1 / 1", run$log, fixed = TRUE)))
-expect_true(any(grepl("Concatenating all processed batches", run$log, fixed = TRUE)))
+expect_true(any(grepl(
+  "Concatenating all processed batches",
+  run$log,
+  fixed = TRUE
+)))
 expect_true(any(grepl("Exporting: ", run$log, fixed = TRUE)))
 expect_true(any(grepl("Exported: ", run$log, fixed = TRUE)))
-expect_true(any(grepl("Making a few fixes inside mzML: ", run$log, fixed = TRUE)))
+expect_true(any(grepl(
+  "Making a few fixes inside mzML: ",
+  run$log,
+  fixed = TRUE
+)))
 expect_true(any(grepl("Made fixes inside mzML: ", run$log, fixed = TRUE)))
 expect_true(any(grepl("Successfully centroided: ", run$log, fixed = TRUE)))
 expect_true(any(grepl("SUCCESS", run$log)))
@@ -197,7 +232,11 @@ skip_ret <- skip_run$value
 skip_lines <- skip_run$log
 
 expect_equal(skip_ret, TRUE)
-expect_true(any(grepl("Skipping. Output file already exists", skip_lines, fixed = TRUE)))
+expect_true(any(grepl(
+  "Skipping. Output file already exists",
+  skip_lines,
+  fixed = TRUE
+)))
 expect_false(any(grepl("Successfully centroided", skip_lines, fixed = TRUE)))
 unlink(c(skip_infile, skip_outfile, skip_log))
 
@@ -217,6 +256,10 @@ missing_ret <- missing_run$value
 missing_lines <- missing_run$log
 
 expect_equal(missing_ret, FALSE)
-expect_true(any(grepl("Input file does not exist", missing_lines, fixed = TRUE)))
+expect_true(any(grepl(
+  "Input file does not exist",
+  missing_lines,
+  fixed = TRUE
+)))
 expect_true(any(grepl("does_not_exist.mzML", missing_lines, fixed = TRUE)))
 expect_true(any(grepl("ERROR", missing_lines)))

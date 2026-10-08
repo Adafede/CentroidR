@@ -15,7 +15,9 @@ mk_input <- function(dir, name = "profile_in", n = 1) {
   infile <- file.path(dir, paste0(name, ".mzML"))
   Spectra::export(
     Spectra::Spectra(data.frame(
-      msLevel = rep(1L, n), polarity = 0L, rtime = seq_len(n),
+      msLevel = rep(1L, n),
+      polarity = 0L,
+      rtime = seq_len(n),
       mz = I(lapply(seq_len(n), function(i) c(100 * i, 100 * i + 0.0005))),
       intensity = I(lapply(seq_len(n), function(i) c(10, 50)))
     )),
@@ -119,58 +121,118 @@ unlink(dir3, recursive = TRUE)
 
 valid <- mk_input(tempdir(), "profile_valid")
 
-expect_error(CentroidR::centroid_one_file(file = 1, pattern = "profile_", replacement = "c"))
-expect_error(CentroidR::centroid_one_file(file = valid, pattern = 1, replacement = "c"))
-expect_error(CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = 1))
+expect_error(CentroidR::centroid_one_file(
+  file = 1,
+  pattern = "profile_",
+  replacement = "c"
+))
+expect_error(CentroidR::centroid_one_file(
+  file = valid,
+  pattern = 1,
+  replacement = "c"
+))
+expect_error(CentroidR::centroid_one_file(
+  file = valid,
+  pattern = "profile_",
+  replacement = 1
+))
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    mz_tol_da_ms1 = "wide")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    mz_tol_da_ms1 = "wide"
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    mz_tol_ppm_ms1 = "wide")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    mz_tol_ppm_ms1 = "wide"
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    mz_fun_ms1 = "not a function")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    mz_fun_ms1 = "not a function"
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    mz_fun_ms2 = "not a function")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    mz_fun_ms2 = "not a function"
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    int_fun_ms1 = "not a function")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    int_fun_ms1 = "not a function"
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    int_fun_ms2 = "not a function")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    int_fun_ms2 = "not a function"
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    mz_weighted = "yes")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    mz_weighted = "yes"
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    time_domain = "yes")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    time_domain = "yes"
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    intensity_exponent = "three")
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    intensity_exponent = "three"
+  )
 )
 
 ## The logical and numeric flags must be length one.
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    mz_weighted = c(TRUE, FALSE))
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    mz_weighted = c(TRUE, FALSE)
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    time_domain = c(TRUE, FALSE))
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    time_domain = c(TRUE, FALSE)
+  )
 )
 expect_error(
-  CentroidR::centroid_one_file(file = valid, pattern = "profile_", replacement = "c",
-    intensity_exponent = c(1, 2))
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    intensity_exponent = c(1, 2)
+  )
 )
 
 unlink(c(valid, sub("profile_", "centroided_", valid, fixed = TRUE)))

@@ -417,7 +417,10 @@ setup_logger <- function(
     if (length(order_map) != length(processed_peaks)) {
       stop(
         "order_map must have one entry per processed spectrum, got ",
-        length(order_map), " and ", length(processed_peaks), "."
+        length(order_map),
+        " and ",
+        length(processed_peaks),
+        "."
       )
     }
     original_peaks <- Spectra::peaksData(original)[order_map]

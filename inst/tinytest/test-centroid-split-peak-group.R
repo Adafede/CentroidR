@@ -24,21 +24,30 @@ expect_equal(.split_peak_group(1L, 5), list(1L))
 expect_equal(.split_peak_group(integer(0), numeric(0)), list(integer(0)))
 
 ## A single-peaked group has only one maximum and stays whole.
-expect_equal(.split_peak_group(1:9, c(1, 3, 10, 30, 100, 30, 10, 3, 1)), list(1:9))
+expect_equal(
+  .split_peak_group(1:9, c(1, 3, 10, 30, 100, 30, 10, 3, 1)),
+  list(1:9)
+)
 
 ## A flat trace has no local maxima at all.
 expect_equal(.split_peak_group(1:5, rep(7, 5)), list(1:5))
 
 ## A strictly decreasing trace has a single local maximum at the first point,
 ## so the "fewer than two maxima" path is taken and the group is returned whole.
-expect_equal(MsCoreUtils::localMaxima(c(5, 4, 3, 2, 1), hws = 2L), c(TRUE, FALSE, FALSE, FALSE, FALSE))
+expect_equal(
+  MsCoreUtils::localMaxima(c(5, 4, 3, 2, 1), hws = 2L),
+  c(TRUE, FALSE, FALSE, FALSE, FALSE)
+)
 expect_equal(.split_peak_group(1:5, c(5, 4, 3, 2, 1)), list(1:5))
 
 ## The same holds when the intensities run through zero and back up, so the
 ## "no local maxima" path is reached even though intensities change sign.
 through_zero <- c(0, -20, -10, -10, -1)
 expect_equal(MsCoreUtils::localMaxima(through_zero, hws = 2L), rep(FALSE, 5))
-expect_equal(.split_peak_group(seq_along(through_zero), through_zero), list(1:5))
+expect_equal(
+  .split_peak_group(seq_along(through_zero), through_zero),
+  list(1:5)
+)
 
 ## ---------------------------------------------------------------------------
 ## A clear valley splits a group in two
@@ -58,12 +67,21 @@ expect_true(abs(peak_centroid(two_peaks, segs[[2]]) - 13) < 2)
 ## Two symmetric peaks separated by a valley at half the apex height.
 ## Apexes are at indices 3 and 7 with intensity 100, so the valley ratio is 50/100.
 shallow <- c(0, 50, 100, 50, 50, 50, 100, 50, 0)
-expect_equal(MsCoreUtils::localMaxima(shallow, hws = 2L), c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE))
+expect_equal(
+  MsCoreUtils::localMaxima(shallow, hws = 2L),
+  c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE)
+)
 expect_equal(.split_peak_group(seq_along(shallow), shallow), list(1:9))
-expect_equal(.split_peak_group(seq_along(shallow), shallow, valley_ratio = 0.19), list(1:9))
+expect_equal(
+  .split_peak_group(seq_along(shallow), shallow, valley_ratio = 0.19),
+  list(1:9)
+)
 
 ## Raising valley_ratio to exactly the valley ratio of 0.5 makes it split.
-expect_equal(length(.split_peak_group(seq_along(shallow), shallow, valley_ratio = 0.5)), 2L)
+expect_equal(
+  length(.split_peak_group(seq_along(shallow), shallow, valley_ratio = 0.5)),
+  2L
+)
 
 ## ---------------------------------------------------------------------------
 ## Valley selection: only qualifying valleys are considered, and the deepest
@@ -105,10 +123,17 @@ expect_equal(mixed_tight[[2]], 6:10)
 ## Two symmetric peaks of 100 separated by a valley of exactly 20, i.e. a valley
 ## ratio of exactly 0.2 which equals the default valley_ratio.
 boundary <- c(0, 50, 100, 50, 20, 50, 100, 50, 0)
-expect_equal(MsCoreUtils::localMaxima(boundary, hws = 2L), c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE))
+expect_equal(
+  MsCoreUtils::localMaxima(boundary, hws = 2L),
+  c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE)
+)
 
 ## The comparison is inclusive, so a ratio exactly at valley_ratio splits.
-boundary_segs <- .split_peak_group(seq_along(boundary), boundary, valley_ratio = 0.2)
+boundary_segs <- .split_peak_group(
+  seq_along(boundary),
+  boundary,
+  valley_ratio = 0.2
+)
 expect_equal(length(boundary_segs), 2L)
 expect_equal(boundary_segs[[1]], 1:5)
 expect_equal(boundary_segs[[2]], 6:9)
@@ -121,9 +146,18 @@ expect_equal(
 
 ## A valley well below the ratio splits under every ratio at or above it.
 deep <- c(0, 50, 100, 50, 5, 50, 100, 50, 0)
-expect_equal(length(.split_peak_group(seq_along(deep), deep, valley_ratio = 0.05)), 2L)
-expect_equal(length(.split_peak_group(seq_along(deep), deep, valley_ratio = 0.2)), 2L)
-expect_equal(length(.split_peak_group(seq_along(deep), deep, valley_ratio = 0.9)), 2L)
+expect_equal(
+  length(.split_peak_group(seq_along(deep), deep, valley_ratio = 0.05)),
+  2L
+)
+expect_equal(
+  length(.split_peak_group(seq_along(deep), deep, valley_ratio = 0.2)),
+  2L
+)
+expect_equal(
+  length(.split_peak_group(seq_along(deep), deep, valley_ratio = 0.9)),
+  2L
+)
 
 ## The two halves peak at the intended apexes (indices 3 and 7).
 expect_true(abs(peak_centroid(deep, 1:5) - 3) < 0.5)
@@ -151,7 +185,10 @@ expect_equal(
 ## floor is used as a divisor, so this pair is skipped rather than producing a
 ## non-finite valley ratio.
 zero_floor <- c(-10, -20, -1, 1, -20, -10, 0, -10)
-expect_equal(MsCoreUtils::localMaxima(zero_floor, hws = 2L), c(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE))
+expect_equal(
+  MsCoreUtils::localMaxima(zero_floor, hws = 2L),
+  c(FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE)
+)
 zero_segs <- .split_peak_group(seq_along(zero_floor), zero_floor)
 expect_equal(length(zero_segs), 1L)
 expect_equal(zero_segs[[1]], 1:8)

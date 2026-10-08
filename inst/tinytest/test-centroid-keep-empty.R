@@ -323,17 +323,24 @@ expect_equal(sum(abs(all_mz - 500.0005) < 1e-6), 1L)
 ## its input. A map of the wrong length would silently restore the wrong peaks,
 ## so the length is validated before anything is used.
 
+## The message is asserted as well, because a wrong length map fails either way:
+## without the guard it reaches the subsetting and dies on an unrelated
+## "subscript out of bounds" instead.
 expect_error(
   .keep_empty(orig, empty_spectra(2L), order_map = 1L),
+  pattern = "order_map",
   info = "a short order_map must be rejected"
 )
 expect_error(
   .keep_empty(orig, empty_spectra(2L), order_map = c(1L, 2L, 3L)),
+  pattern = "order_map",
   info = "a long order_map must be rejected"
 )
 expect_error(
-  .keep_empty(orig, empty_spectra(2L), order_map = integer(0))
+  .keep_empty(orig, empty_spectra(2L), order_map = integer(0)),
+  pattern = "order_map"
 )
+
 
 ## The check only fires when a spectrum actually has to be restored; a consistent
 ## map is accepted.

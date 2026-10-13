@@ -509,18 +509,11 @@ setup_logger <- function(
     Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
     Spectra::applyProcessing()
   centroided <- Spectra::concatenateSpectra(centroided_1, centroided_2)
-  if (length(order_map) == length(centroided)) {
-    .keep_empty(spectra, centroided, order_map)
-  } else {
-    ## Input carried MS levels other than 1 and 2, which are not centroided and
-    ## therefore absent from the result. Position based restoring cannot be
-    ## trusted here, so the result is returned as is.
-    logger::log_warn(
-      "Input contains MS levels other than 1 and 2; empty spectra are not ",
-      "restored."
-    )
-    centroided
-  }
+  ## order_map indexes the MS1 and then the MS2 spectra of the input, which is
+  ## exactly the set concatenateSpectra() emits, so it always describes the
+  ## result. Spectra also rejects a non-integer msLevel column, so msLevel can
+  ## only hold integers and both counts are always taken from the same vector.
+  .keep_empty(spectra, centroided, order_map)
 }
 
 #' @noRd

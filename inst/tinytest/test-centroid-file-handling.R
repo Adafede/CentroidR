@@ -257,3 +257,53 @@ expect_true(file.exists(file.path(dir4, "profile_centroided.mzML")))
 expect_true(file.exists(infile4))
 expect_equal(basename(infile4), "profile_raw.mzML")
 unlink(dir4, recursive = TRUE)
+
+## ---------------------------------------------------------------------------
+## A spectrum whose every peak sits below the noise floor
+## ---------------------------------------------------------------------------
+## Zero intensities make basePeakIntensity zero for every spectrum, so the
+## spectraData column filter drops it and it must be re-added before export.
+## This guards against that re-adding step being skipped.
+
+floor_dir <- tempfile("floor_")
+dir.create(floor_dir)
+floor_in <- file.path(floor_dir, "profile_floor.mzML")
+Spectra::export(
+  Spectra::Spectra(data.frame(
+    msLevel = c(1L, 1L),
+    polarity = 0L,
+    rtime = 1:2,
+    mz = I(list(c(100, 100.0005), c(200, 200.0005))),
+    intensity = I(list(c(0, 0), c(0, 0)))
+  )),
+  file = floor_in,
+  backend = Spectra::MsBackendMzR()
+)
+floor_out <- sub("profile_", "centroided_", floor_in, fixed = TRUE)
+
+centroidr_reset_logging()
+expect_equal(
+  CentroidR::centroid_one_file(
+    file = floor_in,
+    pattern = "profile_",
+    replacement = "centroided_"
+  ),
+  TRUE
+)
+centroidr_reset_logging()
+
+## Every peak was below the intensity filter, so both spectra come back empty,
+## but the run succeeds and neither spectrum is lost.
+expect_true(file.exists(floor_out))
+floor_sp <- Spectra::Spectra(floor_out, backend = Spectra::MsBackendMzR())
+expect_equal(length(floor_sp), 2L)
+expect_true(
+  all(vapply(Spectra::peaksData(floor_sp), nrow, numeric(1)) == 0L),
+  info = "sub-threshold spectra should be reported as empty"
+)
+
+## The re-added column survives into the exported file.
+floor_sd <- Spectra::spectraData(floor_sp)
+expect_true("basePeakIntensity" %in% colnames(floor_sd))
+
+unlink(floor_dir, recursive = TRUE)

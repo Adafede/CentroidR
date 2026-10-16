@@ -142,7 +142,14 @@
     },
     "SystemRequirements": null
   },
-  "keywords": ["centroiding", "spectra", "centroid", "mass-spectra", "mass-spectrometry", "r"],
+  "keywords": [
+    "centroiding",
+    "spectra",
+    "centroid",
+    "mass-spectra",
+    "mass-spectrometry",
+    "r"
+  ],
   "fileSize": "773.081KB",
   "citation": [
     {
@@ -170,6 +177,9 @@
   ],
   "releaseNotes": "https://github.com/adafede/CentroidR/blob/main/NEWS.md",
   "readme": "https://github.com/Adafede/CentroidR/blob/main/README.md",
-  "contIntegration": ["https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml", "https://app.codecov.io/gh/adafede/CentroidR"],
+  "contIntegration": [
+    "https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml",
+    "https://app.codecov.io/gh/adafede/CentroidR"
+  ],
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental"
 }

@@ -235,6 +235,52 @@ expect_error(
   )
 )
 
+## The min_datapoints thresholds count data points, so they must be at least 1.
+## Zero and negative values used to be accepted and silently centroided peak
+## groups that held no data at all, and NA silently failed the comparison.
+for (bad in list(0L, 0, -1L, -0.5, NA)) {
+  expect_error(
+    CentroidR::centroid_one_file(
+      file = valid,
+      pattern = "profile_",
+      replacement = "c",
+      min_datapoints_ms1 = bad
+    ),
+    info = paste("min_datapoints_ms1 =", bad, "should be rejected")
+  )
+  expect_error(
+    CentroidR::centroid_one_file(
+      file = valid,
+      pattern = "profile_",
+      replacement = "c",
+      min_datapoints_ms2 = bad
+    ),
+    info = paste("min_datapoints_ms2 =", bad, "should be rejected")
+  )
+}
+
+## A threshold of exactly 1 is the documented MS2 default and stays valid. It is
+## asserted through a real run rather than only through the validator, so a
+## boundary that is accidentally excluded would be caught. The run gets its own
+## directory because a successful centroiding also writes a log next to the
+## output, and the fixture above lives directly in tempdir().
+edge_dir <- tempfile("midedge_")
+dir.create(edge_dir)
+edge_in <- mk_input(edge_dir, "profile_edge")
+expect_equal(
+  CentroidR::centroid_one_file(
+    file = edge_in,
+    pattern = "profile_",
+    replacement = "centroided_",
+    min_datapoints_ms1 = 1L,
+    min_datapoints_ms2 = 1L
+  ),
+  TRUE
+)
+centroidr_reset_logging()
+expect_true(file.exists(file.path(edge_dir, "centroided_edge.mzML")))
+unlink(edge_dir, recursive = TRUE)
+
 unlink(c(valid, sub("profile_", "centroided_", valid, fixed = TRUE)))
 
 ## ---------------------------------------------------------------------------

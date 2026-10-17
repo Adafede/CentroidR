@@ -34,10 +34,10 @@ input file path, used for modifying the output file path.}
 file path based on the \code{pattern}.}
 
 \item{min_datapoints_ms1}{integer(1). Minimum datapoints to be considered
-for MS1 data. Default: 5L.}
+for MS1 data. Must be at least 1. Default: 5L.}
 
 \item{min_datapoints_ms2}{integer(1). Minimum datapoints to be considered
-for MS2 data. Default: 1L.}
+for MS2 data. Must be at least 1. Default: 1L.}
 
 \item{mz_tol_da_ms1}{numeric(1). m/z tolerance in Daltons for MS1 data.
 Default: 0.0025.}

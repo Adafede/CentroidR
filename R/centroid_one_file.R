@@ -12,9 +12,9 @@
 #' @param replacement character(1). Replacement string for altering the output
 #'   file path based on the `pattern`.
 #' @param min_datapoints_ms1 integer(1). Minimum datapoints to be considered
-#'   for MS1 data. Default: 5L.
+#'   for MS1 data. Must be at least 1. Default: 5L.
 #' @param min_datapoints_ms2 integer(1). Minimum datapoints to be considered
-#'   for MS2 data. Default: 1L.
+#'   for MS2 data. Must be at least 1. Default: 1L.
 #' @param mz_tol_da_ms1 numeric(1). m/z tolerance in Daltons for MS1 data.
 #'   Default: 0.0025.
 #' @param mz_tol_da_ms2 numeric(1). m/z tolerance in Daltons for MS2 data.
@@ -99,8 +99,14 @@ centroid_one_file <- function(
     length(replacement) == 1,
     is.numeric(min_datapoints_ms1),
     length(min_datapoints_ms1) == 1,
+    ## A threshold counts data points, so it has to be at least one. Zero and
+    ## negative values used to be accepted and silently centroided groups that
+    ## held no data at all, which is never what a minimum is meant to express.
+    ## An NA fails the comparison, so it is rejected too.
+    min_datapoints_ms1 >= 1,
     is.numeric(min_datapoints_ms2),
     length(min_datapoints_ms2) == 1,
+    min_datapoints_ms2 >= 1,
     is.numeric(mz_tol_da_ms1),
     length(mz_tol_da_ms1) == 1,
     is.numeric(mz_tol_da_ms2),

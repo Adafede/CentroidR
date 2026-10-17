@@ -14,6 +14,9 @@
 - The output file is now published with an atomic rename, so a run that fails
   part way through no longer leaves a truncated file that later runs would
   mistake for finished work.
+- `min_datapoints_ms1` and `min_datapoints_ms2` must now be at least 1. Zero and
+  negative thresholds used to be accepted and centroided peak groups that held
+  no data at all.
 
 ## CentroidR 0.0.9003
 

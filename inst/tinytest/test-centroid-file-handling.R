@@ -235,10 +235,11 @@ expect_error(
   )
 )
 
-## The min_datapoints thresholds count data points, so they must be at least 1.
-## Zero and negative values used to be accepted and silently centroided peak
-## groups that held no data at all, and NA silently failed the comparison.
-for (bad in list(0L, 0, -1L, -0.5, NA)) {
+## A threshold counts data points, so it has to be a whole number of at least
+## one. Zero and negatives used to be accepted and silently centroided peak
+## groups that held no data at all, NA silently failed the comparison, and a
+## fractional threshold such as 1.5 can never be reached.
+for (bad in list(0L, 0, -1L, -0.5, NA, 1.5, 2.5, Inf)) {
   expect_error(
     CentroidR::centroid_one_file(
       file = valid,

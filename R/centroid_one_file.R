@@ -104,9 +104,14 @@ centroid_one_file <- function(
     ## held no data at all, which is never what a minimum is meant to express.
     ## An NA fails the comparison, so it is rejected too.
     min_datapoints_ms1 >= 1,
+    ## It also has to be a whole number of points: a threshold of 1.5 cannot be
+    ## reached, and the argument is documented as integer(1). Inf fails the
+    ## modulus as well, since Inf %% 1 is NaN.
+    min_datapoints_ms1 %% 1 == 0,
     is.numeric(min_datapoints_ms2),
     length(min_datapoints_ms2) == 1,
     min_datapoints_ms2 >= 1,
+    min_datapoints_ms2 %% 1 == 0,
     is.numeric(mz_tol_da_ms1),
     length(mz_tol_da_ms1) == 1,
     is.numeric(mz_tol_da_ms2),
@@ -151,6 +156,10 @@ centroid_one_file <- function(
   # Start the provenance log before anything is logged, so that the entries
   # below reach the log file and not only the console.
   setup_logger(dir = outd)
+  ## Hand the logger back when the run is over. The log file is complete by
+  ## then and stays on disk; what must not survive is a process-wide appender
+  ## pointing at this run's output directory.
+  on.exit(restore_logger(), add = TRUE)
   logger::log_info(paste0("Processing mzML file: ", file))
 
   # Logging parameter settings
@@ -258,14 +267,24 @@ centroid_one_file <- function(
   )
 }
 
+#' State tracking for the logger this package installs
+#'
+#' `logger` offers no way to read the currently installed appender back:
+#' `logger::log_appender()` only returns a printable description of it. So
+#' whether the appender in place is the one CentroidR installed has to be
+#' recorded here, otherwise `restore_logger()` could not tell its own appender
+#' from one installed by the caller.
+#' @noRd
+.centroidr_log <- new.env(parent = emptyenv())
+
 #' Configure the logger for a centroiding run
 #'
 #' Raises the log threshold to TRACE and installs an appender that writes to
 #' `filename` in `dir` while still echoing to the console, so the log records
 #' the whole run.
 #'
-#' The appender is global and is never removed, so the caller is expected to
-#' point it at a directory that outlives the run.
+#' The appender is global, so `restore_logger()` puts the console appender back
+#' once the run is over and the log file has been fully written.
 #'
 #' @param dir character(1). Directory for saving the log file. Defaults to the
 #'   output directory.
@@ -278,11 +297,65 @@ setup_logger <- function(
 ) {
   logger::log_threshold(logger::TRACE)
   logger::log_appender(
-    appender = logger::appender_tee(
-      file = file.path(dir, filename)
-    )
+    appender = .log_appender(file.path(dir, filename))
   )
+  .centroidr_log$installed <- TRUE
   invisible(NULL)
+}
+
+#' Return the logger to the console appender
+#'
+#' `setup_logger()` installs a process-wide appender that outlives the run, so
+#' the logger is restored once the run is over. That keeps a finished run from
+#' capturing messages that other code logs later on, and keeps the appender
+#' from pointing at a directory that may since have been removed.
+#'
+#' @return NULL, invisibly.
+#' @noRd
+restore_logger <- function() {
+  if (!isTRUE(.centroidr_log$installed)) {
+    return(invisible(NULL))
+  }
+  logger::log_appender(logger::appender_stdout)
+  logger::log_threshold(logger::INFO)
+  .centroidr_log$installed <- FALSE
+  invisible(NULL)
+}
+
+#' Build an appender that mirrors to the console and to a log file
+#'
+#' Behaves like `logger::appender_tee()`, except that a log file which has
+#' become unwritable is not allowed to break the caller. The log file lives in
+#' the output directory, which may be deleted after a run, and `logger` reopens
+#' the file on every message, so without this every later log call in the
+#' session would fail with "cannot open the connection" and abort whatever
+#' code logged next. The failure is reported once so it is not silently hidden.
+#'
+#' @param file character(1). Path of the log file.
+#' @return function(lines). Appender callable with the lines to write.
+#' @noRd
+.log_appender <- function(file) {
+  warned <- FALSE
+  function(lines) {
+    ## Console first, so the message is shown even if the file write fails.
+    logger::appender_stdout(lines)
+    tryCatch(
+      suppressWarnings(logger::appender_file(file, append = TRUE)(lines)),
+      error = function(e) {
+        if (!warned) {
+          warned <<- TRUE
+          warning(
+            "CentroidR cannot write its log file '",
+            file,
+            "': ",
+            conditionMessage(e),
+            call. = FALSE
+          )
+        }
+        NULL
+      }
+    )
+  }
 }
 
 #' @noRd

@@ -269,3 +269,60 @@ expect_equal(missing$value, FALSE)
 expect_true(logged(missing$log, "Input file does not exist"))
 expect_true(logged(missing$log, "does_not_exist.mzML"))
 unlink(skip_dir2, recursive = TRUE)
+
+## ---------------------------------------------------------------------------
+## The logger does not outlive the run
+## ---------------------------------------------------------------------------
+## setup_logger() installs a process-wide appender. centroid_one_file() has to
+## hand the logger back when it returns, otherwise a finished run keeps
+## capturing messages that unrelated code logs afterwards, and keeps pointing at
+## an output directory that may since be deleted.
+
+vanish_dir <- tempfile("logvanish_")
+dir.create(vanish_dir)
+vanish_in <- write_profile("logvanish", dir = vanish_dir)
+vanish_out <- sub("profile_", "centroided_", vanish_in, fixed = TRUE)
+centroidr_reset_logging()
+expect_equal(
+  CentroidR::centroid_one_file(
+    file = vanish_in,
+    pattern = "profile_",
+    replacement = "centroided_"
+  ),
+  TRUE
+)
+vanish_log <- read_log(vanish_dir)
+
+## The run itself is still fully recorded.
+expect_true(logged(vanish_log, "Processing mzML file"))
+expect_true(logged(vanish_log, "Successfully centroided: "))
+
+## A message logged after the run must not be appended to the run's log, which
+## is what proves the appender was handed back.
+invisible(capture.output(logger::log_info("marker after the run")))
+expect_false(
+  logged(read_log(vanish_dir), "marker after the run"),
+  info = "the run's appender should not outlive the run"
+)
+
+## And once the log's directory is gone, logging must degrade to the console
+## instead of failing, which is what used to abort the rest of the session.
+## setup_logger() is called directly here: going through centroid_one_file()
+## would hand the logger back at the end, so the file appender would never see
+## the deleted directory and this would pass even without the guard.
+gone_dir <- tempfile("loggone_")
+dir.create(gone_dir)
+setup_logger(dir = gone_dir)
+unlink(gone_dir, recursive = TRUE)
+expect_true(
+  tryCatch(
+    {
+      invisible(capture.output(logger::log_info("marker after delete")))
+      TRUE
+    },
+    error = function(e) FALSE
+  ),
+  info = "logging must survive a deleted log directory"
+)
+centroidr_reset_logging()
+unlink(gone_dir, recursive = TRUE)

@@ -105,8 +105,7 @@ centroid_one_file <- function(
   outf <- sub(
     pattern = pattern,
     replacement = replacement,
-    x = file,
-    fixed = TRUE
+    x = file
   )
   outd <- dirname(outf)
 

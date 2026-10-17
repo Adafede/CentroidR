@@ -62,6 +62,20 @@ expect_equal(
   c(3, 7)
 )
 
+## A peak group whose intensities are all zero carries no weighting
+## information. weighted.mean() would divide by a zero weight sum and return
+## NaN, so the group falls back to mzFun instead.
+zero_weight <- .peak_group_mzs(
+  peak_groups = list(1:2),
+  mz_raw = c(100, 110),
+  int_raw = c(0, 0),
+  weighted = TRUE,
+  intensity_exponent = 3,
+  mzFun = base::mean
+)
+expect_true(all(is.finite(zero_weight)))
+expect_equal(as.numeric(zero_weight), mean(c(100, 110)))
+
 meta <- data.frame(
   charge = c(1, 1, 2, 2),
   adduct = c("H+", "Na+", "K+", "K+"),

@@ -405,6 +405,7 @@ setup_logger <- function(
 #' @noRd
 .fix_xml <- function(file_path) {
   temp_file <- tempfile()
+  on.exit(unlink(temp_file), add = TRUE)
   lines <- readLines(file_path, warn = FALSE)
   run_id <- basename(file_path)
   lines <- gsub(
@@ -421,7 +422,6 @@ setup_logger <- function(
   )
   writeLines(lines, temp_file)
   file.copy(temp_file, file_path, overwrite = TRUE)
-  unlink(temp_file)
 }
 
 #' @noRd

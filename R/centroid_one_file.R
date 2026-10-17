@@ -168,7 +168,7 @@ centroid_one_file <- function(
         Spectra::dropNaSpectraVariables()
       sd <- Spectra::spectraData(sp)
       keep <- vapply(
-        as.list(sd),
+        sd,
         function(col) {
           if (is.numeric(col) || is.logical(col)) {
             !all(is.na(col) | col == 0)

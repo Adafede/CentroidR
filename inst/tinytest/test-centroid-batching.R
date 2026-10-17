@@ -211,3 +211,44 @@ expect_true(abs(peaks_at(mixed_out, 2)[1, "mz"] - 600.0005) < 1e-5)
 expect_true(abs(peaks_at(mixed_out, 3)[1, "mz"] - 200.0005) < 1e-5)
 expect_true(abs(peaks_at(mixed_out, 3.5)[1, "mz"] - 300.0005) < 1e-5)
 expect_true(abs(peaks_at(mixed_out, 4)[1, "mz"] - 700.0005) < 1e-5)
+
+## ---------------------------------------------------------------------------
+## An input with no spectra is refused with a readable reason
+## ---------------------------------------------------------------------------
+## There is nothing to batch, and seq(1L, 0L, by = ...) is not a valid call, so
+## the run used to fail with an unrelated "wrong sign in 'by' argument". The
+## message is asserted so the failure stays legible rather than turning back into
+## an arithmetic complaint from seq().
+
+empty_outd <- tempfile("batch_empty_")
+dir.create(empty_outd)
+empty_in <- Spectra::Spectra(data.frame(
+  msLevel = integer(0),
+  polarity = integer(0),
+  rtime = numeric(0),
+  mz = I(list()),
+  intensity = I(list())
+))
+expect_error(
+  .process_spectra_batches(
+    spectra = empty_in,
+    outf = file.path(empty_outd, "out.mzML"),
+    outd = empty_outd,
+    min_datapoints_ms1 = 1L,
+    min_datapoints_ms2 = 1L,
+    mz_tol_da_ms1 = 0.01,
+    mz_tol_da_ms2 = 0.01,
+    mz_tol_ppm_ms1 = 0,
+    mz_tol_ppm_ms2 = 0,
+    mz_fun_ms1 = base::mean,
+    mz_fun_ms2 = base::mean,
+    int_fun_ms1 = base::max,
+    int_fun_ms2 = base::max,
+    mz_weighted = TRUE,
+    time_domain = FALSE,
+    intensity_exponent = 3,
+    batch_size = 2L
+  ),
+  pattern = "no spectra"
+)
+unlink(empty_outd, recursive = TRUE)

@@ -316,7 +316,12 @@ setup_logger <- function(
     vapply(
       peak_groups,
       function(i) {
-        stats::weighted.mean(mz_raw[i], int_raw[i]^intensity_exponent)
+        w <- int_raw[i]^intensity_exponent
+        if (sum(abs(w)) == 0) {
+          mzFun(mz_raw[i])
+        } else {
+          stats::weighted.mean(mz_raw[i], w)
+        }
       },
       numeric(1)
     )

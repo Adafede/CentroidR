@@ -258,6 +258,31 @@ expect_true(file.exists(infile4))
 expect_equal(basename(infile4), "profile_raw.mzML")
 unlink(dir4, recursive = TRUE)
 
+## `pattern` is documented as a regular expression, so metacharacters have to be
+## interpreted rather than matched literally. Anchoring at the end and escaping
+## the dot only works if the pattern is a regex.
+##
+## Matching literally, the pattern is not found, the output path collapses back
+## onto the input path, and centroid_one_file() takes its "output already
+## exists" shortcut and returns TRUE without writing anything. So asserting that
+## the renamed file exists is what distinguishes the two implementations.
+dir5 <- tempfile("patregex_")
+dir.create(dir5)
+infile5 <- mk_input(dir5, "profile_regex")
+regex_renamed <- CentroidR::centroid_one_file(
+  file = infile5,
+  pattern = "\\.mzML$",
+  replacement = "_centroided.mzML"
+)
+centroidr_reset_logging()
+expect_equal(regex_renamed, TRUE)
+expect_true(
+  file.exists(file.path(dir5, "profile_regex_centroided.mzML")),
+  info = "pattern should be treated as a regular expression"
+)
+expect_true(file.exists(infile5))
+unlink(dir5, recursive = TRUE)
+
 ## ---------------------------------------------------------------------------
 ## A spectrum whose every peak sits below the noise floor
 ## ---------------------------------------------------------------------------

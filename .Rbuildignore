@@ -21,6 +21,7 @@
 ^\.poolside$
 ^\.quarto$
 ^\.vscode$
+^\.zed$
 ^_pkgdown\.yml$
 ^_quarto$
 ^_targets\.yaml$
@@ -41,4 +42,3 @@
 ^vignettes/articles$
 ^vignettes/articles/.*_files$
 _\.new\.png$
-^\.zed$

@@ -50,3 +50,6 @@ README.html
 
 # editor config
 .zed/
+
+# opaque work log
+POLISH_LOG.md

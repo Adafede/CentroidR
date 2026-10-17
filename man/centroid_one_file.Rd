@@ -73,8 +73,10 @@ m/z value aggregation. Default: TRUE.}
 the intensity for m/z weighting. Default: 3.}
 }
 \value{
-logical(1). Returns TRUE if centroiding was successful, otherwise
-FALSE.
+logical(1). \code{TRUE} if the file was centroided, or \code{TRUE} if it was
+skipped because the output file already existed; \code{FALSE} if the input was
+missing or if centroiding failed. Invalid argument types raise an error
+instead of returning \code{FALSE}.
 }
 \description{
 This function processes an mzML file to apply centroiding with detailed
@@ -83,9 +85,19 @@ fine-tuning of MS1 and MS2 peak detection, optimizing spectral data analysis
 for various experimental needs.
 }
 \details{
-The function processes both MS1 and MS2 data with user-defined smoothing,
-peak-picking, and noise estimation.
+MS1 and MS2 spectra are processed separately with their own tolerances, so
+the two levels can be tuned independently.
+
+Within a spectrum, profile points are grouped by the m/z tolerances, a group
+is split back into separate peaks at deep valleys so that closely spaced
+peaks are not merged, and each group is reduced to a single peak. A group is
+only reduced when it holds at least \verb{min_datapoints_ms*} points of non-zero
+intensity; below that it is reported as zero intensity and filtered out.
+Spectra left without any peak by this step are restored from the input, so
+no spectrum is lost.
+
 File path modifications are supported via \code{pattern} and \code{replacement}.
+\code{pattern} is a regular expression, as in \code{sub()}.
 }
 \examples{
 \dontrun{

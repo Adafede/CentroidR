@@ -38,13 +38,25 @@
 #' @param intensity_exponent numeric(1). If `mz_weighted=TRUE`, the exponent of
 #'   the intensity for m/z weighting. Default: 3.
 #'
-#' @return logical(1). Returns TRUE if centroiding was successful, otherwise
-#'   FALSE.
+#' @return logical(1). `TRUE` if the file was centroided, or `TRUE` if it was
+#'   skipped because the output file already existed; `FALSE` if the input was
+#'   missing or if centroiding failed. Invalid argument types raise an error
+#'   instead of returning `FALSE`.
 #'
 #' @details
-#' The function processes both MS1 and MS2 data with user-defined smoothing,
-#' peak-picking, and noise estimation.
+#' MS1 and MS2 spectra are processed separately with their own tolerances, so
+#' the two levels can be tuned independently.
+#'
+#' Within a spectrum, profile points are grouped by the m/z tolerances, a group
+#' is split back into separate peaks at deep valleys so that closely spaced
+#' peaks are not merged, and each group is reduced to a single peak. A group is
+#' only reduced when it holds at least `min_datapoints_ms*` points of non-zero
+#' intensity; below that it is reported as zero intensity and filtered out.
+#' Spectra left without any peak by this step are restored from the input, so
+#' no spectrum is lost.
+#'
 #' File path modifications are supported via `pattern` and `replacement`.
+#' `pattern` is a regular expression, as in `sub()`.
 #'
 #' @export
 #' @author Johannes Rainer, Adriano Rutz
@@ -158,8 +170,8 @@ centroid_one_file <- function(
     "Time domain" = time_domain,
     "Intensity exponent" = intensity_exponent
   )
-  for (param in names(params)) {
-    logger::log_info(paste0(param, " : ", params[[param]]))
+  for (param_name in names(params)) {
+    logger::log_info(paste0(param_name, " : ", params[[param_name]]))
   }
 
   tryCatch(
@@ -240,9 +252,14 @@ centroid_one_file <- function(
   )
 }
 
-#' Wrapper for centroiding with error handling
+#' Configure the logger for a centroiding run
 #'
-#' Setup Logging for Centroiding Process
+#' Raises the log threshold to TRACE and installs an appender that writes to
+#' `filename` in `dir` while still echoing to the console, so the log records
+#' the whole run.
+#'
+#' The appender is global and is never removed, so the caller is expected to
+#' point it at a directory that outlives the run.
 #'
 #' @param dir character(1). Directory for saving the log file. Defaults to the
 #'   output directory.

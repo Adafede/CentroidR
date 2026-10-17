@@ -604,9 +604,21 @@ setup_logger <- function(
   temp_files <- unlist(temp_files, use.names = FALSE)
   logger::log_trace("Concatenating all processed batches")
   sp_cen <- Spectra::Spectra(temp_files, backend = Spectra::MsBackendMzR())
+  ## Export to a temporary file and publish it with a rename, both inside `outd`
+  ## so the rename stays on one filesystem. A torn export therefore never lands
+  ## at `outf`: the next run would otherwise see that output already exists and
+  ## skip the work, reporting success for a truncated file.
+  tmp_outf <- tempfile(
+    pattern = "centroid_",
+    tmpdir = tmp_batch_dir,
+    fileext = ".mzML"
+  )
   logger::log_trace(paste0("Exporting: ", basename(outf)))
-  Spectra::export(sp_cen, file = outf, backend = Spectra::MsBackendMzR())
+  Spectra::export(sp_cen, file = tmp_outf, backend = Spectra::MsBackendMzR())
   rm(sp_cen)
+  if (!file.rename(tmp_outf, outf)) {
+    stop("Failed to move exported file from ", tmp_outf, " to ", outf)
+  }
   logger::log_trace(paste0("Exported: ", basename(outf)))
   logger::log_trace(paste0("Making a few fixes inside mzML: ", basename(outf)))
   .fix_xml(outf)

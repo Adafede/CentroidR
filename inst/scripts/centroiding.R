@@ -11,7 +11,7 @@
 # This script wraps CentroidR::centroid_one_file for command-line use.
 
 # Utility: Null coalescing operator
-`%||%` <- function(a, b) a %||% b
+`%||%` <- function(a, b) if (is.null(a)) b else a
 
 # Define command-line options
 parser <- optparse::OptionParser() |>
@@ -183,7 +183,7 @@ if (!is.null(opt$file)) {
 } else {
   # Process all .mzML files in the directory
   lapply(
-    list.files(opt$directory, pattern = ".mzML$", full.names = TRUE),
+    list.files(opt$directory, pattern = "\\.mzML$", full.names = TRUE),
     centroid_one_file_cli
   )
 }

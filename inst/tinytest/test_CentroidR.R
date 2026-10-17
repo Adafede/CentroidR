@@ -120,3 +120,5 @@ expect_error(
   ),
   info = "Invalid argument types should fail validation"
 )
+
+unlink(c(tmp_in, tmp_out))

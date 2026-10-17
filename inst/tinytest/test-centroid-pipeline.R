@@ -45,7 +45,6 @@ processed <- .process_spectra(
 
 expect_equal(length(processed), 3L)
 
-outf <- tempfile(pattern = "profile_", fileext = ".mzML")
 infile <- tempfile(pattern = "profile_", fileext = ".mzML")
 Spectra::export(sp, file = infile, backend = Spectra::MsBackendMzR())
 
@@ -80,14 +79,17 @@ fixed <- readLines(xml, warn = FALSE)
 expect_true(any(grepl('value="NaN"', fixed, fixed = TRUE)))
 expect_true(any(grepl(basename(xml), fixed, fixed = TRUE)))
 
+## The fixtures above are created directly in tempdir(), so they are removed
+## explicitly here rather than by an on.exit(), which tinytest may fire before
+## the assertions above have run.
+unlink(c(infile, outf, xml, file.path(dirname(outf), "centroiding.log")))
+
 ## ---------------------------------------------------------------------------
 ## The exported output really is passed through .fix_xml
 ## ---------------------------------------------------------------------------
 ## centroid_one_file() rewrites the exported mzML with .fix_xml(), replacing the
 ## placeholder run id with the output file name. The existing test only checks
 ## .fix_xml() in isolation, which cannot see whether the pipeline calls it.
-
-.fix_xml <- getFromNamespace(".fix_xml", "CentroidR")
 
 fix_infile <- tempfile(pattern = "profile_", fileext = ".mzML")
 Spectra::export(sp, file = fix_infile, backend = Spectra::MsBackendMzR())

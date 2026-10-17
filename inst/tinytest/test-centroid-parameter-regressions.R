@@ -41,8 +41,8 @@ centroid_profile <- function(
   outfile <- sub("profile_", "centroided_", infile, fixed = TRUE)
   on.exit(
     {
-      unlink(infile)
-      unlink(outfile)
+      ## The log is written next to the output, so it has to go with it.
+      unlink(c(infile, outfile, file.path(dirname(outfile), "centroiding.log")))
     },
     add = TRUE
   )

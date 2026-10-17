@@ -35,7 +35,11 @@ read_peaks <- function(file) {
 centroid <- function(mzs, intensities, tag, ...) {
   infile <- write_profile_mzml(mzs, intensities, tag)
   outfile <- sub("profile_", "centroided_", infile, fixed = TRUE)
-  on.exit(unlink(c(infile, outfile)), add = TRUE)
+  ## The log is written next to the output, so it has to go with it.
+  on.exit(
+    unlink(c(infile, outfile, file.path(dirname(outfile), "centroiding.log"))),
+    add = TRUE
+  )
   expect_true(
     CentroidR::centroid_one_file(
       file = infile,

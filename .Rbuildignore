@@ -41,3 +41,4 @@
 ^vignettes/articles$
 ^vignettes/articles/.*_files$
 _\.new\.png$
+^\.zed$

@@ -47,3 +47,6 @@ _quarto/*
 
 README_files/
 README.html
+
+# editor config
+.zed/

@@ -579,6 +579,12 @@ setup_logger <- function(
   custom_int_fun_ms2 <- function(intensities) {
     custom_int_fun(int_fun_ms2, intensities, min_datapoints_ms2)
   }
+  ## seq() below is only well defined for a non-empty input, and there is no
+  ## work to do for an empty file anyway. Fail with a readable reason rather
+  ## than letting seq() report an unrelated "wrong sign in 'by' argument".
+  if (length(spectra) == 0L) {
+    stop("Input contains no spectra to centroid.")
+  }
   batch_starts <- seq(1L, length(spectra), by = batch_size)
   tmp_batch_dir <- file.path(outd, "tmp")
   if (!dir.exists(tmp_batch_dir)) {

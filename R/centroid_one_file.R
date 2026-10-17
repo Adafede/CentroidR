@@ -276,6 +276,7 @@ setup_logger <- function(
       file = file.path(dir, filename)
     )
   )
+  invisible(NULL)
 }
 
 #' @noRd
@@ -397,7 +398,8 @@ setup_logger <- function(
     tolerance = tolerance / mz_base,
     ppm = ppm
   )
-  if (!anyDuplicated(grps)) {
+  ## Nothing to combine when every m/z value landed in its own group.
+  if (anyDuplicated(grps) == 0L) {
     return(x)
   }
   grp_idx <- .peak_group_indices(grps)

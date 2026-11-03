@@ -1,6 +1,25 @@
-#' CentroidR Package
+#' CentroidR: Centroid Profile Mass Spectrometry Data
 #'
-#' Internal package-level definitions and startup hooks for CentroidR.
+#' Infrastructure to centroid profile-mode mass spectrometry (`mzML`) files
+#' into peak-picked centroid spectra with configurable MS1 and MS2 tolerances,
+#' local-valley splitting of closely spaced peaks, and intensity-weighted m/z
+#' aggregation.
+#'
+#' @section EDAM Ontology Annotations:
+#' - **Topics**: `EDAM:topic_3172` (Metabolomics), `EDAM:topic_3370`
+#'   (Analytical chemistry), `EDAM:topic_0154` (Small molecules)
+#' - **Operations**: `EDAM:operation_3215` (Peak picking / Centroiding),
+#'   `EDAM:operation_3695` (Filtering)
+#' - **Data**: `EDAM:data_0943` (Mass spectrometry spectra),
+#'   `EDAM:data_2536` (Mass spectrometry data)
+#' - **Formats**: `EDAM:format_3244` (mzML)
+#'
+#' @concept EDAM:topic_3172
+#' @concept EDAM:topic_3370
+#' @concept EDAM:topic_0154
+#' @concept EDAM:operation_3215
+#' @concept EDAM:data_0943
+#' @concept EDAM:format_3244
 #' @docType package
 #' @keywords internal
 "_PACKAGE"
@@ -11,11 +30,9 @@ NULL
 
 #' .onLoad: Package load hook
 #'
-#' Ensures required S4 classes and external dependencies are registered on load.
+#' Ensures required external dependencies are registered on load.
 #' @noRd
 .onLoad <- function(libname, pkgname) {
-  # To avoid CRAN warnings for unregistered S4 classes
-  optparse::.__C__OptionParser
   mzR::pwiz.version()
   invisible()
 }

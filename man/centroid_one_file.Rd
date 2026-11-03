@@ -24,8 +24,8 @@ centroid_one_file(
 )
 }
 \arguments{
-\item{file}{character(1). Path to the input mzML file. Must be a valid,
-accessible mzML format file.}
+\item{file}{character(1). Path to the input mzML file (\code{EDAM:format_3244}).
+Must be a valid, accessible mzML format file.}
 
 \item{pattern}{character(1). Regular expression pattern to match in the
 input file path, used for modifying the output file path.}
@@ -80,9 +80,9 @@ instead of returning \code{FALSE}.
 }
 \description{
 This function processes an mzML file to apply centroiding with detailed
-controls for peak picking, smoothing, and noise estimation. It allows
-fine-tuning of MS1 and MS2 peak detection, optimizing spectral data analysis
-for various experimental needs.
+controls for peak picking, valley splitting, and intensity filtering. It
+allows fine-tuning of MS1 and MS2 peak detection, optimizing spectral data
+analysis for various experimental needs.
 }
 \details{
 MS1 and MS2 spectra are processed separately with their own tolerances, so
@@ -99,12 +99,21 @@ no spectrum is lost.
 File path modifications are supported via \code{pattern} and \code{replacement}.
 \code{pattern} is a regular expression, as in \code{sub()}.
 }
+\section{EDAM Ontology}{
+
+\itemize{
+\item Operation: \verb{http://edamontology.org/operation_3215} (Peak picking)
+\item Input/Output Data: \verb{http://edamontology.org/data_0943} (Mass spectrometry spectra)
+\item Input/Output Format: \verb{http://edamontology.org/format_3244} (mzML)
+}
+}
+
 \examples{
 \dontrun{
 # Example usage (requires an mzML file):
 # centroid_one_file(
 #   file = "raw_data.mzML",
-#   pattern = "\.mzML$",
+#   pattern = "\\.mzML$",
 #   replacement = "_centroided.mzML",
 #   min_datapoints_ms1 = 5L,
 #   min_datapoints_ms2 = 1L
@@ -114,3 +123,6 @@ File path modifications are supported via \code{pattern} and \code{replacement}.
 \author{
 Johannes Rainer, Adriano Rutz
 }
+\concept{EDAM:data_0943}
+\concept{EDAM:format_3244}
+\concept{EDAM:operation_3215}

@@ -2,8 +2,8 @@
   "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
   "@type": "SoftwareSourceCode",
   "identifier": "CentroidR",
-  "description": "CentroidR provides the infrastructure to centroid profile spectra.",
-  "name": "CentroidR: CentroidR",
+  "description": "CentroidR provides the infrastructure to centroid profile mass spectrometry spectra (mzML) with independent MS1 and MS2 tolerances, valley-based peak splitting, and intensity-weighted m/z aggregation.",
+  "name": "CentroidR: Centroid Profile Mass Spectrometry Data",
   "relatedLink": "https://adafede.github.io/CentroidR",
   "codeRepository": "https://github.com/adafede/CentroidR",
   "issueTracker": "https://github.com/adafede/CentroidR/issues",
@@ -14,7 +14,7 @@
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.6.1 (2026-06-24)",
+  "runtimePlatform": "R version 4.6.2 (2026-10-29)",
   "author": [
     {
       "@type": "Person",
@@ -77,19 +77,6 @@
     },
     "3": {
       "@type": "SoftwareApplication",
-      "identifier": "logger",
-      "name": "logger",
-      "version": ">= 0.4.2",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=logger"
-    },
-    "4": {
-      "@type": "SoftwareApplication",
       "identifier": "MsCoreUtils",
       "name": "MsCoreUtils",
       "version": ">= 1.22.1",
@@ -101,7 +88,7 @@
       },
       "sameAs": "https://bioconductor.org/packages/release/bioc/html/MsCoreUtils.html"
     },
-    "5": {
+    "4": {
       "@type": "SoftwareApplication",
       "identifier": "mzR",
       "name": "mzR",
@@ -114,20 +101,7 @@
       },
       "sameAs": "https://bioconductor.org/packages/release/bioc/html/mzR.html"
     },
-    "6": {
-      "@type": "SoftwareApplication",
-      "identifier": "optparse",
-      "name": "optparse",
-      "version": ">= 1.8.2",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=optparse"
-    },
-    "7": {
+    "5": {
       "@type": "SoftwareApplication",
       "identifier": "Spectra",
       "name": "Spectra",
@@ -142,15 +116,8 @@
     },
     "SystemRequirements": null
   },
-  "keywords": [
-    "centroiding",
-    "spectra",
-    "centroid",
-    "mass-spectra",
-    "mass-spectrometry",
-    "r"
-  ],
-  "fileSize": "773.081KB",
+  "keywords": ["centroiding", "spectra", "mass-spectrometry", "metabolomics", "mzML", "EDAM:topic_3172", "EDAM:topic_3370", "EDAM:topic_0154", "EDAM:operation_3215", "EDAM:data_0943", "EDAM:format_3244", "centroid", "mass-spectra", "r"],
+  "fileSize": "350.122KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -171,15 +138,16 @@
           "@id": "https://orcid.org/0000-0002-6977-7147"
         }
       ],
-      "name": "CentroidR: CentroidR provides the infrastructure to centroid profile spectra",
-      "description": "R package, version 0.0.9004"
+      "name": "CentroidR: Centroid Profile Mass Spectrometry Data",
+      "identifier": "10.5281/zenodo.17250307",
+      "url": "https://github.com/adafede/CentroidR",
+      "description": "R package, version 0.0.0.9004",
+      "@id": "https://doi.org/10.5281/zenodo.17250307",
+      "sameAs": "https://doi.org/10.5281/zenodo.17250307"
     }
   ],
   "releaseNotes": "https://github.com/adafede/CentroidR/blob/main/NEWS.md",
   "readme": "https://github.com/Adafede/CentroidR/blob/main/README.md",
-  "contIntegration": [
-    "https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml",
-    "https://app.codecov.io/gh/adafede/CentroidR"
-  ],
+  "contIntegration": ["https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml", "https://app.codecov.io/gh/adafede/CentroidR"],
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental"
 }

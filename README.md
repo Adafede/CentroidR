@@ -122,18 +122,16 @@ infrastructure to centroid profile spectra*. R package version 0.0.9004.
 ## Additional software credits
 
   | Package      | Version    | Citation                                                                                                           |
-  | :----------- | :--------- | :----------------------------------------------------------------------------------------------------------------- |
-  | base         | 4.6.1      | R Core Team (2026)                                                                                                 |
+  | :---         | :---       | :---                                                                                                               |
+  | base         | 4.6.2      | R Core Team (2026)                                                                                                 |
   | BiocManager  | 1.30.27    | Morgan and Ramos (2025)                                                                                            |
   | BiocParallel | 1.46.0     | Wang et al. (2026)                                                                                                 |
   | BiocVersion  | 3.23.1     | Morgan (2025)                                                                                                      |
   | CentroidR    | 0.0.0.9004 | Rutz and Rainer (2026)                                                                                             |
-  | knitr        | 1.51       | Xie (2014); Xie (2015); Xie (2025)                                                                                 |
-  | logger       | 0.4.2      | Daróczi and Wickham (2026)                                                                                         |
+  | knitr        | 1.52       | Xie (2014); Xie (2015); Xie (2026)                                                                                 |
   | MsCoreUtils  | 1.24.0     | Rainer et al. (2022a)                                                                                              |
-  | mzR          | 2.46.0     | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
-  | optparse     | 1.8.2      | Davis and Day (2026)                                                                                               |
-  | rmarkdown    | 2.31       | Xie et al. (2018); Xie et al. (2020); Allaire et al. (2026)                                                        |
+  | mzR          | 2.45.3     | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |
+  | rmarkdown    | 2.32       | Xie et al. (2018); Xie et al. (2020); Allaire et al. (2026)                                                        |
   | Spectra      | 1.22.2     | Rainer et al. (2022b)                                                                                              |
   | tinytest     | 1.4.3      | <span class="nocase">van der Loo</span> (2020)                                                                     |
 
@@ -142,7 +140,7 @@ infrastructure to centroid profile spectra*. R package version 0.0.9004.
 <div id="ref-rmarkdown2026" class="csl-entry">
 
 Allaire, JJ, Yihui Xie, Christophe Dervieux, et al. 2026.
-_<span class="nocase">rmarkdown</span>: Dynamic Documents for r_.
+*<span class="nocase">rmarkdown</span>: Dynamic Documents for r*.
 <https://github.com/rstudio/rmarkdown>.
 
 </div>
@@ -151,30 +149,15 @@ _<span class="nocase">rmarkdown</span>: Dynamic Documents for r_.
 
 Chambers, Matthew C., Maclean, et al. 2012. “<span class="nocase">A
 cross-platform toolkit for mass spectrometry and proteomics</span>.”
-_Nat Biotech_ 30 (10): 918–20. <https://doi.org/10.1038/nbt.2377>.
-
-</div>
-
-<div id="ref-logger" class="csl-entry">
-
-Daróczi, Gergely, and Hadley Wickham. 2026.
-_<span class="nocase">logger</span>: A Lightweight, Modern and Flexible
-Logging Utility_. <https://doi.org/10.32614/CRAN.package.logger>.
-
-</div>
-
-<div id="ref-optparse" class="csl-entry">
-
-Davis, Trevor L., and Allen Day. 2026.
-_<span class="nocase">optparse</span>: Command Line Option Parser_.
-<https://doi.org/10.32614/CRAN.package.optparse>.
+*Nat Biotech* 30 (10): 918–20. <https://doi.org/10.1038/nbt.2377>.
 
 </div>
 
 <div id="ref-mzR2005" class="csl-entry">
 
-Keller, Andrew, Jimmy Eng, Ning Zhang, Xiao-jun Li, and Ruedi Aebersold. 2005. “A Uniform Proteomics MS/MS Analysis Platform Utilizing Open XML
-File Formats.” _Mol Syst Biol_.
+Keller, Andrew, Jimmy Eng, Ning Zhang, Xiao-jun Li, and Ruedi Aebersold.
+2005. “A Uniform Proteomics MS/MS Analysis Platform Utilizing Open XML
+File Formats.” *Mol Syst Biol*.
 
 </div>
 
@@ -182,7 +165,7 @@ File Formats.” _Mol Syst Biol_.
 
 Kessner, Darren, Matt Chambers, Robert Burke, David Agus, and Parag
 Mallick. 2008. “ProteoWizard: Open Source Software for Rapid Proteomics
-Tools Development.” _Bioinformatics_ 24 (21): 2534–36.
+Tools Development.” *Bioinformatics* 24 (21): 2534–36.
 <https://doi.org/10.1093/bioinformatics/btn323>.
 
 </div>
@@ -190,22 +173,22 @@ Tools Development.” _Bioinformatics_ 24 (21): 2534–36.
 <div id="ref-mzR2010" class="csl-entry">
 
 Martens, Lennart, Matthew Chambers, Marc Sturm, et al. 2010. “MzML - a
-Community Standard for Mass Spectrometry Data.” _Mol Cell Proteomics_,
+Community Standard for Mass Spectrometry Data.” *Mol Cell Proteomics*,
 ahead of print. <https://doi.org/10.1074/mcp.R110.000133>.
 
 </div>
 
 <div id="ref-BiocVersion" class="csl-entry">
 
-Morgan, Martin. 2025. _BiocVersion: Set the Appropriate Version of
-Bioconductor Packages_.
+Morgan, Martin. 2025. *BiocVersion: Set the Appropriate Version of
+Bioconductor Packages*.
 
 </div>
 
 <div id="ref-BiocManager" class="csl-entry">
 
-Morgan, Martin, and Marcel Ramos. 2025. _BiocManager: Access the
-Bioconductor Project Package Repository_.
+Morgan, Martin, and Marcel Ramos. 2025. *BiocManager: Access the
+Bioconductor Project Package Repository*.
 <https://doi.org/10.32614/CRAN.package.BiocManager>.
 
 </div>
@@ -214,15 +197,15 @@ Bioconductor Project Package Repository_.
 
 Pedrioli, Patrick G A, Jimmy K Eng, Robert Hubley, et al. 2004. “A
 Common Open Representation of Mass Spectrometry Data and Its Application
-to Proteomics Research.” _Nat Biotechnol_ 22 (11): 1459–66.
+to Proteomics Research.” *Nat Biotechnol* 22 (11): 1459–66.
 <https://doi.org/10.1038/nbt1031>.
 
 </div>
 
 <div id="ref-base" class="csl-entry">
 
-R Core Team. 2026. _R: A Language and Environment for Statistical
-Computing_. R Foundation for Statistical Computing.
+R Core Team. 2026. *R: A Language and Environment for Statistical
+Computing*. R Foundation for Statistical Computing.
 <https://doi.org/10.32614/R.manuals>.
 
 </div>
@@ -231,7 +214,7 @@ Computing_. R Foundation for Statistical Computing.
 
 Rainer, Johannes, Andrea Vicini, Liesa Salzer, et al. 2022a. “A Modular
 and Expandable Ecosystem for Metabolomics Data Annotation in r.”
-_Metabolites_ 12: 173. <https://doi.org/10.3390/metabo12020173>.
+*Metabolites* 12: 173. <https://doi.org/10.3390/metabo12020173>.
 
 </div>
 
@@ -239,21 +222,21 @@ _Metabolites_ 12: 173. <https://doi.org/10.3390/metabo12020173>.
 
 Rainer, Johannes, Andrea Vicini, Liesa Salzer, et al. 2022b. “A Modular
 and Expandable Ecosystem for Metabolomics Data Annotation in r.”
-_Metabolites_ 12: 173. <https://doi.org/10.3390/metabo12020173>.
+*Metabolites* 12: 173. <https://doi.org/10.3390/metabo12020173>.
 
 </div>
 
 <div id="ref-CentroidR" class="csl-entry">
 
-Rutz, Adriano, and Johannes Rainer. 2026. _CentroidR: CentroidR Provides
-the Infrastructure to Centroid Profile Spectra_.
+Rutz, Adriano, and Johannes Rainer. 2026. *CentroidR: Centroid Profile
+Mass Spectrometry Data*. <https://doi.org/10.5281/zenodo.17250307>.
 
 </div>
 
 <div id="ref-tinytest" class="csl-entry">
 
 <span class="nocase">van der Loo, MPJ</span>. 2020. “A Method for
-Deriving Information from Running r Code.” _The R Journal_ 13: 42–52.
+Deriving Information from Running r Code.” *The R Journal* 13: 42–52.
 <https://journal.r-project.org/articles/RJ-2021-056/>.
 
 </div>
@@ -261,8 +244,8 @@ Deriving Information from Running r Code.” _The R Journal_ 13: 42–52.
 <div id="ref-BiocParallel" class="csl-entry">
 
 Wang, Jiefei, Martin Morgan, Valerie Obenchain, Michel Lang, Ryan
-Thompson, and Nitesh Turaga. 2026. _BiocParallel: Bioconductor
-Facilities for Parallel Evaluation_.
+Thompson, and Nitesh Turaga. 2026. *BiocParallel: Bioconductor
+Facilities for Parallel Evaluation*.
 <https://doi.org/10.18129/B9.bioc.BiocParallel>.
 
 </div>
@@ -270,37 +253,39 @@ Facilities for Parallel Evaluation_.
 <div id="ref-knitr2014" class="csl-entry">
 
 Xie, Yihui. 2014. “<span class="nocase">knitr</span>: A Comprehensive
-Tool for Reproducible Research in R.” In _Implementing Reproducible
-Computational Research_, edited by Victoria Stodden, Friedrich Leisch,
+Tool for Reproducible Research in R.” In *Implementing Reproducible
+Computational Research*, edited by Victoria Stodden, Friedrich Leisch,
 and Roger D. Peng. Chapman; Hall/CRC.
 
 </div>
 
 <div id="ref-knitr2015" class="csl-entry">
 
-Xie, Yihui. 2015. _Dynamic Documents with R and Knitr_. 2nd ed. Chapman;
+Xie, Yihui. 2015. *Dynamic Documents with R and Knitr*. 2nd ed. Chapman;
 Hall/CRC. <https://yihui.org/knitr/>.
 
 </div>
 
-<div id="ref-knitr2025" class="csl-entry">
+<div id="ref-knitr2026" class="csl-entry">
 
-Xie, Yihui. 2025. _<span class="nocase">knitr</span>: A General-Purpose
-Package for Dynamic Report Generation in R_. <https://yihui.org/knitr/>.
+Xie, Yihui. 2026. *<span class="nocase">knitr</span>: A General-Purpose
+Package for Dynamic Report Generation in R*. <https://yihui.org/knitr/>.
 
 </div>
 
 <div id="ref-rmarkdown2018" class="csl-entry">
 
-Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. _R Markdown: The
-Definitive Guide_. Chapman; Hall/CRC. <https://yihui.org/rmarkdown/>.
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. *R Markdown: The
+Definitive Guide*. Chapman; Hall/CRC.
+<https://pkg.yihui.org/rmarkdown-book/>.
 
 </div>
 
 <div id="ref-rmarkdown2020" class="csl-entry">
 
-Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. _R Markdown
-Cookbook_. Chapman; Hall/CRC. <https://yihui.org/rmarkdown-cookbook>.
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. *R Markdown
+Cookbook*. Chapman; Hall/CRC.
+<https://pkg.yihui.org/rmarkdown-cookbook/>.
 
 </div>
 

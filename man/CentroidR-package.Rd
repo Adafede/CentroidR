@@ -4,10 +4,26 @@
 \name{CentroidR-package}
 \alias{CentroidR}
 \alias{CentroidR-package}
-\title{CentroidR Package}
+\title{CentroidR: Centroid Profile Mass Spectrometry Data}
 \description{
-Internal package-level definitions and startup hooks for CentroidR.
+Infrastructure to centroid profile-mode mass spectrometry (\code{mzML}) files
+into peak-picked centroid spectra with configurable MS1 and MS2 tolerances,
+local-valley splitting of closely spaced peaks, and intensity-weighted m/z
+aggregation.
 }
+\section{EDAM Ontology Annotations}{
+
+\itemize{
+\item \strong{Topics}: \code{EDAM:topic_3172} (Metabolomics), \code{EDAM:topic_3370}
+(Analytical chemistry), \code{EDAM:topic_0154} (Small molecules)
+\item \strong{Operations}: \code{EDAM:operation_3215} (Peak picking / Centroiding),
+\code{EDAM:operation_3695} (Filtering)
+\item \strong{Data}: \code{EDAM:data_0943} (Mass spectrometry spectra),
+\code{EDAM:data_2536} (Mass spectrometry data)
+\item \strong{Formats}: \code{EDAM:format_3244} (mzML)
+}
+}
+
 \seealso{
 Useful links:
 \itemize{
@@ -27,4 +43,10 @@ Authors:
 }
 
 }
+\concept{EDAM:data_0943}
+\concept{EDAM:format_3244}
+\concept{EDAM:operation_3215}
+\concept{EDAM:topic_0154}
+\concept{EDAM:topic_3172}
+\concept{EDAM:topic_3370}
 \keyword{internal}

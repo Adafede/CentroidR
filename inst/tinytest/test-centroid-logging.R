@@ -8,14 +8,10 @@
 ## Two design notes:
 ##
 ## - Messages are asserted by substring, on the log file, which is what
-##   centroid_one_file() actually produces. Whether logger renders a level and
-##   timestamp prefix on each line is logger's own formatting contract, differs
-##   between logger versions and configurations, and is not something
-##   CentroidR controls, so nothing here depends on it.
-## - setup_logger() installs a logger appender for the output directory and
-##   nothing ever removes it, so the logger is reset before each run. Otherwise a
-##   stale appender pointing at a directory a previous test deleted would break
-##   every later log call in the session.
+##   centroid_one_file() actually produces.
+## - setup_logger() installs a logger appender for the output directory, so the
+##   logger is reset before each run. Otherwise a stale appender pointing at a
+##   directory a previous test deleted would remain active across direct calls.
 
 library(tinytest)
 
@@ -36,6 +32,9 @@ read_log <- function(dir, filename = "centroiding.log") {
 }
 
 setup_logger <- getFromNamespace("setup_logger", "CentroidR")
+.log_info <- getFromNamespace(".log_info", "CentroidR")
+.log_trace <- getFromNamespace(".log_trace", "CentroidR")
+.centroidr_log <- getFromNamespace(".centroidr_log", "CentroidR")
 
 ## ---------------------------------------------------------------------------
 ## setup_logger writes to the requested directory and file name
@@ -44,7 +43,7 @@ setup_logger <- getFromNamespace("setup_logger", "CentroidR")
 log_dir <- tempfile("logdir_")
 dir.create(log_dir)
 setup_logger(dir = log_dir)
-logger::log_info("marker after setup_logger")
+.log_info("marker after setup_logger")
 setup_log <- read_log(log_dir)
 centroidr_reset_logging()
 
@@ -57,8 +56,8 @@ expect_true(logged(setup_log, "marker after setup_logger"))
 trace_dir <- tempfile("logdir_trace_")
 dir.create(trace_dir)
 setup_logger(dir = trace_dir)
-logger::log_info("marker at info level")
-logger::log_trace("marker at trace level")
+.log_info("marker at info level")
+.log_trace("marker at trace level")
 trace_log <- read_log(trace_dir)
 centroidr_reset_logging()
 
@@ -72,7 +71,7 @@ expect_true(
 alt_dir <- tempfile("logdir2_")
 dir.create(alt_dir)
 setup_logger(dir = alt_dir, filename = "custom.log")
-logger::log_info("marker in custom log")
+.log_info("marker in custom log")
 alt_log <- read_log(alt_dir, "custom.log")
 centroidr_reset_logging()
 expect_true(file.exists(file.path(alt_dir, "custom.log")))
@@ -212,14 +211,12 @@ cleanup(custom)
 ## checked through a capturing appender instead.
 
 capture_log <- function(expr) {
-  ## An environment is used rather than <<- , which would search the parent of
-  ## the appender's own frame and so miss the local variable.
   sink <- new.env(parent = emptyenv())
   sink$lines <- character()
-  logger::log_appender(function(lines) {
+  .centroidr_log$appender <- function(lines) {
     sink$lines <- c(sink$lines, lines)
-  })
-  logger::log_threshold(logger::TRACE)
+  }
+  .centroidr_log$threshold <- 600L
   on.exit(centroidr_reset_logging(), add = TRUE)
   value <- force(expr)
   list(value = value, log = sink$lines)
@@ -299,7 +296,7 @@ expect_true(logged(vanish_log, "Successfully centroided: "))
 
 ## A message logged after the run must not be appended to the run's log, which
 ## is what proves the appender was handed back.
-invisible(capture.output(logger::log_info("marker after the run")))
+invisible(capture.output(.log_info("marker after the run")))
 expect_false(
   logged(read_log(vanish_dir), "marker after the run"),
   info = "the run's appender should not outlive the run"
@@ -317,7 +314,7 @@ unlink(gone_dir, recursive = TRUE)
 expect_true(
   tryCatch(
     {
-      invisible(capture.output(logger::log_info("marker after delete")))
+      invisible(capture.output(.log_info("marker after delete")))
       TRUE
     },
     error = function(e) FALSE

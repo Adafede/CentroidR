@@ -40,13 +40,26 @@ jobs:
 
           library(cffr)
 
-          # Customize with your own code
-          # See https://docs.ropensci.org/cffr/articles/cffr.html
+          mykeys <- list(
+            doi = "10.5281/zenodo.17250307",
+            keywords = c(
+              "centroiding",
+              "spectra",
+              "centroid",
+              "mass-spectra",
+              "mass-spectrometry",
+              "metabolomics",
+              "mzML",
+              "EDAM:topic_3172",
+              "EDAM:topic_3370",
+              "EDAM:topic_0154",
+              "EDAM:operation_3215",
+              "EDAM:data_0943",
+              "EDAM:format_3244",
+              "r"
+            )
+          )
 
-          # Write your own keys
-          mykeys <- list()
-
-          # Create your CITATION.cff file
           cff_write(keys = mykeys)
 
         shell: Rscript {0}

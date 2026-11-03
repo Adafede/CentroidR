@@ -2,6 +2,15 @@
 
 ## CentroidR 0.0.9004
 
+- Drop external `logger` and `optparse` dependencies in favour of
+  zero-dependency base R logging and CLI argument parsing.
+- Vectorize peak-group local-maxima screening, intensity weighting, and metadata
+  aggregation (`list2DF()`), skip empty MS levels in `.process_spectra()`, pass
+  `BiocParallel::SerialParam()` consistently, and avoid redundant re-export on
+  single-batch files.
+- Add EDAM ontology annotations (`topic_3172`, `topic_3370`, `topic_0154`,
+  `operation_3215`, `data_0943`, `format_3244`) across `DESCRIPTION`,
+  `codemeta.json`, `CITATION.cff`, documentation, and container metadata.
 - Fix centroid m/z/intensity alignment bug.
 - Add regression tests for the reported m/z 164.0528 case.
 - Reduce centroid allocation overhead for faster, leaner processing.

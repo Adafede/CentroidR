@@ -13,13 +13,10 @@
 ## ordering and keeps them quiet.
 
 centroidr_reset_logging <- function() {
-  ## The appender is passed as a function value, not called: log_appender() takes
-  ## the appender itself. Calling log_appender() with no argument only prints the
-  ## current appender and leaves a broken one in place, and calling
-  ## appender_stdout() directly fails because the appenders take a `lines`
-  ## argument.
-  logger::log_appender(logger::appender_stdout)
-  logger::log_threshold(logger::INFO)
+  log_env <- getFromNamespace(".centroidr_log", "CentroidR")
+  log_env$appender <- getFromNamespace(".appender_stdout", "CentroidR")
+  log_env$threshold <- 400L
+  log_env$installed <- FALSE
   invisible(NULL)
 }
 

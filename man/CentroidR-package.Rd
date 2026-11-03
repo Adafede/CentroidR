@@ -14,13 +14,28 @@ aggregation.
 \section{EDAM Ontology Annotations}{
 
 \itemize{
-\item \strong{Topics}: \code{EDAM:topic_3172} (Metabolomics), \code{EDAM:topic_3370}
-(Analytical chemistry), \code{EDAM:topic_0154} (Small molecules)
-\item \strong{Operations}: \code{EDAM:operation_3215} (Peak picking / Centroiding),
-\code{EDAM:operation_3695} (Filtering)
-\item \strong{Data}: \code{EDAM:data_0943} (Mass spectrometry spectra),
-\code{EDAM:data_2536} (Mass spectrometry data)
-\item \strong{Formats}: \code{EDAM:format_3244} (mzML)
+\item \strong{Topics}:
+\itemize{
+\item \code{EDAM:topic_3172} — Metabolomics (\verb{http://edamontology.org/topic_3172})
+\item \code{EDAM:topic_0153} — Lipids / Lipidomics (\verb{http://edamontology.org/topic_0153})
+\item \code{EDAM:topic_0154} — Small molecules (\verb{http://edamontology.org/topic_0154})
+\item \code{EDAM:topic_3370} — Analytical chemistry (\verb{http://edamontology.org/topic_3370})
+}
+\item \strong{Operations}:
+\itemize{
+\item \code{EDAM:operation_3215} — Peak detection / Peak picking / Centroiding (\verb{http://edamontology.org/operation_3215})
+\item \code{EDAM:operation_3214} — Spectral analysis (\verb{http://edamontology.org/operation_3214})
+\item \code{EDAM:operation_3695} — Data filtering (\verb{http://edamontology.org/operation_3695})
+}
+\item \strong{Data}:
+\itemize{
+\item \code{EDAM:data_0943} — Mass spectrum (\verb{http://edamontology.org/data_0943})
+\item \code{EDAM:data_2536} — Mass spectrometry data (\verb{http://edamontology.org/data_2536})
+}
+\item \strong{Formats}:
+\itemize{
+\item \code{EDAM:format_3244} — mzML (\verb{http://edamontology.org/format_3244})
+}
 }
 }
 
@@ -44,8 +59,12 @@ Authors:
 
 }
 \concept{EDAM:data_0943}
+\concept{EDAM:data_2536}
 \concept{EDAM:format_3244}
+\concept{EDAM:operation_3214}
 \concept{EDAM:operation_3215}
+\concept{EDAM:operation_3695}
+\concept{EDAM:topic_0153}
 \concept{EDAM:topic_0154}
 \concept{EDAM:topic_3172}
 \concept{EDAM:topic_3370}

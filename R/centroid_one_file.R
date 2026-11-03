@@ -59,12 +59,27 @@
 #' `pattern` is a regular expression, as in `sub()`.
 #'
 #' @section EDAM Ontology:
-#' - Operation: `http://edamontology.org/operation_3215` (Peak picking)
-#' - Input/Output Data: `http://edamontology.org/data_0943` (Mass spectrometry spectra)
-#' - Input/Output Format: `http://edamontology.org/format_3244` (mzML)
+#' - **Topics**: `http://edamontology.org/topic_3172` (Metabolomics),
+#'   `http://edamontology.org/topic_0153` (Lipids),
+#'   `http://edamontology.org/topic_0154` (Small molecules),
+#'   `http://edamontology.org/topic_3370` (Analytical chemistry)
+#' - **Operations**: `http://edamontology.org/operation_3215` (Peak detection /
+#'   Peak picking / Centroiding), `http://edamontology.org/operation_3214`
+#'   (Spectral analysis), `http://edamontology.org/operation_3695`
+#'   (Data filtering)
+#' - **Input/Output Data**: `http://edamontology.org/data_0943` (Mass spectrum),
+#'   `http://edamontology.org/data_2536` (Mass spectrometry data)
+#' - **Input/Output Format**: `http://edamontology.org/format_3244` (mzML)
 #'
+#' @concept EDAM:topic_3172
+#' @concept EDAM:topic_0153
+#' @concept EDAM:topic_0154
+#' @concept EDAM:topic_3370
 #' @concept EDAM:operation_3215
+#' @concept EDAM:operation_3214
+#' @concept EDAM:operation_3695
 #' @concept EDAM:data_0943
+#' @concept EDAM:data_2536
 #' @concept EDAM:format_3244
 #' @export
 #' @author Johannes Rainer, Adriano Rutz
@@ -101,10 +116,14 @@ centroid_one_file <- function(
   stopifnot(
     is.character(file),
     length(file) == 1L,
+    !is.na(file),
+    nzchar(file),
     is.character(pattern),
     length(pattern) == 1L,
+    !is.na(pattern),
     is.character(replacement),
     length(replacement) == 1L,
+    !is.na(replacement),
     is.numeric(min_datapoints_ms1),
     length(min_datapoints_ms1) == 1L,
     ## A threshold counts data points, so it has to be at least one. Zero and
@@ -122,22 +141,33 @@ centroid_one_file <- function(
     min_datapoints_ms2 %% 1 == 0,
     is.numeric(mz_tol_da_ms1),
     length(mz_tol_da_ms1) == 1L,
+    is.finite(mz_tol_da_ms1),
+    mz_tol_da_ms1 >= 0,
     is.numeric(mz_tol_da_ms2),
     length(mz_tol_da_ms2) == 1L,
+    is.finite(mz_tol_da_ms2),
+    mz_tol_da_ms2 >= 0,
     is.numeric(mz_tol_ppm_ms1),
     length(mz_tol_ppm_ms1) == 1L,
+    is.finite(mz_tol_ppm_ms1),
+    mz_tol_ppm_ms1 >= 0,
     is.numeric(mz_tol_ppm_ms2),
     length(mz_tol_ppm_ms2) == 1L,
+    is.finite(mz_tol_ppm_ms2),
+    mz_tol_ppm_ms2 >= 0,
     is.function(mz_fun_ms1),
     is.function(mz_fun_ms2),
     is.function(int_fun_ms1),
     is.function(int_fun_ms2),
     is.logical(mz_weighted),
     length(mz_weighted) == 1L,
+    !is.na(mz_weighted),
     is.logical(time_domain),
     length(time_domain) == 1L,
+    !is.na(time_domain),
     is.numeric(intensity_exponent),
-    length(intensity_exponent) == 1L
+    length(intensity_exponent) == 1L,
+    is.finite(intensity_exponent)
   )
 
   # Construct output file path
@@ -285,7 +315,6 @@ centroid_one_file <- function(
   env <- new.env(parent = emptyenv())
   env$threshold <- 400L
   env$appender <- .appender_stdout
-  env$installed <- FALSE
   env
 })
 
@@ -331,7 +360,6 @@ setup_logger <- function(
 ) {
   .centroidr_log$threshold <- 600L
   .centroidr_log$appender <- .log_appender(file.path(dir, filename))
-  .centroidr_log$installed <- TRUE
   invisible(NULL)
 }
 
@@ -345,12 +373,8 @@ setup_logger <- function(
 #' @return NULL, invisibly.
 #' @noRd
 restore_logger <- function() {
-  if (!isTRUE(.centroidr_log$installed)) {
-    return(invisible(NULL))
-  }
   .centroidr_log$appender <- .appender_stdout
   .centroidr_log$threshold <- 400L
-  .centroidr_log$installed <- FALSE
   invisible(NULL)
 }
 
@@ -395,8 +419,7 @@ restore_logger <- function() {
 
 #' @noRd
 .split_peak_group <- function(idx, int_raw, valley_ratio = 0.2, hws = 2L) {
-  n <- length(idx)
-  if (n < hws + 2L) {
+  if (length(idx) < 3L) {
     return(list(idx))
   }
   ints <- int_raw[idx]
@@ -426,46 +449,12 @@ restore_logger <- function() {
   c(
     .split_peak_group(idx[seq_len(split_at)], int_raw, valley_ratio, hws),
     .split_peak_group(
-      idx[(split_at + 1L):n],
+      idx[(split_at + 1L):length(idx)],
       int_raw,
       valley_ratio,
       hws
     )
   )
-}
-
-#' Vectorized screening of peak groups before recursive valley splitting
-#' @noRd
-.split_peak_groups <- function(grp_idx, int_raw, valley_ratio = 0.2, hws = 2L) {
-  lens <- lengths(grp_idx, use.names = FALSE)
-  cand <- which(lens >= hws + 2L)
-  if (!length(cand)) {
-    return(unname(grp_idx))
-  }
-  cand_idx <- grp_idx[cand]
-  cand_lens <- lens[cand]
-  block_lens <- cand_lens + 2L * hws
-  padded <- numeric(sum(block_lens))
-  ends <- cumsum(block_lens)
-  starts <- ends - block_lens + 1L
-  pos <- sequence(cand_lens, from = starts)
-  padded[pos] <- int_raw[unlist(cand_idx, use.names = FALSE)]
-  lm <- MsCoreUtils::localMaxima(padded, hws = hws)[pos]
-  lm_ends <- cumsum(cand_lens)
-  lm_counts <- diff(c(0L, cumsum(lm)[lm_ends]))
-  to_split <- cand[lm_counts >= 2L]
-  if (!length(to_split)) {
-    return(unname(grp_idx))
-  }
-  res <- lapply(grp_idx, list)
-  res[to_split] <- lapply(
-    grp_idx[to_split],
-    .split_peak_group,
-    int_raw = int_raw,
-    valley_ratio = valley_ratio,
-    hws = hws
-  )
-  unlist(res, recursive = FALSE, use.names = FALSE)
 }
 
 #' @noRd
@@ -494,17 +483,14 @@ restore_logger <- function() {
       peak_groups,
       function(i) {
         w <- w_all[i]
-        sw <- sum(w)
-        if (sw == 0 && sum(abs(w)) == 0) {
+        if (sum(abs(w)) == 0) {
           mzFun(mz_raw[i])
         } else {
-          sum(mw_all[i]) / sw
+          sum(mw_all[i]) / sum(w)
         }
       },
       numeric(1)
     )
-  } else if (identical(mzFun, base::mean)) {
-    vapply(peak_groups, function(i) sum(mz_raw[i]) / length(i), numeric(1))
   } else {
     vapply(peak_groups, function(i) mzFun(mz_raw[i]), numeric(1))
   }
@@ -557,7 +543,11 @@ restore_logger <- function() {
     return(x)
   }
   grp_idx <- .peak_group_indices(grps)
-  peak_groups <- .split_peak_groups(grp_idx, int_raw = int_raw)
+  peak_groups <- unlist(
+    lapply(grp_idx, .split_peak_group, int_raw = int_raw),
+    recursive = FALSE,
+    use.names = FALSE
+  )
   peak_names <- .peak_group_names(peak_groups)
 
   mzs <- .peak_group_mzs(
@@ -605,10 +595,7 @@ restore_logger <- function() {
     useBytes = TRUE
   )
   writeLines(lines, temp_file, useBytes = TRUE)
-  if (!file.rename(temp_file, file_path)) {
-    file.copy(temp_file, file_path, overwrite = TRUE)
-  }
-  invisible(TRUE)
+  file.rename(temp_file, file_path)
 }
 
 #' @noRd
@@ -662,67 +649,40 @@ restore_logger <- function() {
   ## already grouped by MS level. Record which input spectrum each processed
   ## spectrum came from so .keep_empty() can restore the right one.
   ms_levels <- Spectra::msLevel(spectra)
-  idx_1 <- which(ms_levels == 1L)
-  idx_2 <- which(ms_levels == 2L)
-  order_map <- c(idx_1, idx_2)
+  order_map <- c(which(ms_levels == 1L), which(ms_levels == 2L))
+  serial_param <- BiocParallel::SerialParam()
 
-  proc_level <- function(sub_sp, tol_da, tol_ppm, int_fun, mz_fun, ms_level) {
-    sub_sp |>
-      Spectra::addProcessing(
-        .peaks_combine,
-        tolerance = tol_da,
-        ppm = tol_ppm,
-        intensityFun = int_fun,
-        mzFun = mz_fun,
-        weighted = mz_weighted,
-        timeDomain = time_domain,
-        intensity_exponent = intensity_exponent,
-        msLevel. = ms_level
-      ) |>
-      Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
-      Spectra::applyProcessing(BPPARAM = BiocParallel::SerialParam())
-  }
-
-  centroided <- if (length(idx_1) && length(idx_2)) {
-    Spectra::concatenateSpectra(
-      proc_level(
-        spectra[idx_1],
-        mz_tol_da_ms1,
-        mz_tol_ppm_ms1,
-        custom_int_fun_ms1,
-        mz_fun_ms1,
-        1L
-      ),
-      proc_level(
-        spectra[idx_2],
-        mz_tol_da_ms2,
-        mz_tol_ppm_ms2,
-        custom_int_fun_ms2,
-        mz_fun_ms2,
-        2L
-      )
-    )
-  } else if (length(idx_1)) {
-    proc_level(
-      spectra[idx_1],
-      mz_tol_da_ms1,
-      mz_tol_ppm_ms1,
-      custom_int_fun_ms1,
-      mz_fun_ms1,
-      1L
-    )
-  } else if (length(idx_2)) {
-    proc_level(
-      spectra[idx_2],
-      mz_tol_da_ms2,
-      mz_tol_ppm_ms2,
-      custom_int_fun_ms2,
-      mz_fun_ms2,
-      2L
-    )
-  } else {
-    spectra[integer(0)]
-  }
+  centroided_2 <- spectra |>
+    Spectra::filterMsLevel(2L) |>
+    Spectra::addProcessing(
+      .peaks_combine,
+      tolerance = mz_tol_da_ms2,
+      ppm = mz_tol_ppm_ms2,
+      intensityFun = custom_int_fun_ms2,
+      mzFun = mz_fun_ms2,
+      weighted = mz_weighted,
+      timeDomain = time_domain,
+      intensity_exponent = intensity_exponent,
+      msLevel. = 2L
+    ) |>
+    Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
+    Spectra::applyProcessing(BPPARAM = serial_param)
+  centroided_1 <- spectra |>
+    Spectra::filterMsLevel(1L) |>
+    Spectra::addProcessing(
+      .peaks_combine,
+      tolerance = mz_tol_da_ms1,
+      ppm = mz_tol_ppm_ms1,
+      intensityFun = custom_int_fun_ms1,
+      mzFun = mz_fun_ms1,
+      weighted = mz_weighted,
+      timeDomain = time_domain,
+      intensity_exponent = intensity_exponent,
+      msLevel. = 1L
+    ) |>
+    Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
+    Spectra::applyProcessing(BPPARAM = serial_param)
+  centroided <- Spectra::concatenateSpectra(centroided_1, centroided_2)
   .keep_empty(spectra, centroided, order_map)
 }
 
@@ -747,28 +707,19 @@ restore_logger <- function() {
   batch_size = 4096L
 ) {
   setup_logger(dir = outd)
-  make_int_fun <- function(int_fun, min_datapoints) {
-    force(int_fun)
-    force(min_datapoints)
-    if (min_datapoints <= 1L) {
-      function(intensities) {
-        if (any(intensities > 0, na.rm = TRUE)) int_fun(intensities) else 0
-      }
+  custom_int_fun <- function(int_fun, intensities, min_datapoints) {
+    if (sum(intensities > 0, na.rm = TRUE) >= min_datapoints) {
+      int_fun(intensities)
     } else {
-      function(intensities) {
-        if (
-          length(intensities) >= min_datapoints &&
-            sum(intensities > 0, na.rm = TRUE) >= min_datapoints
-        ) {
-          int_fun(intensities)
-        } else {
-          0
-        }
-      }
+      0
     }
   }
-  custom_int_fun_ms1 <- make_int_fun(int_fun_ms1, min_datapoints_ms1)
-  custom_int_fun_ms2 <- make_int_fun(int_fun_ms2, min_datapoints_ms2)
+  custom_int_fun_ms1 <- function(intensities) {
+    custom_int_fun(int_fun_ms1, intensities, min_datapoints_ms1)
+  }
+  custom_int_fun_ms2 <- function(intensities) {
+    custom_int_fun(int_fun_ms2, intensities, min_datapoints_ms2)
+  }
   ## seq() below is only well defined for a non-empty input, and there is no
   ## work to do for an empty file anyway. Fail with a readable reason rather
   ## than letting seq() report an unrelated "wrong sign in 'by' argument".
@@ -819,32 +770,28 @@ restore_logger <- function() {
     character(1)
   )
   .log_trace("Concatenating all processed batches")
-  .log_trace(paste0("Exporting: ", basename(outf)))
+  sp_cen <- Spectra::Spectra(
+    temp_files,
+    backend = Spectra::MsBackendMzR(),
+    BPPARAM = serial_param
+  )
   ## Export to a temporary file and publish it with a rename, both inside `outd`
-  ## so the rename stays on one filesystem. When all spectra fit in a single
-  ## batch, the batch output is already a complete mzML file in `tmp_batch_dir`,
-  ## so we can publish it directly without re-reading and re-exporting.
-  if (length(temp_files) == 1L) {
-    tmp_outf <- temp_files[[1L]]
-  } else {
-    sp_cen <- Spectra::Spectra(
-      temp_files,
-      backend = Spectra::MsBackendMzR(),
-      BPPARAM = serial_param
-    )
-    tmp_outf <- tempfile(
-      pattern = "centroid_",
-      tmpdir = tmp_batch_dir,
-      fileext = ".mzML"
-    )
-    Spectra::export(
-      sp_cen,
-      file = tmp_outf,
-      backend = Spectra::MsBackendMzR(),
-      BPPARAM = serial_param
-    )
-    rm(sp_cen)
-  }
+  ## so the rename stays on one filesystem. A torn export therefore never lands
+  ## at `outf`: the next run would otherwise see that output already exists and
+  ## skip the work, reporting success for a truncated file.
+  tmp_outf <- tempfile(
+    pattern = "centroid_",
+    tmpdir = tmp_batch_dir,
+    fileext = ".mzML"
+  )
+  .log_trace(paste0("Exporting: ", basename(outf)))
+  Spectra::export(
+    sp_cen,
+    file = tmp_outf,
+    backend = Spectra::MsBackendMzR(),
+    BPPARAM = serial_param
+  )
+  rm(sp_cen)
   if (!file.rename(tmp_outf, outf)) {
     stop("Failed to move exported file from ", tmp_outf, " to ", outf)
   }

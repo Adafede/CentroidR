@@ -102,9 +102,17 @@ File path modifications are supported via \code{pattern} and \code{replacement}.
 \section{EDAM Ontology}{
 
 \itemize{
-\item Operation: \verb{http://edamontology.org/operation_3215} (Peak picking)
-\item Input/Output Data: \verb{http://edamontology.org/data_0943} (Mass spectrometry spectra)
-\item Input/Output Format: \verb{http://edamontology.org/format_3244} (mzML)
+\item \strong{Topics}: \verb{http://edamontology.org/topic_3172} (Metabolomics),
+\verb{http://edamontology.org/topic_0153} (Lipids),
+\verb{http://edamontology.org/topic_0154} (Small molecules),
+\verb{http://edamontology.org/topic_3370} (Analytical chemistry)
+\item \strong{Operations}: \verb{http://edamontology.org/operation_3215} (Peak detection /
+Peak picking / Centroiding), \verb{http://edamontology.org/operation_3214}
+(Spectral analysis), \verb{http://edamontology.org/operation_3695}
+(Data filtering)
+\item \strong{Input/Output Data}: \verb{http://edamontology.org/data_0943} (Mass spectrum),
+\verb{http://edamontology.org/data_2536} (Mass spectrometry data)
+\item \strong{Input/Output Format}: \verb{http://edamontology.org/format_3244} (mzML)
 }
 }
 
@@ -124,5 +132,12 @@ File path modifications are supported via \code{pattern} and \code{replacement}.
 Johannes Rainer, Adriano Rutz
 }
 \concept{EDAM:data_0943}
+\concept{EDAM:data_2536}
 \concept{EDAM:format_3244}
+\concept{EDAM:operation_3214}
 \concept{EDAM:operation_3215}
+\concept{EDAM:operation_3695}
+\concept{EDAM:topic_0153}
+\concept{EDAM:topic_0154}
+\concept{EDAM:topic_3172}
+\concept{EDAM:topic_3370}

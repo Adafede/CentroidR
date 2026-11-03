@@ -8,8 +8,9 @@
   aggregation (`list2DF()`), skip empty MS levels in `.process_spectra()`, pass
   `BiocParallel::SerialParam()` consistently, and avoid redundant re-export on
   single-batch files.
-- Add EDAM ontology annotations (`topic_3172`, `topic_3370`, `topic_0154`,
-  `operation_3215`, `data_0943`, `format_3244`) across `DESCRIPTION`,
+- Add EDAM ontology annotations (`topic_3172`, `topic_0153`, `topic_0154`,
+  `topic_3370`, `operation_3215`, `operation_3214`, `operation_3695`,
+  `data_0943`, `data_2536`, `format_3244`) across `DESCRIPTION`,
   `codemeta.json`, `CITATION.cff`, documentation, and container metadata.
 - Fix centroid m/z/intensity alignment bug.
 - Add regression tests for the reported m/z 164.0528 case.

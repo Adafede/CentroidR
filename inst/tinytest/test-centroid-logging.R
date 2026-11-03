@@ -295,31 +295,49 @@ expect_true(logged(vanish_log, "Processing mzML file"))
 expect_true(logged(vanish_log, "Successfully centroided: "))
 
 ## A message logged after the run must not be appended to the run's log, which
-## is what proves the appender was handed back.
-invisible(capture.output(.log_info("marker after the run")))
+## is what proves the appender was handed back, and TRACE messages must be
+## suppressed again, proving the threshold returned to INFO.
+after_info <- capture.output(.log_info("marker after the run"))
+after_trace <- capture.output(.log_trace("trace after the run"))
+expect_true(logged(after_info, "marker after the run"))
+expect_equal(
+  length(after_trace),
+  0L,
+  info = "restore_logger should reset the threshold back to INFO"
+)
 expect_false(
   logged(read_log(vanish_dir), "marker after the run"),
   info = "the run's appender should not outlive the run"
 )
 
 ## And once the log's directory is gone, logging must degrade to the console
-## instead of failing, which is what used to abort the rest of the session.
-## setup_logger() is called directly here: going through centroid_one_file()
-## would hand the logger back at the end, so the file appender would never see
-## the deleted directory and this would pass even without the guard.
+## with a single warning instead of failing, which is what used to abort the
+## rest of the session. setup_logger() is called directly here: going through
+## centroid_one_file() would hand the logger back at the end, so the file
+## appender would never see the deleted directory.
 gone_dir <- tempfile("loggone_")
 dir.create(gone_dir)
 setup_logger(dir = gone_dir)
 unlink(gone_dir, recursive = TRUE)
-expect_true(
-  tryCatch(
-    {
-      invisible(capture.output(.log_info("marker after delete")))
-      TRUE
-    },
-    error = function(e) FALSE
-  ),
-  info = "logging must survive a deleted log directory"
+expect_warning(
+  first_out <- capture.output(.log_info("marker after delete")),
+  pattern = "CentroidR cannot write its log file",
+  info = "first failed write should warn once"
 )
+expect_true(logged(first_out, "marker after delete"))
+warn_state <- new.env(parent = emptyenv())
+warn_state$warned <- FALSE
+second_out <- withCallingHandlers(
+  capture.output(.log_info("second marker after delete")),
+  warning = function(w) {
+    warn_state$warned <- TRUE
+    invokeRestart("muffleWarning")
+  }
+)
+expect_false(
+  warn_state$warned,
+  info = "subsequent failed writes should not re-warn"
+)
+expect_true(logged(second_out, "second marker after delete"))
 centroidr_reset_logging()
 unlink(gone_dir, recursive = TRUE)

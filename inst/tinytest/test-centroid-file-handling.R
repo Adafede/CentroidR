@@ -209,13 +209,49 @@ expect_error(
   )
 )
 
-## The logical and numeric flags must be length one.
+## The logical and numeric flags must be length one and non-NA / finite.
+expect_error(
+  CentroidR::centroid_one_file(
+    file = NA_character_,
+    pattern = "profile_",
+    replacement = "c"
+  )
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    file = "",
+    pattern = "profile_",
+    replacement = "c"
+  )
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = NA_character_,
+    replacement = "c"
+  )
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = NA_character_
+  )
+)
 expect_error(
   CentroidR::centroid_one_file(
     file = valid,
     pattern = "profile_",
     replacement = "c",
     mz_weighted = c(TRUE, FALSE)
+  )
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    mz_weighted = NA
   )
 )
 expect_error(
@@ -231,9 +267,61 @@ expect_error(
     file = valid,
     pattern = "profile_",
     replacement = "c",
+    time_domain = NA
+  )
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
     intensity_exponent = c(1, 2)
   )
 )
+for (bad_exp in list(NA_real_, NaN, Inf, -Inf)) {
+  expect_error(
+    CentroidR::centroid_one_file(
+      file = valid,
+      pattern = "profile_",
+      replacement = "c",
+      intensity_exponent = bad_exp
+    )
+  )
+}
+for (bad_tol in list(-0.001, NA_real_, NaN, Inf, -Inf)) {
+  expect_error(
+    CentroidR::centroid_one_file(
+      file = valid,
+      pattern = "profile_",
+      replacement = "c",
+      mz_tol_da_ms1 = bad_tol
+    )
+  )
+  expect_error(
+    CentroidR::centroid_one_file(
+      file = valid,
+      pattern = "profile_",
+      replacement = "c",
+      mz_tol_da_ms2 = bad_tol
+    )
+  )
+  expect_error(
+    CentroidR::centroid_one_file(
+      file = valid,
+      pattern = "profile_",
+      replacement = "c",
+      mz_tol_ppm_ms1 = bad_tol
+    )
+  )
+  expect_error(
+    CentroidR::centroid_one_file(
+      file = valid,
+      pattern = "profile_",
+      replacement = "c",
+      mz_tol_ppm_ms2 = bad_tol
+    )
+  )
+}
 
 ## A threshold counts data points, so it has to be a whole number of at least
 ## one. Zero and negatives used to be accepted and silently centroided peak

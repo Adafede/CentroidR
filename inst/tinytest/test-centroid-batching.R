@@ -252,3 +252,38 @@ expect_error(
   pattern = "no spectra"
 )
 unlink(empty_outd, recursive = TRUE)
+
+## ---------------------------------------------------------------------------
+## A failed atomic rename of the exported file is reported as an error
+## ---------------------------------------------------------------------------
+
+rename_outd <- tempfile("batch_rename_")
+dir.create(rename_outd)
+blocked_outf <- file.path(rename_outd, "blocked.mzML")
+dir.create(blocked_outf)
+expect_error(
+  suppressWarnings(
+    .process_spectra_batches(
+      spectra = make_spectra(1),
+      outf = blocked_outf,
+      outd = rename_outd,
+      min_datapoints_ms1 = 1L,
+      min_datapoints_ms2 = 1L,
+      mz_tol_da_ms1 = 0.01,
+      mz_tol_da_ms2 = 0.01,
+      mz_tol_ppm_ms1 = 0,
+      mz_tol_ppm_ms2 = 0,
+      mz_fun_ms1 = base::mean,
+      mz_fun_ms2 = base::mean,
+      int_fun_ms1 = base::max,
+      int_fun_ms2 = base::max,
+      mz_weighted = TRUE,
+      time_domain = FALSE,
+      intensity_exponent = 3,
+      batch_size = 2L
+    )
+  ),
+  pattern = "Failed to move exported file"
+)
+centroidr_reset_logging()
+unlink(rename_outd, recursive = TRUE)

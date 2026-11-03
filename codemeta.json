@@ -116,7 +116,21 @@
     },
     "SystemRequirements": null
   },
-  "keywords": ["centroiding", "spectra", "mass-spectrometry", "metabolomics", "mzML", "EDAM:topic_3172", "EDAM:topic_3370", "EDAM:topic_0154", "EDAM:operation_3215", "EDAM:data_0943", "EDAM:format_3244", "centroid", "mass-spectra", "r"],
+  "applicationCategory": [
+    "http://edamontology.org/topic_3172",
+    "http://edamontology.org/topic_0153",
+    "http://edamontology.org/topic_0154",
+    "http://edamontology.org/topic_3370"
+  ],
+  "applicationSubCategory": [
+    "http://edamontology.org/operation_3215",
+    "http://edamontology.org/operation_3214",
+    "http://edamontology.org/operation_3695",
+    "http://edamontology.org/data_0943",
+    "http://edamontology.org/data_2536",
+    "http://edamontology.org/format_3244"
+  ],
+  "keywords": ["centroiding", "spectra", "mass-spectrometry", "metabolomics", "lipidomics", "mzML", "EDAM:topic_3172", "EDAM:topic_0153", "EDAM:topic_0154", "EDAM:topic_3370", "EDAM:operation_3215", "EDAM:operation_3214", "EDAM:operation_3695", "EDAM:data_0943", "EDAM:data_2536", "EDAM:format_3244", "centroid", "mass-spectra", "r"],
   "fileSize": "350.122KB",
   "citation": [
     {

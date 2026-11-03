@@ -49,17 +49,22 @@ contact:
 keywords:
 - centroiding
 - spectra
-- mass-spectrometry
-- metabolomics
-- mzML
-- EDAM:topic_3172
-- EDAM:topic_3370
-- EDAM:topic_0154
-- EDAM:operation_3215
-- EDAM:data_0943
-- EDAM:format_3244
 - centroid
 - mass-spectra
+- mass-spectrometry
+- metabolomics
+- lipidomics
+- mzML
+- EDAM:topic_3172
+- EDAM:topic_0153
+- EDAM:topic_0154
+- EDAM:topic_3370
+- EDAM:operation_3215
+- EDAM:operation_3214
+- EDAM:operation_3695
+- EDAM:data_0943
+- EDAM:data_2536
+- EDAM:format_3244
 - r
 references:
 - type: software

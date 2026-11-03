@@ -13,11 +13,7 @@
 ## ordering and keeps them quiet.
 
 centroidr_reset_logging <- function() {
-  log_env <- getFromNamespace(".centroidr_log", "CentroidR")
-  log_env$appender <- getFromNamespace(".appender_stdout", "CentroidR")
-  log_env$threshold <- 400L
-  log_env$installed <- FALSE
-  invisible(NULL)
+  getFromNamespace("restore_logger", "CentroidR")()
 }
 
 centroidr_reset_logging()

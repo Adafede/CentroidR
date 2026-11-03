@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.20">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -93,14 +93,15 @@ div.csl-indent {
 <link href="./man/figures/logo.svg" rel="icon" type="image/svg+xml">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-17888a1159294d3eb470f19f6f52f5a5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2f71d848462b676b2af838f1236eb696.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-3dba021ccb97a5709654d2c27fb431b2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -132,11 +133,11 @@ div.csl-indent {
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="./index.html" class="navbar-brand navbar-brand-logo">
@@ -147,8 +148,7 @@ div.csl-indent {
     <span class="navbar-title">CentroidR</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -176,6 +176,7 @@ div.csl-indent {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
+            <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -184,7 +185,7 @@ div.csl-indent {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
@@ -205,7 +206,7 @@ div.csl-indent {
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content" tabindex="-1"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
@@ -287,9 +288,9 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="additional-software-credits">Additional software credits</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 8%">
-<col style="width: 7%">
-<col style="width: 83%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -301,7 +302,7 @@ div.csl-indent {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">base</td>
-<td style="text-align: left;">4.6.1</td>
+<td style="text-align: left;">4.6.2</td>
 <td style="text-align: left;">R Core Team (2026)</td>
 </tr>
 <tr class="even">
@@ -326,32 +327,22 @@ div.csl-indent {
 </tr>
 <tr class="even">
 <td style="text-align: left;">knitr</td>
-<td style="text-align: left;">1.51</td>
-<td style="text-align: left;">Xie (2014); Xie (2015); Xie (2025)</td>
+<td style="text-align: left;">1.52</td>
+<td style="text-align: left;">Xie (2014); Xie (2015); Xie (2026)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">logger</td>
-<td style="text-align: left;">0.4.2</td>
-<td style="text-align: left;">Daróczi and Wickham (2026)</td>
-</tr>
-<tr class="even">
 <td style="text-align: left;">MsCoreUtils</td>
 <td style="text-align: left;">1.24.0</td>
 <td style="text-align: left;">Rainer et al.&nbsp;(2022a)</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">mzR</td>
-<td style="text-align: left;">2.46.0</td>
-<td style="text-align: left;">Pedrioli et al.&nbsp;(2004); Keller et al.&nbsp;(2005); Kessner et al.&nbsp;(2008); Martens et al.&nbsp;(2010); Chambers et al.&nbsp;(2012)</td>
-</tr>
 <tr class="even">
-<td style="text-align: left;">optparse</td>
-<td style="text-align: left;">1.8.2</td>
-<td style="text-align: left;">Davis and Day (2026)</td>
+<td style="text-align: left;">mzR</td>
+<td style="text-align: left;">2.45.3</td>
+<td style="text-align: left;">Pedrioli et al.&nbsp;(2004); Keller et al.&nbsp;(2005); Kessner et al.&nbsp;(2008); Martens et al.&nbsp;(2010); Chambers et al.&nbsp;(2012)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">rmarkdown</td>
-<td style="text-align: left;">2.31</td>
+<td style="text-align: left;">2.32</td>
 <td style="text-align: left;">Xie et al.&nbsp;(2018); Xie et al.&nbsp;(2020); Allaire et al.&nbsp;(2026)</td>
 </tr>
 <tr class="even">
@@ -372,12 +363,6 @@ Allaire, JJ, Yihui Xie, Christophe Dervieux, et al.&nbsp;2026. <em><span class="
 </div>
 <div id="ref-mzR2012" class="csl-entry" role="listitem">
 Chambers, Matthew C., Maclean, et al.&nbsp;2012. “<span class="nocase">A cross-platform toolkit for mass spectrometry and proteomics</span>.” <em>Nat Biotech</em> 30 (10): 918–20. <a href="https://doi.org/10.1038/nbt.2377" class="uri">https://doi.org/10.1038/nbt.2377</a>.
-</div>
-<div id="ref-logger" class="csl-entry" role="listitem">
-Daróczi, Gergely, and Hadley Wickham. 2026. <em><span class="nocase">logger</span>: A Lightweight, Modern and Flexible Logging Utility</em>. <a href="https://doi.org/10.32614/CRAN.package.logger" class="uri">https://doi.org/10.32614/CRAN.package.logger</a>.
-</div>
-<div id="ref-optparse" class="csl-entry" role="listitem">
-Davis, Trevor L., and Allen Day. 2026. <em><span class="nocase">optparse</span>: Command Line Option Parser</em>. <a href="https://doi.org/10.32614/CRAN.package.optparse" class="uri">https://doi.org/10.32614/CRAN.package.optparse</a>.
 </div>
 <div id="ref-mzR2005" class="csl-entry" role="listitem">
 Keller, Andrew, Jimmy Eng, Ning Zhang, Xiao-jun Li, and Ruedi Aebersold. 2005. “A Uniform Proteomics MS/MS Analysis Platform Utilizing Open XML File Formats.” <em>Mol Syst Biol</em>.
@@ -407,7 +392,7 @@ Rainer, Johannes, Andrea Vicini, Liesa Salzer, et al.&nbsp;2022a. “A Modular a
 Rainer, Johannes, Andrea Vicini, Liesa Salzer, et al.&nbsp;2022b. “A Modular and Expandable Ecosystem for Metabolomics Data Annotation in r.” <em>Metabolites</em> 12: 173. <a href="https://doi.org/10.3390/metabo12020173" class="uri">https://doi.org/10.3390/metabo12020173</a>.
 </div>
 <div id="ref-CentroidR" class="csl-entry" role="listitem">
-Rutz, Adriano, and Johannes Rainer. 2026. <em>CentroidR: CentroidR Provides the Infrastructure to Centroid Profile Spectra</em>.
+Rutz, Adriano, and Johannes Rainer. 2026. <em>CentroidR: Centroid Profile Mass Spectrometry Data</em>. <a href="https://doi.org/10.5281/zenodo.17250307" class="uri">https://doi.org/10.5281/zenodo.17250307</a>.
 </div>
 <div id="ref-tinytest" class="csl-entry" role="listitem">
 <span class="nocase">van der Loo, MPJ</span>. 2020. “A Method for Deriving Information from Running r Code.” <em>The R Journal</em> 13: 42–52. <a href="https://journal.r-project.org/articles/RJ-2021-056/" class="uri">https://journal.r-project.org/articles/RJ-2021-056/</a>.
@@ -421,14 +406,14 @@ Xie, Yihui. 2014. “<span class="nocase">knitr</span>: A Comprehensive Tool for
 <div id="ref-knitr2015" class="csl-entry" role="listitem">
 Xie, Yihui. 2015. <em>Dynamic Documents with R and Knitr</em>. 2nd ed.&nbsp;Chapman; Hall/CRC. <a href="https://yihui.org/knitr/" class="uri">https://yihui.org/knitr/</a>.
 </div>
-<div id="ref-knitr2025" class="csl-entry" role="listitem">
-Xie, Yihui. 2025. <em><span class="nocase">knitr</span>: A General-Purpose Package for Dynamic Report Generation in R</em>. <a href="https://yihui.org/knitr/" class="uri">https://yihui.org/knitr/</a>.
+<div id="ref-knitr2026" class="csl-entry" role="listitem">
+Xie, Yihui. 2026. <em><span class="nocase">knitr</span>: A General-Purpose Package for Dynamic Report Generation in R</em>. <a href="https://yihui.org/knitr/" class="uri">https://yihui.org/knitr/</a>.
 </div>
 <div id="ref-rmarkdown2018" class="csl-entry" role="listitem">
-Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown: The Definitive Guide</em>. Chapman; Hall/CRC. <a href="https://yihui.org/rmarkdown/" class="uri">https://yihui.org/rmarkdown/</a>.
+Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown: The Definitive Guide</em>. Chapman; Hall/CRC. <a href="https://pkg.yihui.org/rmarkdown-book/" class="uri">https://pkg.yihui.org/rmarkdown-book/</a>.
 </div>
 <div id="ref-rmarkdown2020" class="csl-entry" role="listitem">
-Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbook</em>. Chapman; Hall/CRC. <a href="https://yihui.org/rmarkdown-cookbook" class="uri">https://yihui.org/rmarkdown-cookbook</a>.
+Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbook</em>. Chapman; Hall/CRC. <a href="https://pkg.yihui.org/rmarkdown-cookbook/" class="uri">https://pkg.yihui.org/rmarkdown-cookbook/</a>.
 </div>
 </div>
 
@@ -515,7 +500,8 @@ Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbo
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -524,8 +510,69 @@ Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbo
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -539,6 +586,7 @@ Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbo
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -701,44 +749,54 @@ Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbo
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -836,6 +894,9 @@ Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R Markdown Cookbo
       }
     }
   });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 <footer class="footer">

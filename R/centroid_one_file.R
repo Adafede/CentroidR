@@ -620,11 +620,13 @@ restore_logger <- function() {
       valid = FALSE
     ))
   }
+  base_applied <- 0
   ints_adj <- ints
   if (baseline_subtract && n >= 3L) {
     base_floor <- min(ints_adj[1L], ints_adj[n])
     if (is.finite(base_floor) && base_floor > 0 && base_floor < max(ints_adj)) {
       ints_adj <- pmax(0, ints_adj - base_floor)
+      base_applied <- base_floor
     }
   }
   w_all <- ints_adj^exponent
@@ -684,17 +686,7 @@ restore_logger <- function() {
             delta <- -c1 / (2 * c2) * h
             mz_est <- m0 + delta
             if (is.finite(mz_est) && mz_est >= min(m_c) && mz_est <= max(m_c)) {
-              apex_est <- exp(c0 - c1^2 / (4 * c2))
-              if (baseline_subtract && n >= 3L) {
-                base_floor <- min(ints[1L], ints[n])
-                if (
-                  is.finite(base_floor) &&
-                    base_floor > 0 &&
-                    base_floor < max(ints)
-                ) {
-                  apex_est <- apex_est + base_floor
-                }
-              }
+              apex_est <- exp(c0 - c1^2 / (4 * c2)) + base_applied
               sigma_est <- sqrt(-1 / (2 * c2)) * h
               area_est <- apex_est * sigma_est * sqrt(2 * pi)
               return(list(
@@ -767,40 +759,14 @@ restore_logger <- function() {
     return(fits)
   }
   all_grp <- unlist(segs, use.names = FALSE)
-  sigmas <- numeric(k_n)
-  mu0 <- numeric(k_n)
-  amp0 <- numeric(k_n)
-  for (k in seq_len(k_n)) {
-    idx <- segs[[k]]
-    apex_global <- idx[which.max(int_raw[idx])]
-    mu0[k] <- fits[[k]]$mz
-    amp0[k] <- fits[[k]]$apex
-    sigmas[k] <- fits[[k]]$sigma
-    if (!fits[[k]]$valid || sigmas[k] <= 0 || !is.finite(sigmas[k])) {
-      nb <- intersect(
-        c(apex_global - 1L, apex_global, apex_global + 1L),
-        all_grp
-      )
-      if (length(nb) == 3L && all(int_raw[nb] > 0)) {
-        x <- mz_raw[nb] - mz_raw[apex_global]
-        y <- log(int_raw[nb])
-        denom <- (x[1L] - x[2L]) * (x[1L] - x[3L]) * (x[2L] - x[3L])
-        if (is.finite(denom) && abs(denom) > 1e-20) {
-          c2 <- (x[3L] *
-            (y[2L] - y[1L]) +
-            x[2L] * (y[1L] - y[3L]) +
-            x[1L] * (y[3L] - y[2L])) /
-            denom
-          if (is.finite(c2) && c2 < 0) {
-            sigmas[k] <- sqrt(-1 / (2 * c2))
-          }
-        }
-      }
-      if (sigmas[k] <= 0 || !is.finite(sigmas[k])) {
-        sigmas[k] <- max(1e-6, 0.5 * diff(range(mz_raw[idx])))
-      }
-    }
-  }
+  fallback_sigma <- max(1e-6, 0.5 * diff(range(mz_raw[all_grp])) / k_n)
+  sigmas <- vapply(
+    fits,
+    function(f) if (f$sigma > 0) f$sigma else fallback_sigma,
+    numeric(1)
+  )
+  mu0 <- vapply(fits, `[[`, numeric(1), "mz")
+  amp0 <- vapply(fits, `[[`, numeric(1), "apex")
   for (iter in 1:2) {
     for (k in seq_len(k_n)) {
       idx <- segs[[k]]

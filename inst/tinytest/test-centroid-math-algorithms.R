@@ -17,6 +17,11 @@ source("helper-logging.R")
 .trapezoid_area <- getFromNamespace(".trapezoid_area", "CentroidR")
 .deconvolve_subpeaks <- getFromNamespace(".deconvolve_subpeaks", "CentroidR")
 .group_mz_domain <- getFromNamespace(".group_mz_domain", "CentroidR")
+.peak_group_mzs <- getFromNamespace(".peak_group_mzs", "CentroidR")
+.peak_group_intensities <- getFromNamespace(
+  ".peak_group_intensities",
+  "CentroidR"
+)
 .peaks_combine <- getFromNamespace(".peaks_combine", "CentroidR")
 .process_spectra <- getFromNamespace(".process_spectra", "CentroidR")
 
@@ -398,3 +403,374 @@ expect_true(abs(e2e_peaks[1, "mz"] - true_mz) / true_mz * 1e6 < 1e-4)
 expect_true(abs(e2e_peaks[1, "intensity"] - true_amp) / true_amp < 1e-4)
 
 unlink(e2e_dir, recursive = TRUE)
+
+## ---------------------------------------------------------------------------
+## 8. Edge Cases, Branch Coverage, and Mutation-Killing Boundary Tests
+## ---------------------------------------------------------------------------
+
+## 8a. .split_peak_group boundary & mutation tests
+## 3-point group with 2 endpoint maxima and an interior valley splits when length(idx) == 3L
+expect_equal(
+  .split_peak_group(1:3, c(100, 5, 100), valley_ratio = 0.2, hws = 1L),
+  list(1:2, 3L)
+)
+
+## Asymmetric ripple valleys (v1 < v2 and v1 > v2) inside a deep basin to test
+## both k_left and k_right basin boundary loops strictly
+ripple_asym_left <- c(10, 1000, 50, 10, 15, 12, 50, 1000, 10) # v1=10 < v2=12
+expect_equal(
+  length(.split_peak_group(
+    seq_along(ripple_asym_left),
+    ripple_asym_left,
+    valley_ratio = 0.2,
+    hws = 1L
+  )),
+  2L
+)
+ripple_asym_right <- c(10, 1000, 50, 12, 15, 10, 50, 1000, 10) # v1=12 > v2=10
+expect_equal(
+  length(.split_peak_group(
+    seq_along(ripple_asym_right),
+    ripple_asym_right,
+    valley_ratio = 0.2,
+    hws = 1L
+  )),
+  2L
+)
+
+## Exact boundary: valley / peak_floor == valley_ratio splits (<=), > does not
+boundary_doublet <- c(10, 100, 20, 100, 10)
+expect_equal(
+  length(.split_peak_group(
+    seq_along(boundary_doublet),
+    boundary_doublet,
+    valley_ratio = 0.2,
+    hws = 1L
+  )),
+  2L
+)
+expect_equal(
+  length(.split_peak_group(
+    seq_along(boundary_doublet),
+    boundary_doublet,
+    valley_ratio = 0.1999,
+    hws = 1L
+  )),
+  1L
+)
+
+## All-zero / non-positive maxima (peak_floor <= 0) do not split
+zero_with_neg_valley <- c(-5, 0, -10, 0, -5)
+expect_equal(
+  .split_peak_group(
+    seq_along(zero_with_neg_valley),
+    zero_with_neg_valley,
+    valley_ratio = 0.5,
+    hws = 1L
+  ),
+  list(seq_along(zero_with_neg_valley))
+)
+
+## 8b. .fit_gaussian_peak edge cases & mutation tests
+## Empty input (n == 0L)
+fit_empty <- .fit_gaussian_peak(numeric(0), numeric(0))
+expect_false(fit_empty$valid)
+expect_true(is.na(fit_empty$mz))
+expect_equal(fit_empty$apex, 0)
+expect_equal(fit_empty$sigma, 0)
+expect_equal(fit_empty$area, 0)
+
+## Single point (n == 1L -> sigma == 0)
+fit_1pt <- .fit_gaussian_peak(100.5, 42)
+expect_false(fit_1pt$valid)
+expect_equal(fit_1pt$mz, 100.5)
+expect_equal(fit_1pt$apex, 42)
+expect_equal(fit_1pt$sigma, 0)
+expect_equal(fit_1pt$area, 42)
+
+## Sharp peak where flanks are < 5% of apex (1 / 1000 = 0.001 < 0.05),
+## forcing the length(core) < 3L neighborhood expansion (left_i:right_i)
+mz_sharp <- c(200.000, 200.002, 200.004)
+int_sharp <- c(1, 1000, 1)
+fit_sharp <- .fit_gaussian_peak(mz_sharp, int_sharp, exponent = 2)
+expect_true(fit_sharp$valid)
+expect_equal(fit_sharp$mz, 200.002)
+expect_equal(fit_sharp$apex, 1000)
+
+## Baseline subtraction inside .fit_gaussian_peak restores baseline floor to apex
+bg_level <- 150
+int_pts_bg <- int_pts + bg_level
+fit_g_bg <- .fit_gaussian_peak(
+  mz_pts,
+  int_pts_bg,
+  exponent = 3,
+  baseline_subtract = TRUE
+)
+expect_true(fit_g_bg$valid)
+expect_true(abs(fit_g_bg$mz - fit_g$mz) < 1e-4)
+expect_true(abs(fit_g_bg$apex - (true_amp + bg_level)) < 50)
+
+## All-zero intensities in .fit_gaussian_peak (w_sum == 0 fallback to mzFun)
+fit_zeros <- .fit_gaussian_peak(
+  c(100, 101, 102),
+  c(0, 0, 0),
+  mzFun = stats::median
+)
+expect_false(fit_zeros$valid)
+expect_equal(fit_zeros$mz, 101)
+expect_equal(fit_zeros$apex, 0)
+
+## Monotonic 3-point profile where concave vertex falls outside [min(m_c), max(m_c)]
+fit_mono <- .fit_gaussian_peak(
+  c(100.000, 100.002, 100.004),
+  c(100, 72, 50),
+  exponent = 1
+)
+expect_false(fit_mono$valid)
+
+## 8c. .trapezoid_area edge cases & mutation tests
+expect_equal(.trapezoid_area(numeric(0), numeric(0)), 0)
+expect_equal(.trapezoid_area(100, 35), 35)
+expect_equal(.trapezoid_area(100, -10), 0)
+
+## Unsorted m/z input produces identical area to sorted input
+expect_equal(
+  .trapezoid_area(c(100.004, 100.000, 100.002), c(20, 10, 50)),
+  expected_area
+)
+
+## Degenerate identical m/z values (area == 0 with positive intensity falls back to max)
+expect_equal(.trapezoid_area(c(100, 100, 100), c(10, 40, 20)), 40)
+expect_equal(.trapezoid_area(c(100, 100, 100), c(0, 0, 0)), 0)
+
+## 8d. .deconvolve_subpeaks edge cases & fallback sigma estimators
+## Single segment (k_n < 2L) returns initial fit directly
+single_dec <- .deconvolve_subpeaks(
+  list(seq_along(mz_pts)),
+  mz_pts,
+  int_pts,
+  exponent = 3
+)
+expect_equal(length(single_dec), 1L)
+expect_equal(single_dec[[1]]$mz, fit_g$mz)
+
+## Two-segment split where segment 1 has only 2 points (!fits[[1]]$valid)
+mz_short_seg <- c(100.000, 100.002, 100.004, 100.006, 100.008, 100.010)
+int_short_seg <- c(20, 100, 80, 70, 200, 50)
+dec_short <- .deconvolve_subpeaks(
+  list(1:2, 3:6),
+  mz_short_seg,
+  int_short_seg,
+  exponent = 2
+)
+expect_equal(length(dec_short), 2L)
+raw_fit_seg2 <- .fit_gaussian_peak(
+  mz_short_seg[3:6],
+  int_short_seg[3:6],
+  exponent = 2
+)
+expect_true(dec_short[[2]]$mz > raw_fit_seg2$mz)
+
+## Two-segment split where segment 1 has a single point (fits[[1]]$sigma == 0)
+## and its 3-point neighborhood contains a zero intensity, triggering the
+## range fallback sigmas[k] <- max(1e-6, 0.5 * diff(range(mz_raw[idx])))
+mz_deg_seg <- c(100.000, 100.002, 100.004, 100.006, 100.008)
+int_deg_seg <- c(100, 0, 50, 200, 50)
+dec_deg <- .deconvolve_subpeaks(
+  list(1L, 2:5),
+  mz_deg_seg,
+  int_deg_seg,
+  exponent = 2
+)
+expect_equal(length(dec_deg), 2L)
+expect_true(all(vapply(dec_deg, function(f) is.finite(f$mz), logical(1))))
+
+## 8e. .group_mz_domain edge cases (n == 0L and n == 1L) and tight exponent brackets
+expect_equal(.group_mz_domain(numeric(0)), integer(0))
+expect_equal(.group_mz_domain(250.0), 1L)
+
+## At m/z = 400, mz_ref = 100 (ratio = 4), tolerance = 0.001, ppm = 0:
+## tof (4^0.5 = 2 -> tol = 0.002): 0.0019 merges (1L), 0.0021 splits (2L)
+expect_equal(
+  length(unique(.group_mz_domain(
+    c(400, 400.0019),
+    tolerance = 0.001,
+    ppm = 0,
+    domain_scaling = "tof",
+    mz_ref = 100
+  ))),
+  1L
+)
+expect_equal(
+  length(unique(.group_mz_domain(
+    c(400, 400.0021),
+    tolerance = 0.001,
+    ppm = 0,
+    domain_scaling = "tof",
+    mz_ref = 100
+  ))),
+  2L
+)
+## orbitrap (4^1.5 = 8 -> tol = 0.008): 0.0079 merges (1L), 0.0081 splits (2L)
+expect_equal(
+  length(unique(.group_mz_domain(
+    c(400, 400.0079),
+    tolerance = 0.001,
+    ppm = 0,
+    domain_scaling = "orbitrap",
+    mz_ref = 100
+  ))),
+  1L
+)
+expect_equal(
+  length(unique(.group_mz_domain(
+    c(400, 400.0081),
+    tolerance = 0.001,
+    ppm = 0,
+    domain_scaling = "orbitrap",
+    mz_ref = 100
+  ))),
+  2L
+)
+## fticr (4^2.0 = 16 -> tol = 0.016): 0.0159 merges (1L), 0.0161 splits (2L)
+expect_equal(
+  length(unique(.group_mz_domain(
+    c(400, 400.0159),
+    tolerance = 0.001,
+    ppm = 0,
+    domain_scaling = "fticr",
+    mz_ref = 100
+  ))),
+  1L
+)
+expect_equal(
+  length(unique(.group_mz_domain(
+    c(400, 400.0161),
+    tolerance = 0.001,
+    ppm = 0,
+    domain_scaling = "fticr",
+    mz_ref = 100
+  ))),
+  2L
+)
+
+## 8f. .peak_group_mzs & .peak_group_intensities all branches
+grp_list <- list(1:3, 4:5)
+mz_vec <- c(100.000, 100.002, 100.004, 200.000, 200.002)
+int_vec <- c(10, 50, 10, 20, 20)
+
+## weighted = TRUE, centroid_method = "weighted", baseline_subtract = TRUE
+## Group 1 has baseline 10 -> c(0, 40, 0) -> centroid exactly 100.002
+## Group 2 has 2 points; if we also test a 3-point flat group c(20, 20, 20),
+## baseline_subtract leaves weights > 0, whereas c(20, 0, 20) gives w == 0
+mzs_bs <- .peak_group_mzs(
+  list(1:3, 4:6),
+  c(100.000, 100.002, 100.004, 200.000, 200.002, 200.004),
+  c(10, 50, 10, 0, 0, 0),
+  weighted = TRUE,
+  intensity_exponent = 2,
+  mzFun = base::mean,
+  centroid_method = "weighted",
+  baseline_subtract = TRUE
+)
+expect_equal(mzs_bs, c(100.002, 200.002))
+
+## centroid_method = "func" uses mzFun even when weighted = TRUE
+mzs_func <- .peak_group_mzs(
+  list(1:3),
+  c(100.000, 100.002, 100.010),
+  c(1, 1000, 1),
+  weighted = TRUE,
+  intensity_exponent = 3,
+  mzFun = base::mean,
+  centroid_method = "func"
+)
+expect_equal(mzs_func, mean(c(100.000, 100.002, 100.010)))
+
+## .peak_group_intensities with trapezoid, gaussian_area, gaussian_apex, and gate <= 0
+gate_zero_fun <- function(x) if (length(x) < 3L) 0 else max(x)
+ints_trap <- .peak_group_intensities(
+  grp_list,
+  c(10, 50, 20, 10, 30),
+  intensityFun = gate_zero_fun,
+  mz_raw = mz_vec,
+  intensity_method = "trapezoid"
+)
+expect_equal(ints_trap[1], expected_area)
+expect_equal(ints_trap[2], 0)
+
+ints_garea <- .peak_group_intensities(
+  list(seq_along(mz_pts), 1:2),
+  c(int_pts, 10, 20),
+  intensityFun = gate_zero_fun,
+  mz_raw = c(mz_pts, 600.000, 600.002),
+  intensity_method = "gaussian_area",
+  intensity_exponent = 3
+)
+expect_equal(ints_garea[1], fit_g$area)
+expect_equal(ints_garea[2], 0)
+
+ints_gapex <- .peak_group_intensities(
+  list(seq_along(mz_pts)),
+  int_pts,
+  intensityFun = base::max,
+  mz_raw = mz_pts,
+  intensity_method = "gaussian_apex",
+  intensity_exponent = 3
+)
+expect_equal(ints_gapex[1], fit_g$apex)
+
+## 8g. .peaks_combine with deconvolve = TRUE across centroid_method and intensity_method
+pk_deconv_area <- .peaks_combine(
+  cbind(mz = mz_dbl, intensity = int_dbl),
+  tolerance = 0.05,
+  ppm = 0,
+  intensityFun = base::max,
+  mzFun = base::mean,
+  weighted = FALSE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  timeDomain = FALSE,
+  centroid_method = "func",
+  intensity_method = "gaussian_area",
+  deconvolve = TRUE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+expect_equal(nrow(pk_deconv_area), 2L)
+expect_true(all(pk_deconv_area[, "intensity"] > 0))
+
+## Deconvolve with intensity_method = "trapezoid" and a sub-peak gated to 0
+## (second peak has < 8 points so min_datapoints = 8 gates it to 0)
+pk_deconv_trap_gated <- .peaks_combine(
+  cbind(mz = mz_dbl, intensity = int_dbl),
+  tolerance = 0.05,
+  ppm = 0,
+  intensityFun = function(x) if (length(x) < 10L) 0 else max(x),
+  mzFun = base::mean,
+  weighted = TRUE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  timeDomain = FALSE,
+  centroid_method = "gaussian",
+  intensity_method = "trapezoid",
+  deconvolve = TRUE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+expect_equal(nrow(pk_deconv_trap_gated), 2L)
+expect_true(pk_deconv_trap_gated[1, "intensity"] > 0)
+expect_equal(pk_deconv_trap_gated[2, "intensity"], 0)
+
+## 8h. Parameter validation in centroid_one_file() for new arguments
+expect_error(CentroidR::centroid_one_file("x.mzML", centroid_method = "bad"))
+expect_error(CentroidR::centroid_one_file("x.mzML", intensity_method = "bad"))
+expect_error(CentroidR::centroid_one_file("x.mzML", domain_scaling = "bad"))
+expect_error(CentroidR::centroid_one_file("x.mzML", deconvolve = NA))
+expect_error(CentroidR::centroid_one_file("x.mzML", baseline_subtract = NA))
+expect_error(CentroidR::centroid_one_file("x.mzML", valley_ratio = -0.1))
+expect_error(CentroidR::centroid_one_file("x.mzML", valley_ratio = 1.1))
+expect_error(CentroidR::centroid_one_file("x.mzML", valley_hws = 0L))
+expect_error(CentroidR::centroid_one_file("x.mzML", valley_hws = 1.5))
+expect_error(CentroidR::centroid_one_file("x.mzML", mz_ref = 0))
+expect_error(CentroidR::centroid_one_file("x.mzML", mz_ref = -100))

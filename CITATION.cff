@@ -8,11 +8,13 @@ message: 'To cite package "CentroidR" in publications use:'
 type: software
 license: AGPL-3.0-or-later
 title: 'CentroidR: Centroid Profile Mass Spectrometry Data'
-version: 0.0.0.9004
+version: 0.0.0.9005
 doi: 10.5281/zenodo.17250307
 abstract: CentroidR provides the infrastructure to centroid profile mass spectrometry
-  spectra (mzML) with independent MS1 and MS2 tolerances, valley-based peak splitting,
-  and intensity-weighted m/z aggregation.
+  spectra (mzML) with independent MS1 and MS2 tolerances, 1D Morse-Smale topological
+  prominence valley splitting, weighted log-quadratic Gaussian and power-weighted
+  m/z centroiding, overlapping multiplet deconvolution, and analyzer-specific m/z
+  domain scaling.
 authors:
 - family-names: Rutz
   given-names: Adriano
@@ -35,7 +37,7 @@ preferred-citation:
     email: Johannes.Rainer@eurac.edu
     orcid: https://orcid.org/0000-0002-6977-7147
   year: '2026'
-  notes: R package, version 0.0.0.9004
+  notes: R package, version 0.0.0.9005
   url: https://github.com/adafede/CentroidR
   doi: 10.5281/zenodo.17250307
 repository: https://bioconductor.org/

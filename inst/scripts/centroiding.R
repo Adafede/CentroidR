@@ -49,6 +49,24 @@ print_cli_help <- function() {
     "      (FALSE) or on sqrt(mz) (TRUE). (default: TRUE)\n",
     "  --intensity-exponent=NUMERIC\n",
     "      Exponent to apply to the intensities when weighting m/z. (default: 3)\n",
+    "  --centroid-method=CHARACTER\n",
+    "      Centroid m/z estimator: weighted, gaussian, or func. (default: weighted)\n",
+    "  --intensity-method=CHARACTER\n",
+    "      Peak intensity estimator: func, gaussian_apex, gaussian_area, or trapezoid.\n",
+    "      (default: func)\n",
+    "  --deconvolve=LOGICAL\n",
+    "      Apply Gaussian tail deconvolution to split multiplets. (default: FALSE)\n",
+    "  --valley-ratio=NUMERIC\n",
+    "      Maximum valley-to-peak persistence ratio for splitting. (default: 0.2)\n",
+    "  --valley-hws=INTEGER\n",
+    "      Half-window size for local maxima in valley splitting. (default: 2)\n",
+    "  --baseline-subtract=LOGICAL\n",
+    "      Subtract local group edge baseline before splitting/centroiding. (default: FALSE)\n",
+    "  --domain-scaling=CHARACTER\n",
+    "      Analyzer domain scaling: legacy, linear, tof, orbitrap, or fticr.\n",
+    "      (default: legacy)\n",
+    "  --mz-ref=NUMERIC\n",
+    "      Reference m/z for analyzer domain scaling. (default: 100)\n",
     "  -h, --help\n",
     "      Show this help message and exit\n",
     sep = ""
@@ -62,15 +80,17 @@ parse_cli_args <- function(args = commandArgs(trailingOnly = TRUE)) {
     "-p" = "pattern",
     "-r" = "replacement"
   )
-  int_keys <- c("min-datapoints-ms1", "min-datapoints-ms2")
+  int_keys <- c("min-datapoints-ms1", "min-datapoints-ms2", "valley-hws")
   num_keys <- c(
     "mz-tol-da-ms1",
     "mz-tol-da-ms2",
     "mz-tol-ppm-ms1",
     "mz-tol-ppm-ms2",
-    "intensity-exponent"
+    "intensity-exponent",
+    "valley-ratio",
+    "mz-ref"
   )
-  lgl_keys <- c("mz-weighted", "time-domain")
+  lgl_keys <- c("mz-weighted", "time-domain", "deconvolve", "baseline-subtract")
   chr_keys <- c(
     "file",
     "directory",
@@ -79,7 +99,10 @@ parse_cli_args <- function(args = commandArgs(trailingOnly = TRUE)) {
     "mz-fun-ms1",
     "mz-fun-ms2",
     "int-fun-ms1",
-    "int-fun-ms2"
+    "int-fun-ms2",
+    "centroid-method",
+    "intensity-method",
+    "domain-scaling"
   )
   valid_keys <- c(int_keys, num_keys, lgl_keys, chr_keys)
 
@@ -159,7 +182,15 @@ centroid_one_file_cli <- function(file) {
     int_fun_ms2 = match.fun(opt$`int-fun-ms2` %||% "max"),
     mz_weighted = opt$`mz-weighted` %||% TRUE,
     time_domain = opt$`time-domain` %||% TRUE,
-    intensity_exponent = opt$`intensity-exponent` %||% 3
+    intensity_exponent = opt$`intensity-exponent` %||% 3,
+    centroid_method = opt$`centroid-method` %||% "weighted",
+    intensity_method = opt$`intensity-method` %||% "func",
+    deconvolve = opt$deconvolve %||% FALSE,
+    valley_ratio = opt$`valley-ratio` %||% 0.2,
+    valley_hws = opt$`valley-hws` %||% 2L,
+    baseline_subtract = opt$`baseline-subtract` %||% FALSE,
+    domain_scaling = opt$`domain-scaling` %||% "legacy",
+    mz_ref = opt$`mz-ref` %||% 100
   )
 }
 

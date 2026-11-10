@@ -60,6 +60,21 @@ CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
                              replacement = "/profile_centroided/")
 ```
 
+For high-accuracy Gaussian centroiding, continuous apex interpolation, multiplet tail deconvolution, and exact TOF/Orbitrap domain scaling:
+
+```r
+CentroidR::centroid_one_file(
+  file = "path_to_your/profile/spectra.mzML",
+  pattern = "/profile/",
+  replacement = "/profile_centroided/",
+  centroid_method = "gaussian",
+  intensity_method = "gaussian_apex",
+  deconvolve = TRUE,
+  baseline_subtract = TRUE,
+  domain_scaling = "tof"
+)
+```
+
 ```bash
 Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
@@ -117,7 +132,7 @@ To see all parameters
 ## Citation
 
 Rutz, Adriano, and Johannes Rainer. 2026. *CentroidR: CentroidR provides the
-infrastructure to centroid profile spectra*. R package version 0.0.9004.
+infrastructure to centroid profile spectra*. R package version 0.0.9005.
 
 ## Additional software credits
 
@@ -127,7 +142,7 @@ infrastructure to centroid profile spectra*. R package version 0.0.9004.
   | BiocManager  | 1.30.27    | Morgan and Ramos (2025)                                                                                            |
   | BiocParallel | 1.46.0     | Wang et al. (2026)                                                                                                 |
   | BiocVersion  | 3.23.1     | Morgan (2025)                                                                                                      |
-  | CentroidR    | 0.0.0.9004 | Rutz and Rainer (2026)                                                                                             |
+  | CentroidR    | 0.0.0.9005 | Rutz and Rainer (2026)                                                                                             |
   | knitr        | 1.52       | Xie (2014); Xie (2015); Xie (2026)                                                                                 |
   | MsCoreUtils  | 1.24.0     | Rainer et al. (2022a)                                                                                              |
   | mzR          | 2.45.3     | Pedrioli et al. (2004); Keller et al. (2005); Kessner et al. (2008); Martens et al. (2010); Chambers et al. (2012) |

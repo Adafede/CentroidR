@@ -37,6 +37,38 @@
 #'   (TRUE for TOF). Default: TRUE.
 #' @param intensity_exponent numeric(1). If `mz_weighted=TRUE`, the exponent of
 #'   the intensity for m/z weighting. Default: 3.
+#' @param centroid_method character(1). Mathematical estimator for peak m/z
+#'   when `mz_weighted = TRUE`: `"weighted"` (power-weighted mean, default) or
+#'   `"gaussian"` (apex-centered weighted log-quadratic Guo-Caruana Gaussian
+#'   fit with automatic fallback to power-weighted mean on < 3 points or
+#'   non-concave profiles).
+#' @param intensity_method character(1). Mathematical estimator for peak
+#'   abundance: `"func"` (applies `int_fun_ms1` / `int_fun_ms2`, default),
+#'   `"gaussian_apex"` (interpolated continuous Gaussian apex height to
+#'   eliminate picket-fence sampling attenuation), `"gaussian_area"`
+#'   (analytical Gaussian integral \eqn{A \sigma \sqrt{2\pi}}), or
+#'   `"trapezoid"` (numerical trapezoidal integration over m/z).
+#' @param deconvolve logical(1). If `TRUE`, applies 2-pass Gauss-Seidel
+#'   Gaussian tail subtraction across split sub-peaks within overlapping
+#'   multiplet groups before estimating centroids and intensities. Default:
+#'   FALSE.
+#' @param valley_ratio numeric(1). Maximum ratio of valley intensity to the
+#'   topological basin barrier height (1D Morse-Smale persistence) at which a
+#'   group is split into separate peaks. Must be in `[0, 1]`. Default: 0.2.
+#' @param valley_hws integer(1). Half-window size for local maxima detection
+#'   during valley splitting. Must be at least 1. Default: 2L.
+#' @param baseline_subtract logical(1). If `TRUE`, subtracts the local edge
+#'   baseline floor of each peak group prior to valley splitting and centroid
+#'   estimation. Default: FALSE.
+#' @param domain_scaling character(1). Mass analyzer spacing scaling model used
+#'   when grouping adjacent profile points: `"legacy"` (honours `time_domain`
+#'   via `sqrt(mz)` transformation, default), `"linear"` (constant Da + ppm in
+#'   m/z space), `"tof"` (local Jacobian \eqn{\Delta m \propto m^{1/2}}),
+#'   `"orbitrap"` (local Jacobian \eqn{\Delta m \propto m^{3/2}}), or
+#'   `"fticr"` (local Jacobian \eqn{\Delta m \propto m^2}).
+#' @param mz_ref numeric(1). Reference m/z (in Daltons) at which `mz_tol_da_*`
+#'   is calibrated when `domain_scaling` is `"tof"`, `"orbitrap"`, or
+#'   `"fticr"`. Default: 100.
 #'
 #' @return logical(1). `TRUE` if the file was centroided, or `TRUE` if it was
 #'   skipped because the output file already existed; `FALSE` if the input was
@@ -45,15 +77,32 @@
 #'
 #' @details
 #' MS1 and MS2 spectra are processed separately with their own tolerances, so
-#' the two levels can be tuned independently.
+#' the two levels can be tuned independently while preserving the original
+#' chronological scan acquisition order in the exported `mzML`.
 #'
-#' Within a spectrum, profile points are grouped by the m/z tolerances, a group
-#' is split back into separate peaks at deep valleys so that closely spaced
-#' peaks are not merged, and each group is reduced to a single peak. A group is
-#' only reduced when it holds at least `min_datapoints_ms*` points of non-zero
-#' intensity; below that it is reported as zero intensity and filtered out.
-#' Spectra left without any peak by this step are restored from the input, so
-#' no spectrum is lost.
+#' Within a spectrum, profile points are first grouped by m/z tolerance using
+#' either the legacy `sqrt(mz)` transformation (`domain_scaling = "legacy"`) or
+#' an exact local Jacobian analyzer spacing law (`domain_scaling` in `"linear"`,
+#' `"tof"`, `"orbitrap"`, or `"fticr"`). Each group is then recursively split at
+#' deep valleys evaluated via 1D Morse-Smale topological basin prominence
+#' (`valley_ratio`, `valley_hws`, and optional `baseline_subtract`) so that
+#' closely spaced peaks are not merged even when small noise ripples sit inside
+#' a valley.
+#'
+#' Peak centroids are estimated via power-weighted mean (`centroid_method =
+#' "weighted"`), apex-centered weighted log-quadratic Guo-Caruana Gaussian
+#' fitting (`centroid_method = "gaussian"`), or custom aggregation (`"func"`),
+#' while peak abundances can be reported via `int_fun_ms*` (`intensity_method =
+#' "func"`), interpolated Gaussian apex (`"gaussian_apex"`), analytical Gaussian
+#' area (`"gaussian_area"`), or numerical trapezoidal integration
+#' (`"trapezoid"`). Setting `deconvolve = TRUE` performs 2-pass Gauss-Seidel
+#' Gaussian tail subtraction across split sub-peaks prior to centroid and
+#' intensity estimation.
+#'
+#' A group is only reduced when it holds at least `min_datapoints_ms*` points of
+#' non-zero intensity; below that it is reported as zero intensity and filtered
+#' out. Spectra left without any peak by this step are restored from the input,
+#' so no spectrum is lost.
 #'
 #' File path modifications are supported via `pattern` and `replacement`.
 #' `pattern` is a regular expression, as in `sub()`.
@@ -110,7 +159,15 @@ centroid_one_file <- function(
   int_fun_ms2 = base::max,
   mz_weighted = TRUE,
   time_domain = TRUE,
-  intensity_exponent = 3
+  intensity_exponent = 3,
+  centroid_method = c("weighted", "gaussian", "func"),
+  intensity_method = c("func", "gaussian_apex", "gaussian_area", "trapezoid"),
+  deconvolve = FALSE,
+  valley_ratio = 0.2,
+  valley_hws = 2L,
+  baseline_subtract = FALSE,
+  domain_scaling = c("legacy", "linear", "tof", "orbitrap", "fticr"),
+  mz_ref = 100
 ) {
   # Input validation for critical arguments
   stopifnot(
@@ -167,8 +224,37 @@ centroid_one_file <- function(
     !is.na(time_domain),
     is.numeric(intensity_exponent),
     length(intensity_exponent) == 1L,
-    is.finite(intensity_exponent)
+    is.finite(intensity_exponent),
+    is.character(centroid_method),
+    !anyNA(centroid_method),
+    is.character(intensity_method),
+    !anyNA(intensity_method),
+    is.logical(deconvolve),
+    length(deconvolve) == 1L,
+    !is.na(deconvolve),
+    is.numeric(valley_ratio),
+    length(valley_ratio) == 1L,
+    is.finite(valley_ratio),
+    valley_ratio >= 0,
+    valley_ratio <= 1,
+    is.numeric(valley_hws),
+    length(valley_hws) == 1L,
+    valley_hws >= 1,
+    valley_hws %% 1 == 0,
+    is.logical(baseline_subtract),
+    length(baseline_subtract) == 1L,
+    !is.na(baseline_subtract),
+    is.character(domain_scaling),
+    !anyNA(domain_scaling),
+    is.numeric(mz_ref),
+    length(mz_ref) == 1L,
+    is.finite(mz_ref),
+    mz_ref > 0
   )
+  centroid_method <- match.arg(centroid_method)
+  intensity_method <- match.arg(intensity_method)
+  domain_scaling <- match.arg(domain_scaling)
+  valley_hws <- as.integer(valley_hws)
 
   # Construct output file path
   outf <- sub(
@@ -221,7 +307,15 @@ centroid_one_file <- function(
     "Intensity function (MS2)" = fun_label(int_fun_ms2),
     "m/z weighted" = mz_weighted,
     "Time domain" = time_domain,
-    "Intensity exponent" = intensity_exponent
+    "Intensity exponent" = intensity_exponent,
+    "Centroid method" = centroid_method,
+    "Intensity method" = intensity_method,
+    "Deconvolve" = deconvolve,
+    "Valley ratio" = valley_ratio,
+    "Valley hws" = valley_hws,
+    "Baseline subtract" = baseline_subtract,
+    "Domain scaling" = domain_scaling,
+    "Reference m/z" = mz_ref
   )
   for (param_name in names(params)) {
     .log_info(paste0(param_name, " : ", params[[param_name]]))
@@ -286,7 +380,15 @@ centroid_one_file <- function(
         int_fun_ms2 = int_fun_ms2,
         mz_weighted = mz_weighted,
         time_domain = time_domain,
-        intensity_exponent = intensity_exponent
+        intensity_exponent = intensity_exponent,
+        centroid_method = centroid_method,
+        intensity_method = intensity_method,
+        deconvolve = deconvolve,
+        valley_ratio = valley_ratio,
+        valley_hws = valley_hws,
+        baseline_subtract = baseline_subtract,
+        domain_scaling = domain_scaling,
+        mz_ref = mz_ref
       )
     },
     error = function(e) {
@@ -418,28 +520,63 @@ restore_logger <- function() {
 }
 
 #' @noRd
-.split_peak_group <- function(idx, int_raw, valley_ratio = 0.2, hws = 2L) {
+.split_peak_group <- function(
+  idx,
+  int_raw,
+  valley_ratio = 0.2,
+  hws = 2L,
+  baseline_subtract = FALSE
+) {
   if (length(idx) < 3L) {
     return(list(idx))
   }
   ints <- int_raw[idx]
+  if (baseline_subtract) {
+    base_floor <- min(ints[1L], ints[length(ints)])
+    if (is.finite(base_floor) && base_floor > 0) {
+      ints <- pmax(0, ints - base_floor)
+    }
+  }
   maxima <- which(MsCoreUtils::localMaxima(ints, hws = hws))
   if (length(maxima) < 2L) {
     return(list(idx))
   }
-  split_at <- NA_integer_
-  split_score <- Inf
-  for (j in seq_len(length(maxima) - 1L)) {
+  n_valleys <- length(maxima) - 1L
+  v_locs <- integer(n_valleys)
+  v_vals <- numeric(n_valleys)
+  for (j in seq_len(n_valleys)) {
     left <- maxima[[j]]
     right <- maxima[[j + 1L]]
-    valley_local <- left + which.min(ints[left:right]) - 1L
-    peak_floor <- min(ints[left], ints[right])
+    v_locs[[j]] <- left + which.min(ints[left:right]) - 1L
+    v_vals[[j]] <- ints[v_locs[[j]]]
+  }
+  split_at <- NA_integer_
+  split_score <- Inf
+  for (j in seq_len(n_valleys)) {
+    v_val <- v_vals[[j]]
+    ## 1D Morse-Smale topological basin barrier: pair saddle v_j with the
+    ## highest maxima in its left and right basins bounded by any strictly
+    ## deeper valley, so small noise ripples inside a valley do not mask two
+    ## well-separated major peaks.
+    k_left <- j - 1L
+    while (k_left >= 1L && v_vals[[k_left]] >= v_val) {
+      k_left <- k_left - 1L
+    }
+    left_max <- max(ints[maxima[(k_left + 1L):j]])
+
+    k_right <- j + 1L
+    while (k_right <= n_valleys && v_vals[[k_right]] >= v_val) {
+      k_right <- k_right + 1L
+    }
+    right_max <- max(ints[maxima[(j + 1L):k_right]])
+
+    peak_floor <- min(left_max, right_max)
     if (peak_floor <= 0) {
       next
     }
-    score <- ints[valley_local] / peak_floor
+    score <- v_val / peak_floor
     if (score <= valley_ratio && score < split_score) {
-      split_at <- valley_local
+      split_at <- v_locs[[j]]
       split_score <- score
     }
   }
@@ -447,14 +584,301 @@ restore_logger <- function() {
     return(list(idx))
   }
   c(
-    .split_peak_group(idx[seq_len(split_at)], int_raw, valley_ratio, hws),
+    .split_peak_group(
+      idx[seq_len(split_at)],
+      int_raw,
+      valley_ratio,
+      hws,
+      baseline_subtract
+    ),
     .split_peak_group(
       idx[(split_at + 1L):length(idx)],
       int_raw,
       valley_ratio,
-      hws
+      hws,
+      baseline_subtract
     )
   )
+}
+
+#' @noRd
+.fit_gaussian_peak <- function(
+  mz,
+  ints,
+  exponent = 3,
+  baseline_subtract = FALSE,
+  mzFun = base::mean,
+  intensityFun = base::max
+) {
+  n <- length(mz)
+  if (n == 0L) {
+    return(list(
+      mz = NA_real_,
+      apex = 0,
+      sigma = 0,
+      area = 0,
+      valid = FALSE
+    ))
+  }
+  ints_adj <- ints
+  if (baseline_subtract && n >= 3L) {
+    base_floor <- min(ints_adj[1L], ints_adj[n])
+    if (is.finite(base_floor) && base_floor > 0 && base_floor < max(ints_adj)) {
+      ints_adj <- pmax(0, ints_adj - base_floor)
+    }
+  }
+  w_all <- ints_adj^exponent
+  w_sum <- sum(abs(w_all))
+  fallback_mz <- if (w_sum == 0) mzFun(mz) else sum(mz * w_all) / w_sum
+  fallback_apex <- intensityFun(ints)
+
+  apex_i <- which.max(ints_adj)
+  if (n >= 3L && length(apex_i) == 1L && ints_adj[apex_i] > 0) {
+    core <- which(ints_adj >= 0.05 * ints_adj[apex_i] & ints_adj > 0)
+    if (length(core) < 3L) {
+      left_i <- max(1L, apex_i - 1L)
+      right_i <- min(n, apex_i + 1L)
+      core <- seq.int(left_i, right_i)
+      core <- core[ints_adj[core] > 0]
+    }
+    if (length(core) >= 3L) {
+      m_c <- mz[core]
+      i_c <- ints_adj[core]
+      m0 <- mz[apex_i]
+      raw_x <- m_c - m0
+      h <- max(abs(raw_x))
+      if (is.finite(h) && h > 0) {
+        x <- raw_x / h
+        y <- log(i_c)
+        w <- (i_c / max(i_c))^exponent
+        s0 <- sum(w)
+        s1 <- sum(w * x)
+        s2 <- sum(w * x^2)
+        s3 <- sum(w * x^3)
+        s4 <- sum(w * x^4)
+        t0 <- sum(w * y)
+        t1 <- sum(w * x * y)
+        t2 <- sum(w * x^2 * y)
+
+        det_a <- s0 *
+          (s2 * s4 - s3^2) -
+          s1 * (s1 * s4 - s2 * s3) +
+          s2 * (s1 * s3 - s2^2)
+        if (is.finite(det_a) && abs(det_a) > 1e-12) {
+          c0 <- (t0 *
+            (s2 * s4 - s3^2) -
+            s1 * (t1 * s4 - t2 * s3) +
+            s2 * (t1 * s3 - t2 * s2)) /
+            det_a
+          c1 <- (s0 *
+            (t1 * s4 - t2 * s3) -
+            t0 * (s1 * s4 - s2 * s3) +
+            s2 * (s1 * t2 - s2 * t1)) /
+            det_a
+          c2 <- (s0 *
+            (s2 * t2 - s3 * t1) -
+            s1 * (s1 * t2 - s2 * t1) +
+            t0 * (s1 * s3 - s2^2)) /
+            det_a
+          if (is.finite(c2) && c2 < 0) {
+            delta <- -c1 / (2 * c2) * h
+            mz_est <- m0 + delta
+            if (is.finite(mz_est) && mz_est >= min(m_c) && mz_est <= max(m_c)) {
+              apex_est <- exp(c0 - c1^2 / (4 * c2))
+              if (baseline_subtract && n >= 3L) {
+                base_floor <- min(ints[1L], ints[n])
+                if (
+                  is.finite(base_floor) &&
+                    base_floor > 0 &&
+                    base_floor < max(ints)
+                ) {
+                  apex_est <- apex_est + base_floor
+                }
+              }
+              sigma_est <- sqrt(-1 / (2 * c2)) * h
+              area_est <- apex_est * sigma_est * sqrt(2 * pi)
+              return(list(
+                mz = mz_est,
+                apex = apex_est,
+                sigma = sigma_est,
+                area = area_est,
+                valid = TRUE
+              ))
+            }
+          }
+        }
+      }
+    }
+  }
+  list(
+    mz = fallback_mz,
+    apex = fallback_apex,
+    sigma = if (n >= 2L) 0.5 * diff(range(mz)) else 0,
+    area = .trapezoid_area(mz, ints_adj, baseline_subtract = FALSE),
+    valid = FALSE
+  )
+}
+
+#' @noRd
+.trapezoid_area <- function(mz, ints, baseline_subtract = FALSE) {
+  n <- length(mz)
+  if (n == 0L) {
+    return(0)
+  }
+  if (n == 1L) {
+    return(max(0, ints[1L]))
+  }
+  ints_adj <- ints
+  if (baseline_subtract && n >= 3L) {
+    base_floor <- min(ints_adj[1L], ints_adj[n])
+    if (is.finite(base_floor) && base_floor > 0 && base_floor < max(ints_adj)) {
+      ints_adj <- pmax(0, ints_adj - base_floor)
+    }
+  }
+  ord <- order(mz)
+  m_s <- mz[ord]
+  i_s <- pmax(0, ints_adj[ord])
+  area <- sum(0.5 * (i_s[-n] + i_s[-1L]) * diff(m_s))
+  if (area <= 0 && any(i_s > 0)) max(i_s) else area
+}
+
+#' @noRd
+.deconvolve_subpeaks <- function(
+  segs,
+  mz_raw,
+  int_raw,
+  exponent = 3,
+  baseline_subtract = FALSE,
+  mzFun = base::mean,
+  intensityFun = base::max
+) {
+  k_n <- length(segs)
+  fits <- lapply(segs, function(idx) {
+    .fit_gaussian_peak(
+      mz_raw[idx],
+      int_raw[idx],
+      exponent = exponent,
+      baseline_subtract = baseline_subtract,
+      mzFun = mzFun,
+      intensityFun = intensityFun
+    )
+  })
+  if (k_n < 2L) {
+    return(fits)
+  }
+  all_grp <- unlist(segs, use.names = FALSE)
+  sigmas <- numeric(k_n)
+  mu0 <- numeric(k_n)
+  amp0 <- numeric(k_n)
+  for (k in seq_len(k_n)) {
+    idx <- segs[[k]]
+    apex_global <- idx[which.max(int_raw[idx])]
+    mu0[k] <- fits[[k]]$mz
+    amp0[k] <- fits[[k]]$apex
+    sigmas[k] <- fits[[k]]$sigma
+    if (!fits[[k]]$valid || sigmas[k] <= 0 || !is.finite(sigmas[k])) {
+      nb <- intersect(
+        c(apex_global - 1L, apex_global, apex_global + 1L),
+        all_grp
+      )
+      if (length(nb) == 3L && all(int_raw[nb] > 0)) {
+        x <- mz_raw[nb] - mz_raw[apex_global]
+        y <- log(int_raw[nb])
+        denom <- (x[1L] - x[2L]) * (x[1L] - x[3L]) * (x[2L] - x[3L])
+        if (is.finite(denom) && abs(denom) > 1e-20) {
+          c2 <- (x[3L] *
+            (y[2L] - y[1L]) +
+            x[2L] * (y[1L] - y[3L]) +
+            x[1L] * (y[3L] - y[2L])) /
+            denom
+          if (is.finite(c2) && c2 < 0) {
+            sigmas[k] <- sqrt(-1 / (2 * c2))
+          }
+        }
+      }
+      if (sigmas[k] <= 0 || !is.finite(sigmas[k])) {
+        sigmas[k] <- max(1e-6, 0.5 * diff(range(mz_raw[idx])))
+      }
+    }
+  }
+  for (iter in 1:2) {
+    for (k in seq_len(k_n)) {
+      idx <- segs[[k]]
+      ext_idx <- sort(unique(c(
+        max(min(all_grp), min(idx) - 1L),
+        idx,
+        min(max(all_grp), max(idx) + 1L)
+      )))
+      m_sub <- mz_raw[ext_idx]
+      i_corr <- int_raw[ext_idx]
+      for (j in seq_len(k_n)) {
+        if (j != k && is.finite(sigmas[j]) && sigmas[j] > 0) {
+          tail_j <- amp0[j] * exp(-0.5 * ((m_sub - mu0[j]) / sigmas[j])^2)
+          i_corr <- pmax(1e-6, i_corr - tail_j)
+        }
+      }
+      fit_k <- .fit_gaussian_peak(
+        m_sub,
+        i_corr,
+        exponent = exponent,
+        baseline_subtract = baseline_subtract,
+        mzFun = mzFun,
+        intensityFun = intensityFun
+      )
+      mu0[k] <- fit_k$mz
+      amp0[k] <- fit_k$apex
+      if (fit_k$valid && is.finite(fit_k$sigma) && fit_k$sigma > 0) {
+        sigmas[k] <- fit_k$sigma
+      }
+      fits[[k]] <- fit_k
+    }
+  }
+  fits
+}
+
+#' @noRd
+.group_mz_domain <- function(
+  mz_raw,
+  tolerance = 0,
+  ppm = 20,
+  timeDomain = FALSE,
+  domain_scaling = "legacy",
+  mz_ref = 100
+) {
+  n <- length(mz_raw)
+  if (n == 0L) {
+    return(integer(0))
+  }
+  if (n == 1L) {
+    return(1L)
+  }
+  domain_scaling <- match.arg(
+    domain_scaling,
+    c("legacy", "linear", "tof", "orbitrap", "fticr")
+  )
+  if (domain_scaling == "legacy") {
+    mz_vals <- if (timeDomain) sqrt(mz_raw) else mz_raw
+    mz_base <- if (timeDomain) min(mz_vals) else 1
+    return(MsCoreUtils::group(
+      x = mz_vals,
+      tolerance = tolerance / mz_base,
+      ppm = ppm
+    ))
+  }
+  alpha <- switch(
+    domain_scaling,
+    linear = 0,
+    tof = 0.5,
+    orbitrap = 1.5,
+    fticr = 2.0
+  )
+  dm <- diff(mz_raw)
+  m_mid <- 0.5 * (mz_raw[-n] + mz_raw[-1L])
+  tol_local <- tolerance *
+    (pmax(m_mid, 1e-9) / mz_ref)^alpha +
+    (ppm * 1e-6) * pmax(m_mid, 0) +
+    sqrt(.Machine$double.eps)
+  cumsum(c(1L, as.integer(dm > tol_local)))
 }
 
 #' @noRd
@@ -474,9 +898,49 @@ restore_logger <- function() {
   int_raw,
   weighted,
   intensity_exponent,
-  mzFun
+  mzFun,
+  centroid_method = "weighted",
+  baseline_subtract = FALSE
 ) {
-  if (weighted) {
+  if (!weighted || identical(centroid_method, "func")) {
+    return(vapply(peak_groups, function(i) mzFun(mz_raw[i]), numeric(1)))
+  }
+  if (identical(centroid_method, "gaussian")) {
+    return(vapply(
+      peak_groups,
+      function(i) {
+        .fit_gaussian_peak(
+          mz = mz_raw[i],
+          ints = int_raw[i],
+          exponent = intensity_exponent,
+          baseline_subtract = baseline_subtract,
+          mzFun = mzFun
+        )$mz
+      },
+      numeric(1)
+    ))
+  }
+  if (baseline_subtract) {
+    vapply(
+      peak_groups,
+      function(i) {
+        ints <- int_raw[i]
+        if (length(ints) >= 3L) {
+          bf <- min(ints[1L], ints[length(ints)])
+          if (is.finite(bf) && bf > 0 && bf < max(ints)) {
+            ints <- pmax(0, ints - bf)
+          }
+        }
+        w <- ints^intensity_exponent
+        if (sum(abs(w)) == 0) {
+          mzFun(mz_raw[i])
+        } else {
+          sum(mz_raw[i] * w) / sum(w)
+        }
+      },
+      numeric(1)
+    )
+  } else {
     w_all <- int_raw^intensity_exponent
     mw_all <- mz_raw * w_all
     vapply(
@@ -491,14 +955,55 @@ restore_logger <- function() {
       },
       numeric(1)
     )
-  } else {
-    vapply(peak_groups, function(i) mzFun(mz_raw[i]), numeric(1))
   }
 }
 
 #' @noRd
-.peak_group_intensities <- function(peak_groups, int_raw, intensityFun) {
-  vapply(peak_groups, function(i) intensityFun(int_raw[i]), numeric(1))
+.peak_group_intensities <- function(
+  peak_groups,
+  int_raw,
+  intensityFun,
+  mz_raw = NULL,
+  intensity_method = "func",
+  intensity_exponent = 3,
+  baseline_subtract = FALSE
+) {
+  if (identical(intensity_method, "func") || is.null(mz_raw)) {
+    return(vapply(
+      peak_groups,
+      function(i) intensityFun(int_raw[i]),
+      numeric(1)
+    ))
+  }
+  vapply(
+    peak_groups,
+    function(i) {
+      gate <- intensityFun(int_raw[i])
+      if (gate <= 0) {
+        return(0)
+      }
+      if (identical(intensity_method, "trapezoid")) {
+        return(.trapezoid_area(
+          mz_raw[i],
+          int_raw[i],
+          baseline_subtract = baseline_subtract
+        ))
+      }
+      fit <- .fit_gaussian_peak(
+        mz = mz_raw[i],
+        ints = int_raw[i],
+        exponent = intensity_exponent,
+        baseline_subtract = baseline_subtract,
+        intensityFun = intensityFun
+      )
+      if (identical(intensity_method, "gaussian_area")) {
+        fit$area
+      } else {
+        fit$apex
+      }
+    },
+    numeric(1)
+  )
 }
 
 #' @noRd
@@ -524,6 +1029,14 @@ restore_logger <- function() {
   msLevel = spectrumMsLevel,
   timeDomain = FALSE,
   intensity_exponent = 3,
+  centroid_method = "weighted",
+  intensity_method = "func",
+  deconvolve = FALSE,
+  valley_ratio = 0.2,
+  valley_hws = 2L,
+  baseline_subtract = FALSE,
+  domain_scaling = "legacy",
+  mz_ref = 100,
   ...
 ) {
   if (!spectrumMsLevel %in% msLevel || !length(x)) {
@@ -531,36 +1044,95 @@ restore_logger <- function() {
   }
   mz_raw <- x[, "mz"]
   int_raw <- x[, "intensity"]
-  mz_vals <- if (timeDomain) sqrt(mz_raw) else mz_raw
-  mz_base <- if (timeDomain) min(mz_vals) else 1
-  grps <- MsCoreUtils::group(
-    x = mz_vals,
-    tolerance = tolerance / mz_base,
-    ppm = ppm
+  grps <- .group_mz_domain(
+    mz_raw = mz_raw,
+    tolerance = tolerance,
+    ppm = ppm,
+    timeDomain = timeDomain,
+    domain_scaling = domain_scaling,
+    mz_ref = mz_ref
   )
   ## Nothing to combine when every m/z value landed in its own group.
   if (anyDuplicated(grps) == 0L) {
     return(x)
   }
   grp_idx <- .peak_group_indices(grps)
-  peak_groups <- unlist(
-    lapply(grp_idx, .split_peak_group, int_raw = int_raw),
-    recursive = FALSE,
-    use.names = FALSE
+  split_by_grp <- lapply(
+    grp_idx,
+    .split_peak_group,
+    int_raw = int_raw,
+    valley_ratio = valley_ratio,
+    hws = valley_hws,
+    baseline_subtract = baseline_subtract
   )
+  peak_groups <- unlist(split_by_grp, recursive = FALSE, use.names = FALSE)
   peak_names <- .peak_group_names(peak_groups)
 
-  mzs <- .peak_group_mzs(
-    peak_groups = peak_groups,
-    mz_raw = mz_raw,
-    int_raw = int_raw,
-    weighted = weighted,
-    intensity_exponent = intensity_exponent,
-    mzFun = mzFun
-  )
+  if (deconvolve && any(lengths(split_by_grp) > 1L)) {
+    dec_fits <- unlist(
+      lapply(
+        split_by_grp,
+        .deconvolve_subpeaks,
+        mz_raw = mz_raw,
+        int_raw = int_raw,
+        exponent = intensity_exponent,
+        baseline_subtract = baseline_subtract,
+        mzFun = mzFun,
+        intensityFun = intensityFun
+      ),
+      recursive = FALSE
+    )
+    mzs <- vapply(
+      seq_along(peak_groups),
+      function(k) {
+        if (!weighted || identical(centroid_method, "func")) {
+          mzFun(mz_raw[peak_groups[[k]]])
+        } else {
+          dec_fits[[k]]$mz
+        }
+      },
+      numeric(1)
+    )
+    ints <- vapply(
+      seq_along(peak_groups),
+      function(k) {
+        idx <- peak_groups[[k]]
+        gate <- intensityFun(int_raw[idx])
+        if (gate <= 0) {
+          return(0)
+        }
+        if (identical(intensity_method, "gaussian_area")) {
+          dec_fits[[k]]$area
+        } else if (identical(intensity_method, "trapezoid")) {
+          .trapezoid_area(mz_raw[idx], int_raw[idx], baseline_subtract)
+        } else {
+          dec_fits[[k]]$apex
+        }
+      },
+      numeric(1)
+    )
+  } else {
+    mzs <- .peak_group_mzs(
+      peak_groups = peak_groups,
+      mz_raw = mz_raw,
+      int_raw = int_raw,
+      weighted = weighted,
+      intensity_exponent = intensity_exponent,
+      mzFun = mzFun,
+      centroid_method = centroid_method,
+      baseline_subtract = baseline_subtract
+    )
+    ints <- .peak_group_intensities(
+      peak_groups = peak_groups,
+      int_raw = int_raw,
+      intensityFun = intensityFun,
+      mz_raw = mz_raw,
+      intensity_method = intensity_method,
+      intensity_exponent = intensity_exponent,
+      baseline_subtract = baseline_subtract
+    )
+  }
   names(mzs) <- peak_names
-
-  ints <- .peak_group_intensities(peak_groups, int_raw, intensityFun)
   names(ints) <- peak_names
 
   if (ncol(x) > 2L) {
@@ -642,12 +1214,21 @@ restore_logger <- function() {
   mz_fun_ms2,
   mz_weighted,
   time_domain,
-  intensity_exponent = 3
+  intensity_exponent = 3,
+  centroid_method = "weighted",
+  intensity_method = "func",
+  deconvolve = FALSE,
+  valley_ratio = 0.2,
+  valley_hws = 2L,
+  baseline_subtract = FALSE,
+  domain_scaling = "legacy",
+  mz_ref = 100
 ) {
   ## concatenateSpectra() below emits the MS1 spectra before the MS2 spectra, so
   ## the processed order only matches the acquisition order when the input is
   ## already grouped by MS level. Record which input spectrum each processed
-  ## spectrum came from so .keep_empty() can restore the right one.
+  ## spectrum came from so .keep_empty() can restore the right one and
+  ## chronological scan order can be restored afterwards.
   ms_levels <- Spectra::msLevel(spectra)
   order_map <- c(which(ms_levels == 1L), which(ms_levels == 2L))
   serial_param <- BiocParallel::SerialParam()
@@ -663,6 +1244,14 @@ restore_logger <- function() {
       weighted = mz_weighted,
       timeDomain = time_domain,
       intensity_exponent = intensity_exponent,
+      centroid_method = centroid_method,
+      intensity_method = intensity_method,
+      deconvolve = deconvolve,
+      valley_ratio = valley_ratio,
+      valley_hws = valley_hws,
+      baseline_subtract = baseline_subtract,
+      domain_scaling = domain_scaling,
+      mz_ref = mz_ref,
       msLevel. = 2L
     ) |>
     Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
@@ -678,12 +1267,24 @@ restore_logger <- function() {
       weighted = mz_weighted,
       timeDomain = time_domain,
       intensity_exponent = intensity_exponent,
+      centroid_method = centroid_method,
+      intensity_method = intensity_method,
+      deconvolve = deconvolve,
+      valley_ratio = valley_ratio,
+      valley_hws = valley_hws,
+      baseline_subtract = baseline_subtract,
+      domain_scaling = domain_scaling,
+      mz_ref = mz_ref,
       msLevel. = 1L
     ) |>
     Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
     Spectra::applyProcessing(BPPARAM = serial_param)
   centroided <- Spectra::concatenateSpectra(centroided_1, centroided_2)
-  .keep_empty(spectra, centroided, order_map)
+  res <- .keep_empty(spectra, centroided, order_map)
+  if (length(order_map) == length(res) && is.unsorted(order_map)) {
+    res <- res[order(order_map)]
+  }
+  res
 }
 
 #' @noRd
@@ -704,6 +1305,14 @@ restore_logger <- function() {
   mz_weighted,
   time_domain,
   intensity_exponent,
+  centroid_method = "weighted",
+  intensity_method = "func",
+  deconvolve = FALSE,
+  valley_ratio = 0.2,
+  valley_hws = 2L,
+  baseline_subtract = FALSE,
+  domain_scaling = "legacy",
+  mz_ref = 100,
   batch_size = 4096L
 ) {
   setup_logger(dir = outd)
@@ -755,7 +1364,15 @@ restore_logger <- function() {
         mz_fun_ms2 = mz_fun_ms2,
         mz_weighted = mz_weighted,
         time_domain = time_domain,
-        intensity_exponent = intensity_exponent
+        intensity_exponent = intensity_exponent,
+        centroid_method = centroid_method,
+        intensity_method = intensity_method,
+        deconvolve = deconvolve,
+        valley_ratio = valley_ratio,
+        valley_hws = valley_hws,
+        baseline_subtract = baseline_subtract,
+        domain_scaling = domain_scaling,
+        mz_ref = mz_ref
       )
       result@backend@spectraData$centroided <- TRUE
       temp_file <- tempfile(fileext = ".mzML", tmpdir = tmp_batch_dir)

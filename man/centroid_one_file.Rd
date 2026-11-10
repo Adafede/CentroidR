@@ -20,7 +20,15 @@ centroid_one_file(
   int_fun_ms2 = base::max,
   mz_weighted = TRUE,
   time_domain = TRUE,
-  intensity_exponent = 3
+  intensity_exponent = 3,
+  centroid_method = c("weighted", "gaussian", "func"),
+  intensity_method = c("func", "gaussian_apex", "gaussian_area", "trapezoid"),
+  deconvolve = FALSE,
+  valley_ratio = 0.2,
+  valley_hws = 2L,
+  baseline_subtract = FALSE,
+  domain_scaling = c("legacy", "linear", "tof", "orbitrap", "fticr"),
+  mz_ref = 100
 )
 }
 \arguments{
@@ -71,6 +79,46 @@ m/z value aggregation. Default: TRUE.}
 
 \item{intensity_exponent}{numeric(1). If \code{mz_weighted=TRUE}, the exponent of
 the intensity for m/z weighting. Default: 3.}
+
+\item{centroid_method}{character(1). Mathematical estimator for peak m/z
+when \code{mz_weighted = TRUE}: \code{"weighted"} (power-weighted mean, default) or
+\code{"gaussian"} (apex-centered weighted log-quadratic Guo-Caruana Gaussian
+fit with automatic fallback to power-weighted mean on < 3 points or
+non-concave profiles).}
+
+\item{intensity_method}{character(1). Mathematical estimator for peak
+abundance: \code{"func"} (applies \code{int_fun_ms1} / \code{int_fun_ms2}, default),
+\code{"gaussian_apex"} (interpolated continuous Gaussian apex height to
+eliminate picket-fence sampling attenuation), \code{"gaussian_area"}
+(analytical Gaussian integral \eqn{A \sigma \sqrt{2\pi}}), or
+\code{"trapezoid"} (numerical trapezoidal integration over m/z).}
+
+\item{deconvolve}{logical(1). If \code{TRUE}, applies 2-pass Gauss-Seidel
+Gaussian tail subtraction across split sub-peaks within overlapping
+multiplet groups before estimating centroids and intensities. Default:
+FALSE.}
+
+\item{valley_ratio}{numeric(1). Maximum ratio of valley intensity to the
+topological basin barrier height (1D Morse-Smale persistence) at which a
+group is split into separate peaks. Must be in \verb{[0, 1]}. Default: 0.2.}
+
+\item{valley_hws}{integer(1). Half-window size for local maxima detection
+during valley splitting. Must be at least 1. Default: 2L.}
+
+\item{baseline_subtract}{logical(1). If \code{TRUE}, subtracts the local edge
+baseline floor of each peak group prior to valley splitting and centroid
+estimation. Default: FALSE.}
+
+\item{domain_scaling}{character(1). Mass analyzer spacing scaling model used
+when grouping adjacent profile points: \code{"legacy"} (honours \code{time_domain}
+via \code{sqrt(mz)} transformation, default), \code{"linear"} (constant Da + ppm in
+m/z space), \code{"tof"} (local Jacobian \eqn{\Delta m \propto m^{1/2}}),
+\code{"orbitrap"} (local Jacobian \eqn{\Delta m \propto m^{3/2}}), or
+\code{"fticr"} (local Jacobian \eqn{\Delta m \propto m^2}).}
+
+\item{mz_ref}{numeric(1). Reference m/z (in Daltons) at which \verb{mz_tol_da_*}
+is calibrated when \code{domain_scaling} is \code{"tof"}, \code{"orbitrap"}, or
+\code{"fticr"}. Default: 100.}
 }
 \value{
 logical(1). \code{TRUE} if the file was centroided, or \code{TRUE} if it was
@@ -86,15 +134,30 @@ analysis for various experimental needs.
 }
 \details{
 MS1 and MS2 spectra are processed separately with their own tolerances, so
-the two levels can be tuned independently.
+the two levels can be tuned independently while preserving the original
+chronological scan acquisition order in the exported \code{mzML}.
 
-Within a spectrum, profile points are grouped by the m/z tolerances, a group
-is split back into separate peaks at deep valleys so that closely spaced
-peaks are not merged, and each group is reduced to a single peak. A group is
-only reduced when it holds at least \verb{min_datapoints_ms*} points of non-zero
-intensity; below that it is reported as zero intensity and filtered out.
-Spectra left without any peak by this step are restored from the input, so
-no spectrum is lost.
+Within a spectrum, profile points are first grouped by m/z tolerance using
+either the legacy \code{sqrt(mz)} transformation (\code{domain_scaling = "legacy"}) or
+an exact local Jacobian analyzer spacing law (\code{domain_scaling} in \code{"linear"},
+\code{"tof"}, \code{"orbitrap"}, or \code{"fticr"}). Each group is then recursively split at
+deep valleys evaluated via 1D Morse-Smale topological basin prominence
+(\code{valley_ratio}, \code{valley_hws}, and optional \code{baseline_subtract}) so that
+closely spaced peaks are not merged even when small noise ripples sit inside
+a valley.
+
+Peak centroids are estimated via power-weighted mean (\code{centroid_method = "weighted"}), apex-centered weighted log-quadratic Guo-Caruana Gaussian
+fitting (\code{centroid_method = "gaussian"}), or custom aggregation (\code{"func"}),
+while peak abundances can be reported via \verb{int_fun_ms*} (\code{intensity_method = "func"}), interpolated Gaussian apex (\code{"gaussian_apex"}), analytical Gaussian
+area (\code{"gaussian_area"}), or numerical trapezoidal integration
+(\code{"trapezoid"}). Setting \code{deconvolve = TRUE} performs 2-pass Gauss-Seidel
+Gaussian tail subtraction across split sub-peaks prior to centroid and
+intensity estimation.
+
+A group is only reduced when it holds at least \verb{min_datapoints_ms*} points of
+non-zero intensity; below that it is reported as zero intensity and filtered
+out. Spectra left without any peak by this step are restored from the input,
+so no spectrum is lost.
 
 File path modifications are supported via \code{pattern} and \code{replacement}.
 \code{pattern} is a regular expression, as in \code{sub()}.

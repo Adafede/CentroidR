@@ -2,8 +2,9 @@
 #'
 #' Infrastructure to centroid profile-mode mass spectrometry (`mzML`) files
 #' into peak-picked centroid spectra with configurable MS1 and MS2 tolerances,
-#' local-valley splitting of closely spaced peaks, and intensity-weighted m/z
-#' aggregation.
+#' 1D Morse-Smale topological prominence valley splitting, weighted
+#' log-quadratic Gaussian or power-weighted m/z centroiding, overlapping
+#' multiplet tail deconvolution, and analyzer-specific m/z domain scaling.
 #'
 #' @section EDAM Ontology Annotations:
 #' - **Topics**:

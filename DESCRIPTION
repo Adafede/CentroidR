@@ -1,6 +1,6 @@
 Package: CentroidR
 Title: Centroid Profile Mass Spectrometry Data
-Version: 0.0.0.9004
+Version: 0.0.0.9005
 Authors@R: c(
     person(
         given = "Adriano",
@@ -20,7 +20,9 @@ Authors@R: c(
 Maintainer: Adriano Rutz <adafede@gmail.com>
 Description: CentroidR provides the infrastructure to centroid profile mass
     spectrometry spectra (mzML) with independent MS1 and MS2 tolerances,
-    valley-based peak splitting, and intensity-weighted m/z aggregation.
+    1D Morse-Smale topological prominence valley splitting, weighted
+    log-quadratic Gaussian and power-weighted m/z centroiding, overlapping
+    multiplet deconvolution, and analyzer-specific m/z domain scaling.
 License: AGPL (>= 3)
 URL: https://github.com/adafede/CentroidR,
     https://adafede.github.io/CentroidR

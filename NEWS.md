@@ -1,5 +1,33 @@
 # CentroidR
 
+## CentroidR 0.0.9005
+
+- Replace immediate-neighbor valley scoring in `.split_peak_group()` with a 1D
+  Morse-Smale topological prominence (watershed basin) saddle ratio so small
+  noise ripples inside a valley no longer prevent splitting two well-separated
+  major peaks.
+- Add `centroid_method = c("weighted", "gaussian", "func")` implementing an
+  apex-centered weighted log-quadratic (Guo-Caruana) Gaussian estimator that
+  eliminates sampling-phase (pixel-locking) and asymmetric truncation $m/z$
+  bias, with automatic fallback on $< 3$ points or non-concave profiles.
+- Add `intensity_method = c("func", "gaussian_apex", "gaussian_area",
+  "trapezoid")` to support continuous log-quadratic apex interpolation
+  (eliminating picket-fence intensity attenuation), analytical Gaussian peak
+  area ($A\sigma\sqrt{2\pi}$), and numerical trapezoidal integration.
+- Add `deconvolve = TRUE` to perform 2-pass Gauss-Seidel Gaussian tail
+  subtraction across split multiplet sub-peaks before estimating centroids and
+  abundances.
+- Add `domain_scaling = c("legacy", "linear", "tof", "orbitrap", "fticr")` and
+  `mz_ref` for exact local Jacobian mass-analyzer spacing laws
+  ($\Delta m \propto m^\alpha$ with $\alpha \in \{0, 0.5, 1.5, 2.0\}$) directly
+  in $m/z$ space without $2\times$ ppm distortion or sensitivity to `min(mz)`.
+- Add `valley_ratio`, `valley_hws`, and `baseline_subtract` parameters to
+  `centroid_one_file()` and the CLI (`inst/scripts/centroiding.R`) for local
+  edge-baseline subtraction and fine-grained valley splitting control.
+- Restore original chronological MS1/MS2 acquisition ordering in
+  `.process_spectra()` after per-level processing and `.keep_empty()`
+  restoration.
+
 ## CentroidR 0.0.9004
 
 - Drop external `logger` and `optparse` dependencies in favour of

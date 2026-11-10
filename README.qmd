@@ -78,6 +78,21 @@ CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
                              replacement = "/profile_centroided/")
 ```
 
+For high-accuracy Gaussian centroiding, continuous apex interpolation, multiplet tail deconvolution, and exact TOF/Orbitrap domain scaling:
+
+```r
+CentroidR::centroid_one_file(
+  file = "path_to_your/profile/spectra.mzML",
+  pattern = "/profile/",
+  replacement = "/profile_centroided/",
+  centroid_method = "gaussian",
+  intensity_method = "gaussian_apex",
+  deconvolve = TRUE,
+  baseline_subtract = TRUE,
+  domain_scaling = "tof"
+)
+```
+
 ```bash
 Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
 ```
@@ -135,7 +150,7 @@ To see all parameters
 ## Citation
 
 Rutz, Adriano, and Johannes Rainer. 2026. *CentroidR: CentroidR provides the
-infrastructure to centroid profile spectra*. R package version 0.0.9004.
+infrastructure to centroid profile spectra*. R package version 0.0.9005.
 
 ## Additional software credits
 

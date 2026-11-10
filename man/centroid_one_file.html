@@ -111,6 +111,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -214,7 +243,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   int_fun_ms2 = base::max,
   mz_weighted = TRUE,
   time_domain = TRUE,
-  intensity_exponent = 3
+  intensity_exponent = 3,
+  centroid_method = c("weighted", "gaussian", "func"),
+  intensity_method = c("func", "gaussian_apex", "gaussian_area", "trapezoid"),
+  deconvolve = FALSE,
+  valley_ratio = 0.2,
+  valley_hws = 2L,
+  baseline_subtract = FALSE,
+  domain_scaling = c("legacy", "linear", "tof", "orbitrap", "fticr"),
+  mz_ref = 100
 )
 </code></pre>
 </section>
@@ -349,12 +386,78 @@ logical(1). If <code>TRUE</code>, uses square root for m/z weighting (TRUE for T
 numeric(1). If <code>mz_weighted=TRUE</code>, the exponent of the intensity for m/z weighting. Default: 3.
 </td>
 </tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="centroid_method">centroid_method</code>
+</td>
+<td>
+character(1). Mathematical estimator for peak m/z when <code>mz_weighted = TRUE</code>: <code>“weighted”</code> (power-weighted mean, default) or <code>“gaussian”</code> (apex-centered weighted log-quadratic Guo-Caruana Gaussian fit with automatic fallback to power-weighted mean on &lt; 3 points or non-concave profiles).
+</td>
+</tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="intensity_method">intensity_method</code>
+</td>
+<td>
+character(1). Mathematical estimator for peak abundance: <code>“func”</code> (applies <code>int_fun_ms1</code> / <code>int_fun_ms2</code>, default), <code>“gaussian_apex”</code> (interpolated continuous Gaussian apex height to eliminate picket-fence sampling attenuation), <code>“gaussian_area”</code> (analytical Gaussian integral <span class="math inline">\(A \sigma \sqrt{2\pi}\)</span>), or <code>“trapezoid”</code> (numerical trapezoidal integration over m/z).
+</td>
+</tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="deconvolve">deconvolve</code>
+</td>
+<td>
+logical(1). If <code>TRUE</code>, applies 2-pass Gauss-Seidel Gaussian tail subtraction across split sub-peaks within overlapping multiplet groups before estimating centroids and intensities. Default: FALSE.
+</td>
+</tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="valley_ratio">valley_ratio</code>
+</td>
+<td>
+numeric(1). Maximum ratio of valley intensity to the topological basin barrier height (1D Morse-Smale persistence) at which a group is split into separate peaks. Must be in <code style="white-space: pre;">[0, 1]</code>. Default: 0.2.
+</td>
+</tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="valley_hws">valley_hws</code>
+</td>
+<td>
+integer(1). Half-window size for local maxima detection during valley splitting. Must be at least 1. Default: 2L.
+</td>
+</tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="baseline_subtract">baseline_subtract</code>
+</td>
+<td>
+logical(1). If <code>TRUE</code>, subtracts the local edge baseline floor of each peak group prior to valley splitting and centroid estimation. Default: FALSE.
+</td>
+</tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="domain_scaling">domain_scaling</code>
+</td>
+<td>
+character(1). Mass analyzer spacing scaling model used when grouping adjacent profile points: <code>“legacy”</code> (honours <code>time_domain</code> via <code>sqrt(mz)</code> transformation, default), <code>“linear”</code> (constant Da + ppm in m/z space), <code>“tof”</code> (local Jacobian <span class="math inline">\(\Delta m \propto m^{1/2}\)</span>), <code>“orbitrap”</code> (local Jacobian <span class="math inline">\(\Delta m \propto m^{3/2}\)</span>), or <code>“fticr”</code> (local Jacobian <span class="math inline">\(\Delta m \propto m^2\)</span>).
+</td>
+</tr>
+<tr>
+<td style="white-space: collapse; font-family: monospace; vertical-align: top">
+<code id="mz_ref">mz_ref</code>
+</td>
+<td>
+numeric(1). Reference m/z (in Daltons) at which <code style="white-space: pre;">mz_tol_da_*</code> is calibrated when <code>domain_scaling</code> is <code>“tof”</code>, <code>“orbitrap”</code>, or <code>“fticr”</code>. Default: 100.
+</td>
+</tr>
 </tbody></table>
 </section>
 <section id="details" class="level3">
 <h3 class="anchored" data-anchor-id="details">Details</h3>
-<p>MS1 and MS2 spectra are processed separately with their own tolerances, so the two levels can be tuned independently.</p>
-<p>Within a spectrum, profile points are grouped by the m/z tolerances, a group is split back into separate peaks at deep valleys so that closely spaced peaks are not merged, and each group is reduced to a single peak. A group is only reduced when it holds at least <code style="white-space: pre;">min_datapoints_ms*</code> points of non-zero intensity; below that it is reported as zero intensity and filtered out. Spectra left without any peak by this step are restored from the input, so no spectrum is lost.</p>
+<p>MS1 and MS2 spectra are processed separately with their own tolerances, so the two levels can be tuned independently while preserving the original chronological scan acquisition order in the exported <code>mzML</code>.</p>
+<p>Within a spectrum, profile points are first grouped by m/z tolerance using either the legacy <code>sqrt(mz)</code> transformation (<code>domain_scaling = “legacy”</code>) or an exact local Jacobian analyzer spacing law (<code>domain_scaling</code> in <code>“linear”</code>, <code>“tof”</code>, <code>“orbitrap”</code>, or <code>“fticr”</code>). Each group is then recursively split at deep valleys evaluated via 1D Morse-Smale topological basin prominence (<code>valley_ratio</code>, <code>valley_hws</code>, and optional <code>baseline_subtract</code>) so that closely spaced peaks are not merged even when small noise ripples sit inside a valley.</p>
+<p>Peak centroids are estimated via power-weighted mean (<code>centroid_method = “weighted”</code>), apex-centered weighted log-quadratic Guo-Caruana Gaussian fitting (<code>centroid_method = “gaussian”</code>), or custom aggregation (<code>“func”</code>), while peak abundances can be reported via <code style="white-space: pre;">int_fun_ms*</code> (<code>intensity_method = “func”</code>), interpolated Gaussian apex (<code>“gaussian_apex”</code>), analytical Gaussian area (<code>“gaussian_area”</code>), or numerical trapezoidal integration (<code>“trapezoid”</code>). Setting <code>deconvolve = TRUE</code> performs 2-pass Gauss-Seidel Gaussian tail subtraction across split sub-peaks prior to centroid and intensity estimation.</p>
+<p>A group is only reduced when it holds at least <code style="white-space: pre;">min_datapoints_ms*</code> points of non-zero intensity; below that it is reported as zero intensity and filtered out. Spectra left without any peak by this step are restored from the input, so no spectrum is lost.</p>
 <p>File path modifications are supported via <code>pattern</code> and <code>replacement</code>. <code>pattern</code> is a regular expression, as in <code>sub()</code>.</p>
 </section>
 <section id="value" class="level3">

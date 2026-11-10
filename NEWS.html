@@ -76,6 +76,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -137,6 +166,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#centroidr" id="toc-centroidr" class="nav-link active" data-scroll-target="#centroidr">CentroidR</a>
   <ul class="collapse">
+  <li><a href="#centroidr-0.0.9005" id="toc-centroidr-0.0.9005" class="nav-link" data-scroll-target="#centroidr-0.0.9005">CentroidR 0.0.9005</a></li>
   <li><a href="#centroidr-0.0.9004" id="toc-centroidr-0.0.9004" class="nav-link" data-scroll-target="#centroidr-0.0.9004">CentroidR 0.0.9004</a></li>
   <li><a href="#centroidr-0.0.9003" id="toc-centroidr-0.0.9003" class="nav-link" data-scroll-target="#centroidr-0.0.9003">CentroidR 0.0.9003</a></li>
   <li><a href="#centroidr-0.0.9002" id="toc-centroidr-0.0.9002" class="nav-link" data-scroll-target="#centroidr-0.0.9002">CentroidR 0.0.9002</a></li>
@@ -154,6 +184,18 @@ ul.task-list li input[type="checkbox"] {
 <script async="" src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <section id="centroidr" class="level1">
 <h1>CentroidR</h1>
+<section id="centroidr-0.0.9005" class="level2">
+<h2 class="anchored" data-anchor-id="centroidr-0.0.9005">CentroidR 0.0.9005</h2>
+<ul>
+<li>Replace immediate-neighbor valley scoring in <code>.split_peak_group()</code> with a 1D Morse-Smale topological prominence (watershed basin) saddle ratio so small noise ripples inside a valley no longer prevent splitting two well-separated major peaks.</li>
+<li>Add <code>centroid_method = c("weighted", "gaussian", "func")</code> implementing an apex-centered weighted log-quadratic (Guo-Caruana) Gaussian estimator that eliminates sampling-phase (pixel-locking) and asymmetric truncation <span class="math inline">\(m/z\)</span> bias, with automatic fallback on <span class="math inline">\(&lt; 3\)</span> points or non-concave profiles.</li>
+<li>Add <code>intensity_method = c("func", "gaussian_apex", "gaussian_area", "trapezoid")</code> to support continuous log-quadratic apex interpolation (eliminating picket-fence intensity attenuation), analytical Gaussian peak area (<span class="math inline">\(A\sigma\sqrt{2\pi}\)</span>), and numerical trapezoidal integration.</li>
+<li>Add <code>deconvolve = TRUE</code> to perform 2-pass Gauss-Seidel Gaussian tail subtraction across split multiplet sub-peaks before estimating centroids and abundances.</li>
+<li>Add <code>domain_scaling = c("legacy", "linear", "tof", "orbitrap", "fticr")</code> and <code>mz_ref</code> for exact local Jacobian mass-analyzer spacing laws (<span class="math inline">\(\Delta m \propto m^\alpha\)</span> with <span class="math inline">\(\alpha \in \{0, 0.5, 1.5, 2.0\}\)</span>) directly in <span class="math inline">\(m/z\)</span> space without <span class="math inline">\(2\times\)</span> ppm distortion or sensitivity to <code>min(mz)</code>.</li>
+<li>Add <code>valley_ratio</code>, <code>valley_hws</code>, and <code>baseline_subtract</code> parameters to <code>centroid_one_file()</code> and the CLI (<code>inst/scripts/centroiding.R</code>) for local edge-baseline subtraction and fine-grained valley splitting control.</li>
+<li>Restore original chronological MS1/MS2 acquisition ordering in <code>.process_spectra()</code> after per-level processing and <code>.keep_empty()</code> restoration.</li>
+</ul>
+</section>
 <section id="centroidr-0.0.9004" class="level2">
 <h2 class="anchored" data-anchor-id="centroidr-0.0.9004">CentroidR 0.0.9004</h2>
 <ul>

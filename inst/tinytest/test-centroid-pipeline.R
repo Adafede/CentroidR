@@ -2,6 +2,7 @@ library(tinytest)
 
 .process_spectra <- getFromNamespace(".process_spectra", "CentroidR")
 .fix_xml <- getFromNamespace(".fix_xml", "CentroidR")
+.xml_escape_attr <- getFromNamespace(".xml_escape_attr", "CentroidR")
 
 source(
   if (file.exists("helper-logging.R")) {
@@ -153,9 +154,13 @@ expect_equal(
 unlink(fix_dir, recursive = TRUE)
 
 ## F-08: .fix_xml XML-escapes special characters in basename(file_path)
+expect_equal(
+  .xml_escape_attr('a & "b" <c>\'.mzML'),
+  "a &amp; &quot;b&quot; &lt;c&gt;&apos;.mzML"
+)
 esc_dir <- tempfile("fixxml_esc_")
 dir.create(esc_dir)
-esc_tf <- file.path(esc_dir, 'a & "b" <c>\'.mzML')
+esc_tf <- file.path(esc_dir, "a & b's.mzML")
 writeLines(
   c(
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -168,7 +173,7 @@ writeLines(
 .fix_xml(esc_tf)
 esc_lines <- readLines(esc_tf, warn = FALSE)
 expect_true(any(grepl(
-  '<run id="a &amp; &quot;b&quot; &lt;c&gt;&apos;.mzML"',
+  '<run id="a &amp; b&apos;s.mzML"',
   esc_lines,
   fixed = TRUE
 )))

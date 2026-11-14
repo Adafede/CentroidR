@@ -57,6 +57,7 @@
 ^inst/_targets$
 ^pkgdown$
 ^prek[.]toml$
+^renovate\.json$
 ^renv$
 ^renv\.lock$
 ^tests/testthat/_snaps$

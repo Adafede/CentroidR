@@ -421,9 +421,9 @@ expect_equal(
   list(1:2, 3L)
 )
 
-## Asymmetric ripple valleys (v1 < v2 and v1 > v2) inside a deep basin to test
-## both k_left and k_right basin boundary loops strictly
-ripple_asym_left <- c(10, 1000, 50, 10, 15, 12, 50, 1000, 10) # v1=10 < v2=12
+## Asymmetric ripple valleys inside a deep basin to test both k_left and
+## k_right basin boundary loops strictly
+ripple_asym_left <- c(10, 1000, 50, 10, 15, 12, 50, 1000, 10) # left valley 10 below right valley 12
 expect_equal(
   length(.split_peak_group(
     seq_along(ripple_asym_left),
@@ -433,7 +433,7 @@ expect_equal(
   )),
   2L
 )
-ripple_asym_right <- c(10, 1000, 50, 12, 15, 10, 50, 1000, 10) # v1=12 > v2=10
+ripple_asym_right <- c(10, 1000, 50, 12, 15, 10, 50, 1000, 10) # left valley 12 above right valley 10
 expect_equal(
   length(.split_peak_group(
     seq_along(ripple_asym_right),

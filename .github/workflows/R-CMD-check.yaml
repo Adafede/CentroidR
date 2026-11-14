@@ -50,6 +50,6 @@ jobs:
 
       - uses: r-lib/actions/check-r-package@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
         with:
-          error-on: '"error"'
+          error-on: '"warning"'
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'

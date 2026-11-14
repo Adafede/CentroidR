@@ -67,5 +67,25 @@ jobs:
 
       - name: Run pipeline
         run: |
-          CentroidR:::.packageName
+          td <- tempfile("smoke_")
+          dir.create(td)
+          on.exit(unlink(td, recursive = TRUE), add = TRUE)
+          in_mzml <- file.path(td, "profile_test.mzML")
+          out_mzml <- file.path(td, "centroided_test.mzML")
+          sp <- Spectra::Spectra(data.frame(
+            msLevel = 1L,
+            polarity = 1L,
+            rtime = 1.5,
+            mz = I(list(c(100.000, 100.001, 100.002, 100.003, 100.004))),
+            intensity = I(list(c(10, 50, 100, 50, 10)))
+          ))
+          Spectra::export(sp, backend = Spectra::MsBackendMzR(), file = in_mzml)
+          ok <- CentroidR::centroid_one_file(
+            file = in_mzml,
+            pattern = "profile_",
+            replacement = "centroided_"
+          )
+          stopifnot(isTRUE(ok), file.exists(out_mzml))
+          res <- Spectra::Spectra(out_mzml, backend = Spectra::MsBackendMzR())
+          stopifnot(length(res) == 1L, nrow(Spectra::peaksData(res)[[1L]]) == 1L)
         shell: Rscript {0}

@@ -515,3 +515,29 @@ expect_equal(
   c(TRUE, FALSE, TRUE)
 )
 unlink(ms3_dir, recursive = TRUE)
+
+## ---------------------------------------------------------------------------
+## Unknown polarity (NA_integer_ -> -1L in MsBackendMzR) round-trips cleanly
+## ---------------------------------------------------------------------------
+pol_dir <- tempfile("missing_pol_")
+dir.create(pol_dir)
+pol_in <- file.path(pol_dir, "profile_pol.mzML")
+pol_out <- file.path(pol_dir, "centroided_pol.mzML")
+pol_sp <- Spectra::Spectra(data.frame(
+  msLevel = 1L,
+  polarity = NA_integer_,
+  rtime = 5,
+  mz = I(list(c(100, 100.0005, 100.001))),
+  intensity = I(list(c(10, 50, 10)))
+))
+Spectra::export(pol_sp, file = pol_in, backend = Spectra::MsBackendMzR())
+expect_true(CentroidR::centroid_one_file(
+  file = pol_in,
+  pattern = "profile_",
+  replacement = "centroided_",
+  min_datapoints_ms1 = 1L
+))
+centroidr_reset_logging()
+pol_res <- Spectra::Spectra(pol_out, backend = Spectra::MsBackendMzR())
+expect_identical(Spectra::polarity(pol_res), -1L)
+unlink(pol_dir, recursive = TRUE)

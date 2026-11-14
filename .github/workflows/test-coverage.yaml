@@ -27,8 +27,17 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
         with:
-          extra-packages: any::covr, any::xml2
+          extra-packages: any::covr, any::xml2, any::lintr
           needs: coverage
+
+      - name: Lint package
+        run: |
+          lints <- lintr::lint_package()
+          if (length(lints) > 0L) {
+            print(lints)
+            stop("lintr found ", length(lints), " issue(s).", call. = FALSE)
+          }
+        shell: Rscript {0}
 
       - name: Test coverage
         run: |
@@ -37,6 +46,11 @@ jobs:
             clean = FALSE,
             install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
           )
+          pct <- covr::percent_coverage(cov)
+          message(sprintf("Total package coverage: %.2f%%", pct))
+          if (pct < 95) {
+            stop(sprintf("Coverage %.2f%% is below required 95%% floor.", pct), call. = FALSE)
+          }
           covr::to_cobertura(cov)
         shell: Rscript {0}
 

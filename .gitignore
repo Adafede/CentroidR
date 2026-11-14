@@ -56,3 +56,6 @@ POLISH_LOG.md
 
 # macOS
 .DS_Store
+
+# local agent ledger
+.agent-work/

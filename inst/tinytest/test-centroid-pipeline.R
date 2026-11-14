@@ -74,9 +74,9 @@ xml <- tempfile(fileext = ".mzML")
 writeLines(
   c(
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<mzML>',
+    "<mzML>",
     '<run id="Experiment_1"><spectrum value="nan"/></run>',
-    '</mzML>'
+    "</mzML>"
   ),
   xml
 )
@@ -138,9 +138,9 @@ tf <- file.path(fix_dir, "sample.mzML")
 writeLines(
   c(
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<mzML>',
+    "<mzML>",
     '<run id="Experiment_1"/>',
-    '</mzML>'
+    "</mzML>"
   ),
   tf
 )
@@ -159,9 +159,9 @@ esc_tf <- file.path(esc_dir, 'a & "b" <c>\'.mzML')
 writeLines(
   c(
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<mzML>',
+    "<mzML>",
     '<run id="Experiment_1"><spectrum value="nan"/></run>',
-    '</mzML>'
+    "</mzML>"
   ),
   esc_tf
 )

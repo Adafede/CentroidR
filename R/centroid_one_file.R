@@ -346,21 +346,19 @@ centroid_one_file <- function(
           BPPARAM = BiocParallel::SerialParam()
         ) |>
         Spectra::dropNaSpectraVariables()
-      # Ensure required numeric/integer columns exist for downstream export
-      req_num_cols <- c(
-        "basePeakIntensity",
-        "collisionEnergy",
-        "electronBeamEnergy",
-        "isolationWindowLowerOffset",
-        "isolationWindowUpperOffset"
+      # Ensure required columns exist for downstream export
+      req_cols <- list(
+        polarity = 0L,
+        basePeakIntensity = NA_real_,
+        collisionEnergy = NA_real_,
+        electronBeamEnergy = NA_real_,
+        isolationWindowLowerOffset = NA_real_,
+        isolationWindowUpperOffset = NA_real_
       )
       existing_cols <- colnames(sp@backend@spectraData)
-      if (!"polarity" %in% existing_cols) {
-        sp@backend@spectraData$polarity <- 0L
-      }
-      for (col_name in req_num_cols) {
+      for (col_name in names(req_cols)) {
         if (!col_name %in% existing_cols) {
-          sp@backend@spectraData[[col_name]] <- NA_real_
+          sp@backend@spectraData[[col_name]] <- req_cols[[col_name]]
         }
       }
       .process_spectra_batches(
@@ -399,7 +397,7 @@ centroid_one_file <- function(
           conditionMessage(e)
         )
       )
-      return(FALSE)
+      FALSE
     }
   )
 }

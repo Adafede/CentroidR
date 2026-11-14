@@ -9,7 +9,8 @@ Thank you for contributing to `CentroidR`.
   - Bioconductor: `BiocParallel`, `MsCoreUtils`, `mzR`, `Spectra`
   - Testing: `tinytest`
 - **Development tools** (recommended for local verification):
-  - R packages: `roxygen2`, `covr`, `lintr`, `spelling`, `cffr`, `grateful`, `knitr`
+  - R packages: `roxygen2`, `covr`, `lintr`, `spelling`, `cffr`, `grateful`,
+    `knitr`
   - CLI tools: `air`, `jarl`, `quarto`, `prek`
 
 Install R dependencies for local development:
@@ -37,7 +38,8 @@ res <- tinytest::run_test_file("inst/tinytest/test-centroid-math-algorithms.R")
 stopifnot(all(as.logical(res)))
 ```
 
-Note that `tinytest` is the only package in `Suggests`; do not add `testthat`, `xml2`, or other test-only dependencies without updating `DESCRIPTION`.
+Note that `tinytest` is the only package in `Suggests`; do not add `testthat`,
+`xml2`, or other test-only dependencies without updating `DESCRIPTION`.
 
 ### Check test coverage
 
@@ -51,7 +53,8 @@ stopifnot(covr::percent_coverage(cov) >= 95)
 
 ### Format and lint
 
-Format R code with `air`, run static checks with `jarl` and `lintr`, and validate pre-commit hooks with `prek`:
+Format R code with `air`, run static checks with `jarl` and `lintr`, and
+validate pre-commit hooks with `prek`:
 
 ```bash
 air format .
@@ -61,7 +64,8 @@ Rscript -e 'lints <- lintr::lint_package(); print(lints); stopifnot(length(lints
 prek run --all-files
 ```
 
-`air` is the canonical code formatter, and `.lintr` disables `indentation_linter` to avoid conflicting with `air`.
+`air` is the canonical code formatter, and `.lintr` disables
+`indentation_linter` to avoid conflicting with `air`.
 
 ### Update documentation
 
@@ -86,4 +90,5 @@ R CMD check --no-manual CentroidR_*.tar.gz
 
 1. Keep each pull request focused on one logical change.
 2. Add regression tests in `inst/tinytest/` for bug fixes or new behavior.
-3. Confirm `tinytest`, `lintr`, `air format . --check`, `jarl check .`, and `R CMD check` pass before opening the pull request.
+3. Confirm `tinytest`, `lintr`, `air format . --check`, `jarl check .`, and
+   `R CMD check` pass before opening the pull request.

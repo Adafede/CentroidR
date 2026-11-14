@@ -103,6 +103,9 @@ Do not violate these invariants when modifying `CentroidR`.
   (`../scripts/centroiding.R` / `system.file(...)`).
 - **No external dev/test packages**: Tests run under `R CMD check` with only
   `DESCRIPTION` packages installed (`tinytest` in `Suggests`).
+- **Windows-valid fixture filenames**: On-disk test fixture filenames must be
+  valid on Windows NTFS (never use `< > : " / \ | ? *` in filenames on disk;
+  test XML/string escaping helpers with those characters in memory).
 - **CI gates**: `R-CMD-check.yaml` fails on `"warning"`; `test-coverage.yaml`
   fails on any `lintr` issue or `covr` coverage `< 95%`; `codecov.yml` sets
   `informational: false`.

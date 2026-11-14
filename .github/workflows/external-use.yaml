@@ -18,6 +18,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
@@ -54,14 +55,27 @@ jobs:
         run: true
 
       - name: Install
-        run: >
+        run: |
+          cran <- getOption("repos")["CRAN"]
+          cran <- if (is.na(cran) || !nzchar(cran) || cran == "@CRAN@") {
+            "https://cloud.r-project.org"
+          } else {
+            unique(c(unname(cran), "https://cloud.r-project.org"))
+          }
+          ncpus <- max(1L, parallel::detectCores(logical = FALSE), na.rm = TRUE)
+          Sys.setenv(MAKEFLAGS = paste0("-j", ncpus))
           install.packages(
-          "CentroidR",
-          repos = c(
-          "https://adafede.r-universe.dev",
-          "https://cran.r-universe.dev",
-          "https://bioc.r-universe.dev"
+            "CentroidR",
+            repos = c(
+              "https://adafede.r-universe.dev",
+              "https://bioc-release.r-universe.dev",
+              cran
+            ),
+            Ncpus = ncpus
           )
+          stopifnot(
+            requireNamespace("CentroidR", quietly = TRUE),
+            requireNamespace("Spectra", quietly = TRUE)
           )
         shell: Rscript {0}
 

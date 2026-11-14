@@ -47,8 +47,8 @@ install.packages(
   "CentroidR",
   repos = c(
     "https://adafede.r-universe.dev",
-    "https://cran.r-universe.dev",
-    "https://bioc.r-universe.dev"
+    "https://bioc-release.r-universe.dev",
+    "https://cloud.r-project.org"
   )
 )
 ```

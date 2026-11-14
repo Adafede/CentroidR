@@ -868,3 +868,232 @@ expect_error(
   ),
   pattern = "mz_ref"
 )
+
+## ---------------------------------------------------------------------------
+## 9. Regression tests for F-01, F-02, F-03 (baseline area, weights, deconvolve)
+## ---------------------------------------------------------------------------
+
+## F-01: Baseline-subtracted Gaussian area excludes constant baseline offset
+fit_nobg_bs <- .fit_gaussian_peak(
+  mz_pts,
+  int_pts,
+  exponent = 3,
+  baseline_subtract = TRUE
+)
+fit_bg500 <- .fit_gaussian_peak(
+  mz_pts,
+  int_pts + 500,
+  exponent = 3,
+  baseline_subtract = TRUE
+)
+expect_equal(fit_bg500$area, fit_nobg_bs$area, tolerance = 1e-10)
+
+mz_wide <- 500 + (-8:8) * 0.0042
+int_wide <- 10000 * exp(-0.5 * ((mz_wide - 500) / sigma)^2)
+fit_wide_bg <- .fit_gaussian_peak(
+  mz_wide,
+  int_wide + 500,
+  exponent = 3,
+  baseline_subtract = TRUE
+)
+expect_equal(
+  fit_wide_bg$area,
+  10000 * sigma * sqrt(2 * pi),
+  tolerance = 1e-3
+)
+
+## F-01: Deconvolving overlapping peaks with baseline_subtract uses net amplitude
+segs_dbl <- .split_peak_group(
+  seq_along(int_dbl),
+  int_dbl,
+  valley_ratio = 0.50,
+  hws = 1L
+)
+dec_nobg <- .deconvolve_subpeaks(
+  segs_dbl,
+  mz_dbl,
+  int_dbl,
+  exponent = 3,
+  baseline_subtract = FALSE
+)
+dec_withbg <- .deconvolve_subpeaks(
+  segs_dbl,
+  mz_dbl,
+  int_dbl + 500,
+  exponent = 3,
+  baseline_subtract = TRUE
+)
+expect_equal(
+  vapply(dec_withbg, `[[`, numeric(1), "area"),
+  vapply(dec_nobg, `[[`, numeric(1), "area"),
+  tolerance = 0.05
+)
+
+## F-02: Negative intensity_exponent rejected; negative intensities & 0 exponent safe
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    intensity_exponent = -1
+  ),
+  pattern = "intensity_exponent"
+)
+fit_neg <- .fit_gaussian_peak(
+  c(100, 100.001, 100.002),
+  c(-5, 0, -2),
+  exponent = 1.5
+)
+expect_equal(fit_neg$mz, 100.001)
+expect_false(fit_neg$valid)
+expect_equal(
+  .peak_group_mzs(
+    list(1:3),
+    c(100, 100.001, 100.002),
+    c(-5, 0, -2),
+    weighted = TRUE,
+    intensity_exponent = 1.5,
+    mzFun = base::mean
+  ),
+  100.001
+)
+expect_equal(
+  .peak_group_mzs(
+    list(1:3),
+    c(100, 100.001, 100.002),
+    c(10, 100, 10),
+    weighted = TRUE,
+    intensity_exponent = 0,
+    mzFun = base::mean
+  ),
+  100.001
+)
+
+## F-03: deconvolve = TRUE must not alter unsplit singlets or ignore methods
+mz_mix <- c(mz_dbl, 600.000, 600.001, 600.002)
+int_mix <- c(int_dbl, 20, 100, 20)
+res_nodec <- .peaks_combine(
+  cbind(mz = mz_mix, intensity = int_mix),
+  tolerance = 0.005,
+  ppm = 0,
+  intensityFun = base::sum,
+  mzFun = base::mean,
+  weighted = TRUE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  timeDomain = FALSE,
+  centroid_method = "weighted",
+  intensity_method = "func",
+  deconvolve = FALSE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+res_dec <- .peaks_combine(
+  cbind(mz = mz_mix, intensity = int_mix),
+  tolerance = 0.005,
+  ppm = 0,
+  intensityFun = base::sum,
+  mzFun = base::mean,
+  weighted = TRUE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  timeDomain = FALSE,
+  centroid_method = "weighted",
+  intensity_method = "func",
+  deconvolve = TRUE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+expect_equal(as.numeric(res_dec[3, "intensity"]), 140)
+expect_equal(
+  as.numeric(res_dec[3, "mz"]),
+  as.numeric(res_nodec[3, "mz"]),
+  tolerance = 1e-12
+)
+expect_false(isTRUE(all.equal(
+  as.numeric(res_dec[1:2, "mz"]),
+  as.numeric(pk_deconv[, "mz"])
+)))
+
+res_dec_gapex <- .peaks_combine(
+  cbind(mz = mz_mix, intensity = int_mix),
+  tolerance = 0.005,
+  ppm = 0,
+  intensityFun = base::max,
+  mzFun = base::mean,
+  weighted = TRUE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  timeDomain = FALSE,
+  centroid_method = "gaussian",
+  intensity_method = "gaussian_apex",
+  deconvolve = TRUE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+expect_equal(nrow(res_dec_gapex), 3L)
+expect_true(abs(as.numeric(res_dec_gapex[2, "intensity"]) - a2) / a2 < 0.005)
+
+## Split doublet trapezoid area with deconvolve = TRUE uses tail-corrected intensities
+trap_raw <- .peaks_combine(
+  cbind(mz = mz_dbl, intensity = int_dbl),
+  tolerance = 0.05,
+  ppm = 0,
+  intensityFun = base::max,
+  weighted = TRUE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  intensity_method = "trapezoid",
+  deconvolve = FALSE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+trap_dec <- .peaks_combine(
+  cbind(mz = mz_dbl, intensity = int_dbl),
+  tolerance = 0.05,
+  ppm = 0,
+  intensityFun = base::max,
+  weighted = TRUE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  intensity_method = "trapezoid",
+  deconvolve = TRUE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+expect_true(all(trap_dec[, "intensity"] < trap_raw[, "intensity"]))
+
+## Low-intensity scale invariance (no 1e-6 clamp distortion)
+pk_scale1 <- .peaks_combine(
+  cbind(mz = mz_dbl, intensity = int_dbl),
+  tolerance = 0.05,
+  ppm = 0,
+  intensityFun = base::max,
+  weighted = TRUE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  centroid_method = "gaussian",
+  intensity_method = "gaussian_area",
+  deconvolve = TRUE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+pk_scale9 <- .peaks_combine(
+  cbind(mz = mz_dbl, intensity = int_dbl * 1e-9),
+  tolerance = 0.05,
+  ppm = 0,
+  intensityFun = base::max,
+  weighted = TRUE,
+  spectrumMsLevel = 1L,
+  msLevel = 1L,
+  centroid_method = "gaussian",
+  intensity_method = "gaussian_area",
+  deconvolve = TRUE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+)
+expect_equal(
+  pk_scale9[, "intensity"],
+  pk_scale1[, "intensity"] * 1e-9,
+  tolerance = 1e-4
+)

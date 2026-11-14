@@ -1,9 +1,7 @@
 #' Centroid an mzML file with configurable parameters
 #'
-#' This function processes an mzML file to apply centroiding with detailed
-#' controls for peak picking, valley splitting, and intensity filtering. It
-#' allows fine-tuning of MS1 and MS2 peak detection, optimizing spectral data
-#' analysis for various experimental needs.
+#' Processes an mzML file containing profile-mode mass spectra and writes
+#' centroided MS1 and MS2 spectra to a new mzML file.
 #'
 #' @param file character(1). Path to the input mzML file (`EDAM:format_3244`).
 #'   Must be a valid, accessible mzML format file.
@@ -38,10 +36,12 @@
 #' @param intensity_exponent numeric(1). If `mz_weighted=TRUE`, the exponent of
 #'   the intensity for m/z weighting. Default: 3.
 #' @param centroid_method character(1). Mathematical estimator for peak m/z
-#'   when `mz_weighted = TRUE`: `"weighted"` (power-weighted mean, default) or
+#'   when `mz_weighted = TRUE`: `"weighted"` (power-weighted mean, default),
 #'   `"gaussian"` (apex-centered weighted log-quadratic Guo-Caruana Gaussian
 #'   fit with automatic fallback to power-weighted mean on < 3 points or
-#'   non-concave profiles).
+#'   non-concave profiles), or `"func"` (applies `mz_fun_ms1` / `mz_fun_ms2`
+#'   directly). When `mz_weighted = FALSE`, `mz_fun_ms*` is always used
+#'   regardless of `centroid_method`.
 #' @param intensity_method character(1). Mathematical estimator for peak
 #'   abundance: `"func"` (applies `int_fun_ms1` / `int_fun_ms2`, default),
 #'   `"gaussian_apex"` (interpolated continuous Gaussian apex height to
@@ -72,13 +72,16 @@
 #'
 #' @return logical(1). `TRUE` if the file was centroided, or `TRUE` if it was
 #'   skipped because the output file already existed; `FALSE` if the input was
-#'   missing or if centroiding failed. Invalid argument types raise an error
-#'   instead of returning `FALSE`.
+#'   missing, if `pattern`/`replacement` resolved to the input file itself
+#'   (preventing in-place overwrite), or if centroiding failed. Invalid argument
+#'   types raise an error instead of returning `FALSE`.
 #'
 #' @details
-#' MS1 and MS2 spectra are processed separately with their own tolerances, so
-#' the two levels can be tuned independently while preserving the original
-#' chronological scan acquisition order in the exported `mzML`.
+#' MS1 and MS2 spectra are processed separately with their own tolerances so
+#' the two levels can be tuned independently. Spectra of any other `msLevel`
+#' (such as MS3+) are preserved unmodified with their original `centroided`
+#' flag, and all spectra retain their original chronological scan acquisition
+#' order in the exported `mzML`.
 #'
 #' Within a spectrum, profile points are first grouped by m/z tolerance using
 #' either the legacy `sqrt(mz)` transformation (`domain_scaling = "legacy"`) or

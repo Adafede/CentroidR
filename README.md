@@ -15,29 +15,32 @@ badge](https://adafede.r-universe.dev/CentroidR/badges/version?&color=blue&style
 [![DOI](https://zenodo.org/badge/921724027.svg)](https://doi.org/10.5281/zenodo.17250307)
 <!-- badges: end -->
 
-Repository to centroid profile spectra.
+Experimental R package and CLI for centroiding profile-mode `mzML` mass spectra.
 
-This repository is experimental. Use it at your own risks. Inspired from the
-original work at <https://github.com/EuracBiomedicalResearch/batch_centroid>
+Inspired by the original workflow at
+<https://github.com/EuracBiomedicalResearch/batch_centroid>, `CentroidR`
+supports independent MS1 and MS2 tolerances, 1D Morse-Smale topological
+prominence valley splitting, optional local edge-baseline subtraction,
+power-weighted or apex-centered log-quadratic Gaussian m/z estimation, 2-pass
+Gauss-Seidel multiplet tail subtraction, and analyzer-specific m/z domain
+scaling (`legacy`, `linear`, `tof`, `orbitrap`, `fticr`).
 
 ## Requirements
 
-Here is what you *minimally* need:
+- **Profile-mode `mzML` files** (`R >= 4.5.0` when running outside Docker).
 
-- **An mzML file containing profile spectra**
-
-Here is a generic command in case:
+Vendor raw files (including Sciex `.wiff` and `.wiff2`) can be converted to
+profile `mzML` first with ProteoWizard `msconvert`:
 
 ```bash
-docker run -it --rm -e WINEDEBUG=-all -v .:/data proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses wine msconvert "path_to_your/raw/spectra.wiff" --ignoreUnknownInstrumentError
+docker run -it --rm -e WINEDEBUG=-all -v .:/data \
+  proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses \
+  wine msconvert "/data/raw/spectra.wiff" --ignoreUnknownInstrumentError
 ```
-
-Note: If using Sciex raw format, you can use both the `.wiff` and the `.wiff2`
-format for this step.
 
 ## Installation
 
-As the package is not (yet) available on CRAN, you will need to install with:
+`CentroidR` is not on CRAN; install it from R-universe:
 
 ```r
 install.packages(
@@ -55,12 +58,15 @@ install.packages(
 ### Single file
 
 ```r
-CentroidR::centroid_one_file(file = "path_to_your/profile/spectra.mzML",
-                             pattern = "/profile/",
-                             replacement = "/profile_centroided/")
+CentroidR::centroid_one_file(
+  file = "path_to_your/profile/spectra.mzML",
+  pattern = "/profile/",
+  replacement = "/profile_centroided/"
+)
 ```
 
-For high-accuracy Gaussian centroiding, continuous apex interpolation, multiplet tail deconvolution, and exact TOF/Orbitrap domain scaling:
+For Gaussian m/z centroiding, continuous apex interpolation, multiplet tail
+subtraction, baseline subtraction, and TOF domain scaling:
 
 ```r
 CentroidR::centroid_one_file(
@@ -75,24 +81,34 @@ CentroidR::centroid_one_file(
 )
 ```
 
+From the command line:
+
 ```bash
-Rscript inst/scripts/centroiding.R --file "path_to_your/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
+Rscript inst/scripts/centroiding.R \
+  --file "path_to_your/profile/spectra.mzML" \
+  --pattern "/profile/" \
+  --replacement "/profile_centroided/"
 ```
 
 ### Multiple files
 
 ```r
 "path_to_your/profiles/" |>
-    list.files(pattern = ".mzML", full.names = TRUE) |>
-    lapply(
-      CentroidR::centroid_one_file,
-      pattern = "/profiles/",
-      replacement = "/profiles_centroided/"
-    )
+  list.files(pattern = "\\.mzML$", full.names = TRUE) |>
+  lapply(
+    CentroidR::centroid_one_file,
+    pattern = "/profiles/",
+    replacement = "/profiles_centroided/"
+  )
 ```
 
+From the command line:
+
 ```bash
-Rscript inst/scripts/centroiding.R --directory "path_to_your/profiles/" --pattern "/profiles/" --replacement "/profiles_centroided/"
+Rscript inst/scripts/centroiding.R \
+  --directory "path_to_your/profiles/" \
+  --pattern "/profiles/" \
+  --replacement "/profiles_centroided/"
 ```
 
 ```bash
@@ -103,36 +119,58 @@ Rscript inst/scripts/centroiding.R --help
 
 ```bash
 docker pull adafede/centroidr
-# docker build . -t adafede/centroidr
+# Build from source:
+# docker build -f inst/Dockerfile -t adafede/centroidr .
+```
+
+The container sets `WORKDIR /home/bioc-user` with `centroiding.R` in the working
+directory, so mount host data to `/data`:
+
+```bash
+docker run --rm \
+  -v /path/to/your:/data \
+  adafede/centroidr \
+  Rscript centroiding.R \
+    --file "/data/profile/spectra.mzML" \
+    --pattern "/profile/" \
+    --replacement "/profile_centroided/"
 ```
 
 ```bash
- docker run --rm \
-  -v path_to_your:/home \
+docker run --rm \
+  -v /path/to/your:/data \
   adafede/centroidr \
-  Rscript centroiding.R --file "home/profile/spectra.mzML" --pattern "/profile/" --replacement "/profile_centroided/"
+  Rscript centroiding.R \
+    --directory "/data/profiles/" \
+    --pattern "/profiles/" \
+    --replacement "/profiles_centroided/"
 ```
+
+To print all CLI options:
 
 ```bash
- docker run --rm \
-  -v path_to_your:/home \
-  adafede/centroidr \
-  Rscript centroiding.R --directory "home/profiles/" --pattern "/profiles/" --replacement "/profiles_centroided/"
+docker run --rm adafede/centroidr Rscript centroiding.R --help
 ```
 
-To see all parameters
+## Limitations
 
-```bash
- docker run --rm \
-   -v path_to_your:/home \
-  adafede/centroidr \
-  Rscript centroiding.R --help
-```
+- **Format**: Only `mzML` input and output via `Spectra::MsBackendMzR()` are
+  supported. Vendor raw files must be converted to profile `mzML` beforehand.
+- **MS levels**: MS1 and MS2 scans are centroided with independent parameters;
+  MS3+ or missing-level scans are preserved unmodified in original chronological
+  order.
+- **Parallelism**: Processing within a single file runs serially
+  (`BiocParallel::SerialParam()`) in batches of up to 5000 spectra; parallelize
+  across files at the caller level if needed.
+- **Output handling**: Output paths that resolve to the input file itself are
+  refused (`FALSE`) to prevent in-place overwrite, while already-existing output
+  files are skipped (`TRUE`).
 
 ## Citation
 
-Rutz, Adriano, and Johannes Rainer. 2026. *CentroidR: CentroidR provides the
-infrastructure to centroid profile spectra*. R package version 0.0.9005.
+Rutz, Adriano, and Johannes Rainer. 2026. *CentroidR: Centroid Profile Mass
+Spectrometry Data*. R package version 0.0.0.9005.
+<https://doi.org/10.5281/zenodo.17250307>.
 
 ## Additional software credits
 

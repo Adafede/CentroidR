@@ -4,6 +4,7 @@
 ^AGENTS[.]md$
 ^CITATION\.cff$
 ^CLAUDE[.]md$
+^CONTRIBUTING\.md$
 ^GEMINI[.]md$
 ^LICENSE\.md$
 ^README\.Rmd$

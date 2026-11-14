@@ -81,10 +81,12 @@ m/z value aggregation. Default: TRUE.}
 the intensity for m/z weighting. Default: 3.}
 
 \item{centroid_method}{character(1). Mathematical estimator for peak m/z
-when \code{mz_weighted = TRUE}: \code{"weighted"} (power-weighted mean, default) or
+when \code{mz_weighted = TRUE}: \code{"weighted"} (power-weighted mean, default),
 \code{"gaussian"} (apex-centered weighted log-quadratic Guo-Caruana Gaussian
 fit with automatic fallback to power-weighted mean on < 3 points or
-non-concave profiles).}
+non-concave profiles), or \code{"func"} (applies \code{mz_fun_ms1} / \code{mz_fun_ms2}
+directly). When \code{mz_weighted = FALSE}, \verb{mz_fun_ms*} is always used
+regardless of \code{centroid_method}.}
 
 \item{intensity_method}{character(1). Mathematical estimator for peak
 abundance: \code{"func"} (applies \code{int_fun_ms1} / \code{int_fun_ms2}, default),
@@ -123,19 +125,20 @@ is calibrated when \code{domain_scaling} is \code{"tof"}, \code{"orbitrap"}, or
 \value{
 logical(1). \code{TRUE} if the file was centroided, or \code{TRUE} if it was
 skipped because the output file already existed; \code{FALSE} if the input was
-missing or if centroiding failed. Invalid argument types raise an error
-instead of returning \code{FALSE}.
+missing, if \code{pattern}/\code{replacement} resolved to the input file itself
+(preventing in-place overwrite), or if centroiding failed. Invalid argument
+types raise an error instead of returning \code{FALSE}.
 }
 \description{
-This function processes an mzML file to apply centroiding with detailed
-controls for peak picking, valley splitting, and intensity filtering. It
-allows fine-tuning of MS1 and MS2 peak detection, optimizing spectral data
-analysis for various experimental needs.
+Processes an mzML file containing profile-mode mass spectra and writes
+centroided MS1 and MS2 spectra to a new mzML file.
 }
 \details{
-MS1 and MS2 spectra are processed separately with their own tolerances, so
-the two levels can be tuned independently while preserving the original
-chronological scan acquisition order in the exported \code{mzML}.
+MS1 and MS2 spectra are processed separately with their own tolerances so
+the two levels can be tuned independently. Spectra of any other \code{msLevel}
+(such as MS3+) are preserved unmodified with their original \code{centroided}
+flag, and all spectra retain their original chronological scan acquisition
+order in the exported \code{mzML}.
 
 Within a spectrum, profile points are first grouped by m/z tolerance using
 either the legacy \code{sqrt(mz)} transformation (\code{domain_scaling = "legacy"}) or

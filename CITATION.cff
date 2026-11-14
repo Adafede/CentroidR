@@ -40,7 +40,7 @@ preferred-citation:
   notes: R package, version 0.0.0.9005
   url: https://github.com/adafede/CentroidR
   doi: 10.5281/zenodo.17250307
-repository: https://bioconductor.org/
+repository: https://adafede.r-universe.dev
 repository-code: https://github.com/adafede/CentroidR
 url: https://adafede.github.io/CentroidR
 contact:
@@ -84,8 +84,7 @@ references:
   doi: 10.32614/R.manuals
   version: '>= 4.5.0'
 - type: software
-  title: BiocParallel
-  abstract: 'BiocParallel: Bioconductor facilities for parallel evaluation'
+  title: 'BiocParallel: Bioconductor facilities for parallel evaluation'
   notes: Imports
   url: https://github.com/Bioconductor/BiocParallel
   repository: https://bioconductor.org/
@@ -110,8 +109,7 @@ references:
   doi: 10.18129/B9.bioc.BiocParallel
   version: '>= 1.44.0'
 - type: software
-  title: MsCoreUtils
-  abstract: 'MsCoreUtils: Core Utils for Mass Spectrometry Data'
+  title: 'MsCoreUtils: Core Utils for Mass Spectrometry Data'
   notes: Imports
   url: https://github.com/RforMassSpectrometry/MsCoreUtils
   repository: https://bioconductor.org/
@@ -140,8 +138,7 @@ references:
   doi: 10.18129/B9.bioc.MsCoreUtils
   version: '>= 1.22.1'
 - type: software
-  title: mzR
-  abstract: 'mzR: parser for netCDF, mzXML and mzML and mzIdentML files (mass spectrometry
+  title: 'mzR: parser for netCDF, mzXML and mzML and mzIdentML files (mass spectrometry
     data)'
   notes: Imports
   url: https://github.com/sneumann/mzR/
@@ -161,10 +158,8 @@ references:
     email: Johannes.Rainer@eurac.edu
     orcid: https://orcid.org/0000-0002-6977-7147
   version: '>= 2.44.0'
-  year: '2026'
 - type: software
-  title: Spectra
-  abstract: 'Spectra: Spectra Infrastructure for Mass Spectrometry Data'
+  title: 'Spectra: Spectra Infrastructure for Mass Spectrometry Data'
   notes: Imports
   url: https://github.com/RforMassSpectrometry/Spectra
   repository: https://bioc-release.r-universe.dev
@@ -188,8 +183,7 @@ references:
   year: '2026'
   version: '>= 1.20.1'
 - type: software
-  title: tinytest
-  abstract: 'tinytest: Lightweight and Feature Complete Unit Testing Framework'
+  title: 'tinytest: Lightweight and Feature Complete Unit Testing Framework'
   notes: Suggests
   url: https://github.com/markvanderloo/tinytest
   repository: https://CRAN.R-project.org/package=tinytest

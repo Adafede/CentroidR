@@ -7,7 +7,7 @@
   "relatedLink": "https://adafede.github.io/CentroidR",
   "codeRepository": "https://github.com/adafede/CentroidR",
   "issueTracker": "https://github.com/adafede/CentroidR/issues",
-  "license": "https://spdx.org/licenses/AGPL-3.0",
+  "license": "https://spdx.org/licenses/AGPL-3.0-or-later",
   "version": "0.0.0.9005",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
@@ -161,7 +161,7 @@
     }
   ],
   "releaseNotes": "https://github.com/adafede/CentroidR/blob/main/NEWS.md",
-  "readme": "https://github.com/Adafede/CentroidR/blob/main/README.md",
+  "readme": "https://github.com/adafede/CentroidR/blob/main/README.md",
   "contIntegration": ["https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml", "https://app.codecov.io/gh/adafede/CentroidR"],
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#experimental"
 }

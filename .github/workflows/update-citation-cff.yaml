@@ -42,6 +42,7 @@ jobs:
 
           mykeys <- list(
             doi = "10.5281/zenodo.17250307",
+            repository = "https://adafede.r-universe.dev",
             keywords = c(
               "centroiding",
               "spectra",

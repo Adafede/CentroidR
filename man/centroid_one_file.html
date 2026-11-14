@@ -223,7 +223,7 @@ window.Quarto = {
 <h2 class="unnumbered anchored" data-anchor-id="centroid-an-mzml-file-with-configurable-parameters">Centroid an mzML file with configurable parameters</h2>
 <section id="description" class="level3">
 <h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>This function processes an mzML file to apply centroiding with detailed controls for peak picking, valley splitting, and intensity filtering. It allows fine-tuning of MS1 and MS2 peak detection, optimizing spectral data analysis for various experimental needs.</p>
+<p>Processes an mzML file containing profile-mode mass spectra and writes centroided MS1 and MS2 spectra to a new mzML file.</p>
 </section>
 <section id="usage" class="level3">
 <h3 class="anchored" data-anchor-id="usage">Usage</h3>
@@ -391,7 +391,7 @@ numeric(1). If <code>mz_weighted=TRUE</code>, the exponent of the intensity for 
 <code id="centroid_method">centroid_method</code>
 </td>
 <td>
-character(1). Mathematical estimator for peak m/z when <code>mz_weighted = TRUE</code>: <code>“weighted”</code> (power-weighted mean, default) or <code>“gaussian”</code> (apex-centered weighted log-quadratic Guo-Caruana Gaussian fit with automatic fallback to power-weighted mean on &lt; 3 points or non-concave profiles).
+character(1). Mathematical estimator for peak m/z when <code>mz_weighted = TRUE</code>: <code>“weighted”</code> (power-weighted mean, default), <code>“gaussian”</code> (apex-centered weighted log-quadratic Guo-Caruana Gaussian fit with automatic fallback to power-weighted mean on &lt; 3 points or non-concave profiles), or <code>“func”</code> (applies <code>mz_fun_ms1</code> / <code>mz_fun_ms2</code> directly). When <code>mz_weighted = FALSE</code>, <code style="white-space: pre;">mz_fun_ms*</code> is always used regardless of <code>centroid_method</code>.
 </td>
 </tr>
 <tr>
@@ -454,7 +454,7 @@ numeric(1). Reference m/z (in Daltons) at which <code style="white-space: pre;">
 </section>
 <section id="details" class="level3">
 <h3 class="anchored" data-anchor-id="details">Details</h3>
-<p>MS1 and MS2 spectra are processed separately with their own tolerances, so the two levels can be tuned independently while preserving the original chronological scan acquisition order in the exported <code>mzML</code>.</p>
+<p>MS1 and MS2 spectra are processed separately with their own tolerances so the two levels can be tuned independently. Spectra of any other <code>msLevel</code> (such as MS3+) are preserved unmodified with their original <code>centroided</code> flag, and all spectra retain their original chronological scan acquisition order in the exported <code>mzML</code>.</p>
 <p>Within a spectrum, profile points are first grouped by m/z tolerance using either the legacy <code>sqrt(mz)</code> transformation (<code>domain_scaling = “legacy”</code>) or an exact local Jacobian analyzer spacing law (<code>domain_scaling</code> in <code>“linear”</code>, <code>“tof”</code>, <code>“orbitrap”</code>, or <code>“fticr”</code>). Each group is then recursively split at deep valleys evaluated via 1D Morse-Smale topological basin prominence (<code>valley_ratio</code>, <code>valley_hws</code>, and optional <code>baseline_subtract</code>) so that closely spaced peaks are not merged even when small noise ripples sit inside a valley.</p>
 <p>Peak centroids are estimated via power-weighted mean (<code>centroid_method = “weighted”</code>), apex-centered weighted log-quadratic Guo-Caruana Gaussian fitting (<code>centroid_method = “gaussian”</code>), or custom aggregation (<code>“func”</code>), while peak abundances can be reported via <code style="white-space: pre;">int_fun_ms*</code> (<code>intensity_method = “func”</code>), interpolated Gaussian apex (<code>“gaussian_apex”</code>), analytical Gaussian area (<code>“gaussian_area”</code>), or numerical trapezoidal integration (<code>“trapezoid”</code>). Setting <code>deconvolve = TRUE</code> performs 2-pass Gauss-Seidel Gaussian tail subtraction across split sub-peaks prior to centroid and intensity estimation.</p>
 <p>A group is only reduced when it holds at least <code style="white-space: pre;">min_datapoints_ms*</code> points of non-zero intensity; below that it is reported as zero intensity and filtered out. Spectra left without any peak by this step are restored from the input, so no spectrum is lost.</p>
@@ -462,7 +462,7 @@ numeric(1). Reference m/z (in Daltons) at which <code style="white-space: pre;">
 </section>
 <section id="value" class="level3">
 <h3 class="anchored" data-anchor-id="value">Value</h3>
-<p>logical(1). <code>TRUE</code> if the file was centroided, or <code>TRUE</code> if it was skipped because the output file already existed; <code>FALSE</code> if the input was missing or if centroiding failed. Invalid argument types raise an error instead of returning <code>FALSE</code>.</p>
+<p>logical(1). <code>TRUE</code> if the file was centroided, or <code>TRUE</code> if it was skipped because the output file already existed; <code>FALSE</code> if the input was missing, if <code>pattern</code>/<code>replacement</code> resolved to the input file itself (preventing in-place overwrite), or if centroiding failed. Invalid argument types raise an error instead of returning <code>FALSE</code>.</p>
 </section>
 <section id="edam-ontology" class="level3">
 <h3 class="anchored" data-anchor-id="edam-ontology">EDAM Ontology</h3>

@@ -199,6 +199,7 @@ div.csl-indent {
   <li><a href="#multiple-files" id="toc-multiple-files" class="nav-link" data-scroll-target="#multiple-files">Multiple files</a></li>
   <li><a href="#docker" id="toc-docker" class="nav-link" data-scroll-target="#docker">Docker</a></li>
   </ul></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   <li><a href="#citation" id="toc-citation" class="nav-link" data-scroll-target="#citation">Citation</a></li>
   <li><a href="#additional-software-credits" id="toc-additional-software-credits" class="nav-link" data-scroll-target="#additional-software-credits">Additional software credits</a></li>
   </ul></li>
@@ -216,21 +217,21 @@ div.csl-indent {
 <h1>CentroidR <img src="https://raw.githubusercontent.com/adafede/CentroidR/main/man/figures/logo.svg" align="right" height="139"></h1>
 <!-- badges: start -->
 <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" class="img-fluid" alt="Lifecycle: experimental"></a> <a href="https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/adafede/CentroidR/actions/workflows/R-CMD-check.yaml/badge.svg" class="img-fluid" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/adafede/CentroidR"><img src="https://codecov.io/gh/adafede/CentroidR/graph/badge.svg" class="img-fluid" alt="Codecov test coverage"></a> <a href="https://adafede.r-universe.dev/CentroidR"><img src="https://adafede.r-universe.dev/CentroidR/badges/version?&amp;color=blue&amp;style=classic.png" class="img-fluid" alt="r-universe badge"></a> <a href="https://hub.docker.com/r/adafede/centroidr/"><img src="https://badgen.net/badge/docker/centroidr?icon&amp;label.png" class="img-fluid" alt="Docker"></a> <a href="https://doi.org/10.5281/zenodo.17250307"><img src="https://zenodo.org/badge/921724027.svg" class="img-fluid" alt="DOI"></a> <!-- badges: end --></p>
-<p>Repository to centroid profile spectra.</p>
-<p>This repository is experimental. Use it at your own risks. Inspired from the original work at <a href="https://github.com/EuracBiomedicalResearch/batch_centroid" class="uri">https://github.com/EuracBiomedicalResearch/batch_centroid</a></p>
+<p>Experimental R package and CLI for centroiding profile-mode <code>mzML</code> mass spectra.</p>
+<p>Inspired by the original workflow at <a href="https://github.com/EuracBiomedicalResearch/batch_centroid" class="uri">https://github.com/EuracBiomedicalResearch/batch_centroid</a>, <code>CentroidR</code> supports independent MS1 and MS2 tolerances, 1D Morse-Smale topological prominence valley splitting, optional local edge-baseline subtraction, power-weighted or apex-centered log-quadratic Gaussian m/z estimation, 2-pass Gauss-Seidel multiplet tail subtraction, and analyzer-specific m/z domain scaling (<code>legacy</code>, <code>linear</code>, <code>tof</code>, <code>orbitrap</code>, <code>fticr</code>).</p>
 <section id="requirements" class="level2">
 <h2 class="anchored" data-anchor-id="requirements">Requirements</h2>
-<p>Here is what you <em>minimally</em> need:</p>
 <ul>
-<li><strong>An mzML file containing profile spectra</strong></li>
+<li><strong>Profile-mode <code>mzML</code> files</strong> (<code>R &gt;= 4.5.0</code> when running outside Docker).</li>
 </ul>
-<p>Here is a generic command in case:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-it</span> <span class="at">--rm</span> <span class="at">-e</span> WINEDEBUG=-all <span class="at">-v</span> .:/data proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses wine msconvert <span class="st">"path_to_your/raw/spectra.wiff"</span> <span class="at">--ignoreUnknownInstrumentError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Note: If using Sciex raw format, you can use both the <code>.wiff</code> and the <code>.wiff2</code> format for this step.</p>
+<p>Vendor raw files (including Sciex <code>.wiff</code> and <code>.wiff2</code>) can be converted to profile <code>mzML</code> first with ProteoWizard <code>msconvert</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-it</span> <span class="at">--rm</span> <span class="at">-e</span> WINEDEBUG=-all <span class="at">-v</span> .:/data <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses <span class="dt">\</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  wine msconvert <span class="st">"/data/raw/spectra.wiff"</span> <span class="at">--ignoreUnknownInstrumentError</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="installation" class="level2">
 <h2 class="anchored" data-anchor-id="installation">Installation</h2>
-<p>As the package is not (yet) available on CRAN, you will need to install with:</p>
+<p><code>CentroidR</code> is not on CRAN; install it from R-universe:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CentroidR"</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">repos =</span> <span class="fu">c</span>(</span>
@@ -244,10 +245,12 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="use">Use</h2>
 <section id="single-file" class="level3">
 <h3 class="anchored" data-anchor-id="single-file">Single file</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>CentroidR<span class="sc">::</span><span class="fu">centroid_one_file</span>(<span class="at">file =</span> <span class="st">"path_to_your/profile/spectra.mzML"</span>,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">pattern =</span> <span class="st">"/profile/"</span>,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">replacement =</span> <span class="st">"/profile_centroided/"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For high-accuracy Gaussian centroiding, continuous apex interpolation, multiplet tail deconvolution, and exact TOF/Orbitrap domain scaling:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>CentroidR<span class="sc">::</span><span class="fu">centroid_one_file</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"path_to_your/profile/spectra.mzML"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">pattern =</span> <span class="st">"/profile/"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">replacement =</span> <span class="st">"/profile_centroided/"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For Gaussian m/z centroiding, continuous apex interpolation, multiplet tail subtraction, baseline subtraction, and TOF domain scaling:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>CentroidR<span class="sc">::</span><span class="fu">centroid_one_file</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"path_to_your/profile/spectra.mzML"</span>,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">pattern =</span> <span class="st">"/profile/"</span>,</span>
@@ -258,42 +261,64 @@ div.csl-indent {
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">baseline_subtract =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">domain_scaling =</span> <span class="st">"tof"</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="at">--file</span> <span class="st">"path_to_your/profile/spectra.mzML"</span> <span class="at">--pattern</span> <span class="st">"/profile/"</span> <span class="at">--replacement</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>From the command line:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="dt">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--file</span> <span class="st">"path_to_your/profile/spectra.mzML"</span> <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--pattern</span> <span class="st">"/profile/"</span> <span class="dt">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--replacement</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="multiple-files" class="level3">
 <h3 class="anchored" data-anchor-id="multiple-files">Multiple files</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="st">"path_to_your/profiles/"</span> <span class="sc">|&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list.files</span>(<span class="at">pattern =</span> <span class="st">".mzML"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lapply</span>(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>      CentroidR<span class="sc">::</span>centroid_one_file,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">pattern =</span> <span class="st">"/profiles/"</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">replacement =</span> <span class="st">"/profiles_centroided/"</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="at">--directory</span> <span class="st">"path_to_your/profiles/"</span> <span class="at">--pattern</span> <span class="st">"/profiles/"</span> <span class="at">--replacement</span> <span class="st">"/profiles_centroided/"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list.files</span>(<span class="at">pattern =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">.mzML$"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    CentroidR<span class="sc">::</span>centroid_one_file,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">"/profiles/"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">replacement =</span> <span class="st">"/profiles_centroided/"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>From the command line:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="dt">\</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--directory</span> <span class="st">"path_to_your/profiles/"</span> <span class="dt">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--pattern</span> <span class="st">"/profiles/"</span> <span class="dt">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--replacement</span> <span class="st">"/profiles_centroided/"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/centroiding.R <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="docker" class="level3">
 <h3 class="anchored" data-anchor-id="docker">Docker</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull adafede/centroidr</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># docker build . -t adafede/centroidr</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span> path_to_your:/home <span class="dt">\</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Build from source:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># docker build -f inst/Dockerfile -t adafede/centroidr .</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The container sets <code>WORKDIR /home/bioc-user</code> with <code>centroiding.R</code> in the working directory, so mount host data to <code>/data</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span> /path/to/your:/data <span class="dt">\</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  adafede/centroidr <span class="dt">\</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  Rscript centroiding.R <span class="at">--file</span> <span class="st">"home/profile/spectra.mzML"</span> <span class="at">--pattern</span> <span class="st">"/profile/"</span> <span class="at">--replacement</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span> path_to_your:/home <span class="dt">\</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  Rscript centroiding.R <span class="dt">\</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--file</span> <span class="st">"/data/profile/spectra.mzML"</span> <span class="dt">\</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--pattern</span> <span class="st">"/profile/"</span> <span class="dt">\</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--replacement</span> <span class="st">"/profile_centroided/"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span> /path/to/your:/data <span class="dt">\</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  adafede/centroidr <span class="dt">\</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  Rscript centroiding.R <span class="at">--directory</span> <span class="st">"home/profiles/"</span> <span class="at">--pattern</span> <span class="st">"/profiles/"</span> <span class="at">--replacement</span> <span class="st">"/profiles_centroided/"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>To see all parameters</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a> <span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">-v</span> path_to_your:/home <span class="dt">\</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  adafede/centroidr <span class="dt">\</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  Rscript centroiding.R <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  Rscript centroiding.R <span class="dt">\</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--directory</span> <span class="st">"/data/profiles/"</span> <span class="dt">\</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--pattern</span> <span class="st">"/profiles/"</span> <span class="dt">\</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--replacement</span> <span class="st">"/profiles_centroided/"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To print all CLI options:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> adafede/centroidr Rscript centroiding.R <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
+</section>
+<section id="limitations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li><strong>Format</strong>: Only <code>mzML</code> input and output via <code>Spectra::MsBackendMzR()</code> are supported. Vendor raw files must be converted to profile <code>mzML</code> beforehand.</li>
+<li><strong>MS levels</strong>: MS1 and MS2 scans are centroided with independent parameters; MS3+ or missing-level scans are preserved unmodified in original chronological order.</li>
+<li><strong>Parallelism</strong>: Processing within a single file runs serially (<code>BiocParallel::SerialParam()</code>) in batches of up to 5000 spectra; parallelize across files at the caller level if needed.</li>
+<li><strong>Output handling</strong>: Output paths that resolve to the input file itself are refused (<code>FALSE</code>) to prevent in-place overwrite, while already-existing output files are skipped (<code>TRUE</code>).</li>
+</ul>
 </section>
 <section id="citation" class="level2">
 <h2 class="anchored" data-anchor-id="citation">Citation</h2>
-<p>Rutz, Adriano, and Johannes Rainer. 2026. <em>CentroidR: CentroidR provides the infrastructure to centroid profile spectra</em>. R package version 0.0.9005.</p>
+<p>Rutz, Adriano, and Johannes Rainer. 2026. <em>CentroidR: Centroid Profile Mass Spectrometry Data</em>. R package version 0.0.0.9005. <a href="https://doi.org/10.5281/zenodo.17250307" class="uri">https://doi.org/10.5281/zenodo.17250307</a>.</p>
 </section>
 <section id="additional-software-credits" class="level2">
 <h2 class="anchored" data-anchor-id="additional-software-credits">Additional software credits</h2>

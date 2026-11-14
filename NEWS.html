@@ -166,13 +166,13 @@ window.Quarto = {
   <ul>
   <li><a href="#centroidr" id="toc-centroidr" class="nav-link active" data-scroll-target="#centroidr">CentroidR</a>
   <ul class="collapse">
-  <li><a href="#centroidr-0.0.9005" id="toc-centroidr-0.0.9005" class="nav-link" data-scroll-target="#centroidr-0.0.9005">CentroidR 0.0.9005</a></li>
-  <li><a href="#centroidr-0.0.9004" id="toc-centroidr-0.0.9004" class="nav-link" data-scroll-target="#centroidr-0.0.9004">CentroidR 0.0.9004</a></li>
-  <li><a href="#centroidr-0.0.9003" id="toc-centroidr-0.0.9003" class="nav-link" data-scroll-target="#centroidr-0.0.9003">CentroidR 0.0.9003</a></li>
-  <li><a href="#centroidr-0.0.9002" id="toc-centroidr-0.0.9002" class="nav-link" data-scroll-target="#centroidr-0.0.9002">CentroidR 0.0.9002</a></li>
+  <li><a href="#centroidr-0.0.0.9005" id="toc-centroidr-0.0.0.9005" class="nav-link" data-scroll-target="#centroidr-0.0.0.9005">CentroidR 0.0.0.9005</a></li>
+  <li><a href="#centroidr-0.0.0.9004" id="toc-centroidr-0.0.0.9004" class="nav-link" data-scroll-target="#centroidr-0.0.0.9004">CentroidR 0.0.0.9004</a></li>
+  <li><a href="#centroidr-0.0.0.9003" id="toc-centroidr-0.0.0.9003" class="nav-link" data-scroll-target="#centroidr-0.0.0.9003">CentroidR 0.0.0.9003</a></li>
+  <li><a href="#centroidr-0.0.0.9002" id="toc-centroidr-0.0.0.9002" class="nav-link" data-scroll-target="#centroidr-0.0.0.9002">CentroidR 0.0.0.9002</a></li>
+  <li><a href="#centroidr-0.0.0.9001" id="toc-centroidr-0.0.0.9001" class="nav-link" data-scroll-target="#centroidr-0.0.0.9001">CentroidR 0.0.0.9001</a></li>
+  <li><a href="#centroidr-0.0.0.9000" id="toc-centroidr-0.0.0.9000" class="nav-link" data-scroll-target="#centroidr-0.0.0.9000">CentroidR 0.0.0.9000</a></li>
   </ul></li>
-  <li><a href="#centroidr-0.0.9001" id="toc-centroidr-0.0.9001" class="nav-link" data-scroll-target="#centroidr-0.0.9001">CentroidR 0.0.9001</a></li>
-  <li><a href="#centroidr-0.0.9000" id="toc-centroidr-0.0.9000" class="nav-link" data-scroll-target="#centroidr-0.0.9000">CentroidR 0.0.9000</a></li>
   </ul>
 </nav>
     </div>
@@ -184,20 +184,24 @@ window.Quarto = {
 <script async="" src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <section id="centroidr" class="level1">
 <h1>CentroidR</h1>
-<section id="centroidr-0.0.9005" class="level2">
-<h2 class="anchored" data-anchor-id="centroidr-0.0.9005">CentroidR 0.0.9005</h2>
+<section id="centroidr-0.0.0.9005" class="level2">
+<h2 class="anchored" data-anchor-id="centroidr-0.0.0.9005">CentroidR 0.0.0.9005</h2>
 <ul>
 <li>Replace immediate-neighbor valley scoring in <code>.split_peak_group()</code> with a 1D Morse-Smale topological prominence (watershed basin) saddle ratio so small noise ripples inside a valley no longer prevent splitting two well-separated major peaks.</li>
 <li>Add <code>centroid_method = c("weighted", "gaussian", "func")</code> implementing an apex-centered weighted log-quadratic (Guo-Caruana) Gaussian estimator that eliminates sampling-phase (pixel-locking) and asymmetric truncation <span class="math inline">\(m/z\)</span> bias, with automatic fallback on <span class="math inline">\(&lt; 3\)</span> points or non-concave profiles.</li>
 <li>Add <code>intensity_method = c("func", "gaussian_apex", "gaussian_area", "trapezoid")</code> to support continuous log-quadratic apex interpolation (eliminating picket-fence intensity attenuation), analytical Gaussian peak area (<span class="math inline">\(A\sigma\sqrt{2\pi}\)</span>), and numerical trapezoidal integration.</li>
 <li>Add <code>deconvolve = TRUE</code> to perform 2-pass Gauss-Seidel Gaussian tail subtraction across split multiplet sub-peaks before estimating centroids and abundances.</li>
-<li>Add <code>domain_scaling = c("legacy", "linear", "tof", "orbitrap", "fticr")</code> and <code>mz_ref</code> for exact local Jacobian mass-analyzer spacing laws (<span class="math inline">\(\Delta m \propto m^\alpha\)</span> with <span class="math inline">\(\alpha \in \{0, 0.5, 1.5, 2.0\}\)</span>) directly in <span class="math inline">\(m/z\)</span> space without <span class="math inline">\(2\times\)</span> ppm distortion or sensitivity to <code>min(mz)</code>.</li>
+<li>Add <code>domain_scaling = c("legacy", "linear", "tof", "orbitrap", "fticr")</code> and <code>mz_ref</code> for exact local Jacobian mass-analyzer spacing laws (<span class="math inline">\(\Delta m \propto m^\alpha\)</span> with <span class="math inline">\(\alpha \in \{0, 0.5, 1.5, 2.0\}\)</span>) directly in <span class="math inline">\(m/z\)</span> space without <span class="math inline">\(2 \times\)</span> ppm distortion or sensitivity to <code>min(mz)</code>.</li>
 <li>Add <code>valley_ratio</code>, <code>valley_hws</code>, and <code>baseline_subtract</code> parameters to <code>centroid_one_file()</code> and the CLI (<code>inst/scripts/centroiding.R</code>) for local edge-baseline subtraction and fine-grained valley splitting control.</li>
-<li>Restore original chronological MS1/MS2 acquisition ordering in <code>.process_spectra()</code> after per-level processing and <code>.keep_empty()</code> restoration.</li>
+<li>Fix <code>.fit_gaussian_peak()</code> and <code>.deconvolve_subpeaks()</code> so net Gaussian amplitude and continuous apex above baseline remain distinct, preventing baseline-inflated Gaussian areas and deconvolved tail subtraction.</li>
+<li>Route unsplit peak groups cleanly and support all <code>centroid_method</code>/<code>intensity_method</code> combinations under <code>deconvolve = TRUE</code>; enforce <code>intensity_exponent &gt;= 0</code> and clamp negative intensities in weight and trapezoidal calculations.</li>
+<li>Refuse in-place self-overwrite when <code>pattern</code>/<code>replacement</code> resolves <code>outf</code> to the input <code>file</code> (returning <code>FALSE</code>), preserve valid zero-valued spectrum metadata (such as <code>rtime = 0</code>), preserve MS3+ and missing-level scans unmodified in original acquisition order, isolate batch temporary files per run, skip redundant single-batch re-export, and escape XML attribute values in <code>.fix_xml()</code>.</li>
+<li>Remove package startup banner (<code>.onAttach()</code>).</li>
+<li>Enforce non-zero CLI exit codes (<code>1</code> on runtime/input failure, <code>2</code> on invalid options or usage) and strict option parsing in <code>inst/scripts/centroiding.R</code>.</li>
 </ul>
 </section>
-<section id="centroidr-0.0.9004" class="level2">
-<h2 class="anchored" data-anchor-id="centroidr-0.0.9004">CentroidR 0.0.9004</h2>
+<section id="centroidr-0.0.0.9004" class="level2">
+<h2 class="anchored" data-anchor-id="centroidr-0.0.0.9004">CentroidR 0.0.0.9004</h2>
 <ul>
 <li>Drop external <code>logger</code> and <code>optparse</code> dependencies in favour of zero-dependency base R logging and CLI argument parsing.</li>
 <li>Vectorize peak-group local-maxima screening, intensity weighting, and metadata aggregation (<code>list2DF()</code>), skip empty MS levels in <code>.process_spectra()</code>, pass <code>BiocParallel::SerialParam()</code> consistently, and avoid redundant re-export on single-batch files.</li>
@@ -213,33 +217,33 @@ window.Quarto = {
 <li><code>centroid_one_file()</code> now returns the logger to the console when it finishes. A finished run no longer keeps capturing messages that other code logs later, and a log file whose directory has since been deleted no longer turns every subsequent logging call in the session into an error.</li>
 </ul>
 </section>
-<section id="centroidr-0.0.9003" class="level2">
-<h2 class="anchored" data-anchor-id="centroidr-0.0.9003">CentroidR 0.0.9003</h2>
+<section id="centroidr-0.0.0.9003" class="level2">
+<h2 class="anchored" data-anchor-id="centroidr-0.0.0.9003">CentroidR 0.0.0.9003</h2>
 <ul>
-<li>Update package metadata for version 0.0.9003 and dependencies.</li>
+<li>Update package metadata for version 0.0.0.9003 and dependencies.</li>
 </ul>
 </section>
-<section id="centroidr-0.0.9002" class="level2">
-<h2 class="anchored" data-anchor-id="centroidr-0.0.9002">CentroidR 0.0.9002</h2>
+<section id="centroidr-0.0.0.9002" class="level2">
+<h2 class="anchored" data-anchor-id="centroidr-0.0.0.9002">CentroidR 0.0.0.9002</h2>
 <ul>
 <li>Fix NaN values in mzML files originating from .wiff2 (<a href="https://github.com/adafede/CentroidR/issues/6">#6</a>).</li>
 </ul>
 <hr>
 </section>
-</section>
-<section id="centroidr-0.0.9001" class="level1">
-<h1>CentroidR 0.0.9001</h1>
+<section id="centroidr-0.0.0.9001" class="level2">
+<h2 class="anchored" data-anchor-id="centroidr-0.0.0.9001">CentroidR 0.0.0.9001</h2>
 <ul>
 <li>Fixed NaN in mzMLs originating from .wiff2 (<a href="https://github.com/adafede/CentroidR/issues/6">#6</a>), see <a href="https://github.com/sneumann/mzR/issues/307" class="uri">https://github.com/sneumann/mzR/issues/307</a></li>
 </ul>
 </section>
-<section id="centroidr-0.0.9000" class="level1">
-<h1>CentroidR 0.0.9000</h1>
+<section id="centroidr-0.0.0.9000" class="level2">
+<h2 class="anchored" data-anchor-id="centroidr-0.0.0.9000">CentroidR 0.0.0.9000</h2>
 <ul>
 <li>Initial version.</li>
 </ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

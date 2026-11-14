@@ -15,7 +15,13 @@
 
 library(tinytest)
 
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 ## TRUE if any captured line contains `needle`.
 logged <- function(log, needle) {

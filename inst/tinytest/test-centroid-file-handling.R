@@ -9,7 +9,13 @@
 
 library(tinytest)
 
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 mk_input <- function(dir, name = "profile_in", n = 1) {
   infile <- file.path(dir, paste0(name, ".mzML"))

@@ -10,7 +10,13 @@
 
 library(tinytest)
 
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 .split_peak_group <- getFromNamespace(".split_peak_group", "CentroidR")
 .fit_gaussian_peak <- getFromNamespace(".fit_gaussian_peak", "CentroidR")
@@ -763,14 +769,102 @@ expect_true(pk_deconv_trap_gated[1, "intensity"] > 0)
 expect_equal(pk_deconv_trap_gated[2, "intensity"], 0)
 
 ## 8h. Parameter validation in centroid_one_file() for new arguments
-expect_error(CentroidR::centroid_one_file("x.mzML", centroid_method = "bad"))
-expect_error(CentroidR::centroid_one_file("x.mzML", intensity_method = "bad"))
-expect_error(CentroidR::centroid_one_file("x.mzML", domain_scaling = "bad"))
-expect_error(CentroidR::centroid_one_file("x.mzML", deconvolve = NA))
-expect_error(CentroidR::centroid_one_file("x.mzML", baseline_subtract = NA))
-expect_error(CentroidR::centroid_one_file("x.mzML", valley_ratio = -0.1))
-expect_error(CentroidR::centroid_one_file("x.mzML", valley_ratio = 1.1))
-expect_error(CentroidR::centroid_one_file("x.mzML", valley_hws = 0L))
-expect_error(CentroidR::centroid_one_file("x.mzML", valley_hws = 1.5))
-expect_error(CentroidR::centroid_one_file("x.mzML", mz_ref = 0))
-expect_error(CentroidR::centroid_one_file("x.mzML", mz_ref = -100))
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    centroid_method = "bad"
+  ),
+  pattern = "should be one of"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    intensity_method = "bad"
+  ),
+  pattern = "should be one of"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    domain_scaling = "bad"
+  ),
+  pattern = "should be one of"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    deconvolve = NA
+  ),
+  pattern = "deconvolve"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    baseline_subtract = NA
+  ),
+  pattern = "baseline_subtract"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    valley_ratio = -0.1
+  ),
+  pattern = "valley_ratio"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    valley_ratio = 1.1
+  ),
+  pattern = "valley_ratio"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    valley_hws = 0L
+  ),
+  pattern = "valley_hws"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    valley_hws = 1.5
+  ),
+  pattern = "valley_hws"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    mz_ref = 0
+  ),
+  pattern = "mz_ref"
+)
+expect_error(
+  CentroidR::centroid_one_file(
+    "x.mzML",
+    pattern = "x",
+    replacement = "y",
+    mz_ref = -100
+  ),
+  pattern = "mz_ref"
+)

@@ -19,7 +19,13 @@ library(tinytest)
 ## and never removes it, so once that directory is deleted any later logging
 ## would fail with "cannot open the connection". Reset the logger to the console
 ## right after each run, while the output directory still exists.
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 make_spectra <- function(n) {
   Spectra::Spectra(data.frame(

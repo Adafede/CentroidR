@@ -12,7 +12,13 @@ library(tinytest)
 .onLoad <- getFromNamespace(".onLoad", "CentroidR")
 .onAttach <- getFromNamespace(".onAttach", "CentroidR")
 
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 expect_equal(.split_peak_group(1:2, c(10, 20)), list(1:2))
 expect_equal(.split_peak_group(1:5, c(1, 4, 3, 4, 1)), list(1:5))

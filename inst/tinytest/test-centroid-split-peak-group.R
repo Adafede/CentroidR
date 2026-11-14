@@ -10,7 +10,13 @@ library(tinytest)
 
 ## Repairs the global logger appender that setup_logger() installs and never
 ## removes; see helper-logging.R.
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 .split_peak_group <- getFromNamespace(".split_peak_group", "CentroidR")
 
@@ -63,10 +69,15 @@ expect_equal(length(segs), 2L)
 expect_equal(segs[[1]], 1:9)
 expect_equal(segs[[2]], 10:17)
 
-## Each half peaks at the intended apex: the centroid of segment 1 sits near
-## m/z index 5 and segment 2 near index 13, both within 2 points of the apex.
-expect_true(abs(peak_centroid(two_peaks, segs[[1]]) - 5) < 2)
-expect_true(abs(peak_centroid(two_peaks, segs[[2]]) - 13) < 2)
+## Each half peaks at the intended apex: segment 1 is symmetric around index 5,
+## and segment 2 matches the exact weighted centroid near index 13.
+expect_equal(peak_centroid(two_peaks, segs[[1]]), 5, tolerance = 1e-12)
+expect_equal(
+  peak_centroid(two_peaks, segs[[2]]),
+  stats::weighted.mean(10:17, two_peaks[10:17]^3),
+  tolerance = 1e-12
+)
+expect_true(abs(peak_centroid(two_peaks, segs[[2]]) - 13) < 1e-3)
 
 ## Two symmetric peaks separated by a valley at half the apex height.
 ## Apexes are at indices 3 and 7 with intensity 100, so the valley ratio is 50/100.

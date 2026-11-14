@@ -10,7 +10,13 @@
 
 library(tinytest)
 
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 write_profile_mzml <- function(mzs, intensities, tag) {
   infile <- tempfile(pattern = paste0("profile_", tag, "_"), fileext = ".mzML")
@@ -86,8 +92,11 @@ expect_equal(nrow(below[[1]]), 3L)
 expect_equal(as.numeric(below[[1]][, "mz"]), c(100, 100.0005, 100.001))
 expect_equal(as.numeric(below[[1]][, "intensity"]), c(10, 50, 20))
 
+expected_mz1 <- stats::weighted.mean(mzs[[1]], ints[[1]]^3)
+expected_mz2 <- stats::weighted.mean(mzs[[2]], ints[[2]]^3)
+
 expect_equal(nrow(below[[2]]), 1L)
-expect_true(abs(below[[2]][1, "mz"] - 200.0011) < 1e-3)
+expect_equal(as.numeric(below[[2]][1, "mz"]), expected_mz2, tolerance = 1e-6)
 expect_equal(as.numeric(below[[2]][1, "intensity"]), 50)
 
 ## Lowering the threshold to 3 lets the short group through, so BOTH spectra are
@@ -101,10 +110,10 @@ at <- centroid(
 )
 expect_equal(length(at), 2L)
 expect_equal(nrow(at[[1]]), 1L)
-expect_true(abs(at[[1]][1, "mz"] - 100.0005) < 1e-3)
+expect_equal(as.numeric(at[[1]][1, "mz"]), expected_mz1, tolerance = 1e-6)
 expect_equal(as.numeric(at[[1]][1, "intensity"]), 50)
 expect_equal(nrow(at[[2]]), 1L)
-expect_true(abs(at[[2]][1, "mz"] - 200.0011) < 1e-3)
+expect_equal(as.numeric(at[[2]][1, "mz"]), expected_mz2, tolerance = 1e-6)
 expect_equal(as.numeric(at[[2]][1, "intensity"]), 50)
 
 ## A threshold of 1 centroids everything.

@@ -2,7 +2,13 @@ library(tinytest)
 
 ## Repairs the global logger appender that setup_logger() installs and never
 ## removes; see helper-logging.R.
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 make_profile_mzml <- function(mz, intensity) {
   spd <- data.frame(

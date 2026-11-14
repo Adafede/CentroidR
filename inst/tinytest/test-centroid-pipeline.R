@@ -3,7 +3,13 @@ library(tinytest)
 .process_spectra <- getFromNamespace(".process_spectra", "CentroidR")
 .fix_xml <- getFromNamespace(".fix_xml", "CentroidR")
 
-source("helper-logging.R")
+source(
+  if (file.exists("helper-logging.R")) {
+    "helper-logging.R"
+  } else {
+    "inst/tinytest/helper-logging.R"
+  }
+)
 
 make_test_spectra <- function() {
   spd <- data.frame(
@@ -126,7 +132,9 @@ unlink(c(
 ## .fix_xml leaves no temporary file behind
 ## ---------------------------------------------------------------------------
 
-tf <- tempfile(fileext = ".mzML")
+fix_dir <- tempfile("fixxml_")
+dir.create(fix_dir)
+tf <- file.path(fix_dir, "sample.mzML")
 writeLines(
   c(
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -136,9 +144,10 @@ writeLines(
   ),
   tf
 )
-before <- length(list.files(tempdir(), pattern = "^file"))
 .fix_xml(tf)
-after <- length(list.files(tempdir(), pattern = "^file"))
-expect_equal(after, before, info = ".fix_xml should remove its temporary file")
-expect_true(file.exists(tf), info = ".fix_xml should keep the file it rewrote")
-unlink(tf)
+expect_equal(
+  list.files(fix_dir),
+  "sample.mzML",
+  info = ".fix_xml should remove its temporary file and preserve only the target file"
+)
+unlink(fix_dir, recursive = TRUE)

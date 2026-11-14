@@ -6,8 +6,7 @@
 #   Rscript centroiding.R --directory <dir> --pattern <pattern> \
 #                         --replacement <replacement>
 #
-# This script wraps CentroidR::centroid_one_file for command-line use
-# without requiring external CLI option-parsing packages.
+# Wraps CentroidR::centroid_one_file() without external option-parsing packages.
 
 print_cli_help <- function() {
   cat(
@@ -16,11 +15,11 @@ print_cli_help <- function() {
     "  -f CHARACTER, --file=CHARACTER\n",
     "      Path to the input file [exclusive with --directory]\n",
     "  -d CHARACTER, --directory=CHARACTER\n",
-    "      Path to a directory containing files [exclusive with --file]\n",
+    "      Path to a directory of mzML files [exclusive with --file]\n",
     "  -p CHARACTER, --pattern=CHARACTER\n",
-    "      Pattern to replace in the file [required]\n",
+    "      Pattern to replace in file path [required]\n",
     "  -r CHARACTER, --replacement=CHARACTER\n",
-    "      Replacement pattern [required]\n",
+    "      Replacement string [required]\n",
     "  --min-datapoints-ms1=INTEGER\n",
     "      Minimum datapoints (MS1). (default: 5)\n",
     "  --min-datapoints-ms2=INTEGER\n",
@@ -42,35 +41,66 @@ print_cli_help <- function() {
     "  --int-fun-ms2=CHARACTER\n",
     "      Function to aggregate intensity values (MS2). (default: max)\n",
     "  --mz-weighted=LOGICAL\n",
-    "      Whether m/z values of peaks within each peak group should be\n",
-    "      aggregated using an intensity-weighted mean. (default: TRUE)\n",
+    "      Weight m/z aggregation by intensity. (default: TRUE)\n",
     "  --time-domain=LOGICAL\n",
-    "      Whether grouping of mass peaks is performed on the m/z values\n",
-    "      (FALSE) or on sqrt(mz) (TRUE). (default: TRUE)\n",
+    "      Group peaks in sqrt(mz) domain instead of m/z. (default: TRUE)\n",
     "  --intensity-exponent=NUMERIC\n",
-    "      Exponent to apply to the intensities when weighting m/z. (default: 3)\n",
+    "      Exponent applied to intensities when weighting m/z. (default: 3)\n",
     "  --centroid-method=CHARACTER\n",
-    "      Centroid m/z estimator: weighted, gaussian, or func. (default: weighted)\n",
+    "      Centroid m/z estimator: weighted, gaussian, func.\n",
+    "      (default: weighted)\n",
     "  --intensity-method=CHARACTER\n",
-    "      Peak intensity estimator: func, gaussian_apex, gaussian_area, or trapezoid.\n",
-    "      (default: func)\n",
+    "      Intensity estimator: func, gaussian_apex, gaussian_area,\n",
+    "      trapezoid. (default: func)\n",
     "  --deconvolve=LOGICAL\n",
-    "      Apply Gaussian tail deconvolution to split multiplets. (default: FALSE)\n",
+    "      Apply Gaussian tail deconvolution on split peaks.\n",
+    "      (default: FALSE)\n",
     "  --valley-ratio=NUMERIC\n",
-    "      Maximum valley-to-peak persistence ratio for splitting. (default: 0.2)\n",
+    "      Max valley-to-peak prominence ratio for splitting. (default: 0.2)\n",
     "  --valley-hws=INTEGER\n",
-    "      Half-window size for local maxima in valley splitting. (default: 2)\n",
+    "      Half-window size for local maxima detection. (default: 2)\n",
     "  --baseline-subtract=LOGICAL\n",
-    "      Subtract local group edge baseline before splitting/centroiding. (default: FALSE)\n",
+    "      Subtract group edge baseline before centroiding.\n",
+    "      (default: FALSE)\n",
     "  --domain-scaling=CHARACTER\n",
-    "      Analyzer domain scaling: legacy, linear, tof, orbitrap, or fticr.\n",
+    "      Analyzer scaling: legacy, linear, tof, orbitrap, fticr.\n",
     "      (default: legacy)\n",
     "  --mz-ref=NUMERIC\n",
-    "      Reference m/z for analyzer domain scaling. (default: 100)\n",
+    "      Reference m/z for analyzer scaling. (default: 100)\n",
     "  -h, --help\n",
     "      Show this help message and exit\n",
     sep = ""
   )
+}
+
+.parse_cli_int <- function(key, val) {
+  if (!grepl("^[+-]?[0-9]+$", val)) {
+    stop("Invalid integer value for --", key, ": ", val, call. = FALSE)
+  }
+  out <- suppressWarnings(as.integer(val))
+  if (is.na(out)) {
+    stop("Invalid integer value for --", key, ": ", val, call. = FALSE)
+  }
+  out
+}
+
+.parse_cli_num <- function(key, val) {
+  out <- suppressWarnings(as.numeric(val))
+  if (!nzchar(trimws(val)) || is.na(out) || !is.finite(out)) {
+    stop("Invalid numeric value for --", key, ": ", val, call. = FALSE)
+  }
+  out
+}
+
+.parse_cli_lgl <- function(key, val) {
+  norm <- tolower(trimws(val))
+  if (norm %in% c("true", "t")) {
+    return(TRUE)
+  }
+  if (norm %in% c("false", "f")) {
+    return(FALSE)
+  }
+  stop("Invalid logical value for --", key, ": ", val, call. = FALSE)
 }
 
 parse_cli_args <- function(args = commandArgs(trailingOnly = TRUE)) {
@@ -90,7 +120,12 @@ parse_cli_args <- function(args = commandArgs(trailingOnly = TRUE)) {
     "valley-ratio",
     "mz-ref"
   )
-  lgl_keys <- c("mz-weighted", "time-domain", "deconvolve", "baseline-subtract")
+  lgl_keys <- c(
+    "mz-weighted",
+    "time-domain",
+    "deconvolve",
+    "baseline-subtract"
+  )
   chr_keys <- c(
     "file",
     "directory",
@@ -112,8 +147,7 @@ parse_cli_args <- function(args = commandArgs(trailingOnly = TRUE)) {
   while (i <= n) {
     arg <- args[[i]]
     if (arg %in% c("-h", "--help")) {
-      print_cli_help()
-      quit(save = "no", status = 0L)
+      return(list(help = TRUE))
     }
     if (grepl("^--[^=]+=", arg)) {
       key <- sub("^--([^=]+)=.*$", "\\1", arg)
@@ -122,28 +156,28 @@ parse_cli_args <- function(args = commandArgs(trailingOnly = TRUE)) {
       key <- short_map[[arg]]
       i <- i + 1L
       if (i > n) {
-        stop("Error: Missing value for ", arg, call. = FALSE)
+        stop("Missing value for ", arg, call. = FALSE)
       }
       val <- args[[i]]
     } else if (startsWith(arg, "--")) {
       key <- substring(arg, 3L)
       i <- i + 1L
       if (i > n) {
-        stop("Error: Missing value for ", arg, call. = FALSE)
+        stop("Missing value for ", arg, call. = FALSE)
       }
       val <- args[[i]]
     } else {
-      stop("Error: Unrecognized argument: ", arg, call. = FALSE)
+      stop("Unrecognized argument: ", arg, call. = FALSE)
     }
     if (!key %in% valid_keys) {
-      stop("Error: Unknown option --", key, call. = FALSE)
+      stop("Unknown option --", key, call. = FALSE)
     }
     opt[[key]] <- if (key %in% int_keys) {
-      as.integer(val)
+      .parse_cli_int(key, val)
     } else if (key %in% num_keys) {
-      as.numeric(val)
+      .parse_cli_num(key, val)
     } else if (key %in% lgl_keys) {
-      as.logical(val)
+      .parse_cli_lgl(key, val)
     } else {
       val
     }
@@ -152,20 +186,7 @@ parse_cli_args <- function(args = commandArgs(trailingOnly = TRUE)) {
   opt
 }
 
-opt <- parse_cli_args()
-
-# Input validation
-if (!xor(is.null(opt$file), is.null(opt$directory))) {
-  print_cli_help()
-  stop("Error: Provide either --file or --directory, but not both.")
-}
-if (is.null(opt$pattern) || is.null(opt$replacement)) {
-  print_cli_help()
-  stop("Error: Missing required arguments --pattern or --replacement.")
-}
-
-# Wrapper for calling CentroidR::centroid_one_file with parsed options
-centroid_one_file_cli <- function(file) {
+centroid_one_file_cli <- function(file, opt) {
   CentroidR::centroid_one_file(
     file = file,
     pattern = opt$pattern,
@@ -194,12 +215,61 @@ centroid_one_file_cli <- function(file) {
   )
 }
 
-# Main processing logic
-if (!is.null(opt$file)) {
-  centroid_one_file_cli(opt$file)
-} else {
-  lapply(
-    list.files(opt$directory, pattern = "\\.mzML$", full.names = TRUE),
-    centroid_one_file_cli
+run_cli <- function(args = commandArgs(trailingOnly = TRUE)) {
+  opt <- tryCatch(
+    parse_cli_args(args),
+    error = function(e) {
+      message("Error: ", conditionMessage(e))
+      NULL
+    }
   )
+  if (is.null(opt)) {
+    return(2L)
+  }
+  if (isTRUE(opt$help)) {
+    print_cli_help()
+    return(0L)
+  }
+  if (!xor(is.null(opt$file), is.null(opt$directory))) {
+    print_cli_help()
+    message("Error: Provide either --file or --directory, but not both.")
+    return(2L)
+  }
+  if (is.null(opt$pattern) || is.null(opt$replacement)) {
+    print_cli_help()
+    message("Error: Missing required arguments --pattern or --replacement.")
+    return(2L)
+  }
+
+  ok <- tryCatch(
+    {
+      if (!is.null(opt$file)) {
+        isTRUE(centroid_one_file_cli(opt$file, opt))
+      } else if (!dir.exists(opt$directory)) {
+        message("Error: Directory does not exist: ", opt$directory)
+        FALSE
+      } else {
+        files <- list.files(
+          opt$directory,
+          pattern = "\\.mzML$",
+          full.names = TRUE
+        )
+        if (length(files) == 0L) {
+          message("Error: No mzML files found in directory: ", opt$directory)
+          FALSE
+        } else {
+          all(vapply(files, centroid_one_file_cli, logical(1), opt = opt))
+        }
+      }
+    },
+    error = function(e) {
+      message("Error: ", conditionMessage(e))
+      FALSE
+    }
+  )
+  if (ok) 0L else 1L
+}
+
+if (sys.nframe() == 0L) {
+  quit(save = "no", status = run_cli())
 }

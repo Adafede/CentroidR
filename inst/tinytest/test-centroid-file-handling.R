@@ -473,3 +473,20 @@ floor_sd <- Spectra::spectraData(floor_sp)
 expect_true("basePeakIntensity" %in% colnames(floor_sd))
 
 unlink(floor_dir, recursive = TRUE)
+
+## F-04: Non-matching pattern must fail instead of skipping as already existing
+self_dir <- tempfile("self_overwrite_")
+dir.create(self_dir)
+self_in <- mk_input(self_dir, "raw_sample")
+centroidr_reset_logging()
+expect_equal(
+  CentroidR::centroid_one_file(
+    file = self_in,
+    pattern = "profile_",
+    replacement = "centroided_"
+  ),
+  FALSE,
+  info = "F-04: outf == file must return FALSE rather than skipping with TRUE"
+)
+centroidr_reset_logging()
+unlink(self_dir, recursive = TRUE)

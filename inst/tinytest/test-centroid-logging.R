@@ -200,7 +200,7 @@ expect_false(logged(custom$log, "min datapoints MS1 : 5"))
 ## enough for the whole run to be recorded.
 
 expect_true(logged(run$log, "Processing batch 1 / 1"))
-expect_true(logged(run$log, "Concatenating all processed batches"))
+expect_false(logged(run$log, "Concatenating all processed batches"))
 expect_true(logged(run$log, "Exporting: "))
 expect_true(logged(run$log, "Exported: "))
 expect_true(logged(run$log, "Making a few fixes inside mzML: "))
@@ -209,6 +209,42 @@ expect_true(logged(run$log, "Successfully centroided: "))
 
 cleanup(run)
 cleanup(custom)
+
+## Multi-batch runs log "Concatenating all processed batches"
+two_dir <- tempfile("logtwobatch_")
+dir.create(two_dir)
+.process_spectra_batches <- getFromNamespace(
+  ".process_spectra_batches",
+  "CentroidR"
+)
+two_sp <- Spectra::Spectra(data.frame(
+  msLevel = c(1L, 1L),
+  polarity = c(0L, 0L),
+  rtime = c(1, 2),
+  mz = I(list(c(100, 100.0005), c(200, 200.0005))),
+  intensity = I(list(c(10, 50), c(20, 60)))
+))
+invisible(.process_spectra_batches(
+  spectra = two_sp,
+  outf = file.path(two_dir, "centroided.mzML"),
+  outd = two_dir,
+  min_datapoints_ms1 = 1L,
+  min_datapoints_ms2 = 1L,
+  mz_tol_da_ms1 = 0.01,
+  mz_tol_da_ms2 = 0.01,
+  mz_tol_ppm_ms1 = 0,
+  mz_tol_ppm_ms2 = 0,
+  mz_fun_ms1 = base::mean,
+  mz_fun_ms2 = base::mean,
+  int_fun_ms1 = base::max,
+  int_fun_ms2 = base::max,
+  mz_weighted = TRUE,
+  time_domain = FALSE,
+  intensity_exponent = 3,
+  batch_size = 1L
+))
+expect_true(logged(read_log(two_dir), "Concatenating all processed batches"))
+unlink(two_dir, recursive = TRUE)
 
 ## ---------------------------------------------------------------------------
 ## The two branches that return before an output directory exists

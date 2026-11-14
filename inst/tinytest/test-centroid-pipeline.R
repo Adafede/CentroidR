@@ -151,3 +151,26 @@ expect_equal(
   info = ".fix_xml should remove its temporary file and preserve only the target file"
 )
 unlink(fix_dir, recursive = TRUE)
+
+## F-08: .fix_xml XML-escapes special characters in basename(file_path)
+esc_dir <- tempfile("fixxml_esc_")
+dir.create(esc_dir)
+esc_tf <- file.path(esc_dir, 'a & "b" <c>\'.mzML')
+writeLines(
+  c(
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<mzML>',
+    '<run id="Experiment_1"><spectrum value="nan"/></run>',
+    '</mzML>'
+  ),
+  esc_tf
+)
+.fix_xml(esc_tf)
+esc_lines <- readLines(esc_tf, warn = FALSE)
+expect_true(any(grepl(
+  '<run id="a &amp; &quot;b&quot; &lt;c&gt;&apos;.mzML"',
+  esc_lines,
+  fixed = TRUE
+)))
+expect_true(any(grepl('value="NaN"', esc_lines, fixed = TRUE)))
+unlink(esc_dir, recursive = TRUE)

@@ -270,6 +270,18 @@ centroid_one_file <- function(
     .log_error(paste0("Input file does not exist: ", file))
     return(FALSE)
   }
+  if (
+    identical(
+      normalizePath(outf, mustWork = FALSE),
+      normalizePath(file, mustWork = FALSE)
+    )
+  ) {
+    .log_error(paste0(
+      "Output path resolves to input file (pattern did not change path): ",
+      file
+    ))
+    return(FALSE)
+  }
   if (file.exists(outf)) {
     .log_info(paste0("Skipping. Output file already exists: ", outf))
     return(TRUE)
@@ -334,21 +346,8 @@ centroid_one_file <- function(
           BPPARAM = BiocParallel::SerialParam()
         ) |>
         Spectra::dropNaSpectraVariables()
-      sd <- Spectra::spectraData(sp)
-      keep <- vapply(
-        sd,
-        function(col) {
-          if (is.numeric(col) || is.logical(col)) {
-            !all(is.na(col) | col == 0)
-          } else {
-            !all(is.na(col))
-          }
-        },
-        logical(1)
-      )
-      sp@backend@spectraData <- sd[, keep, drop = FALSE]
-      # Ensure required columns exist for downstream processing
-      req_int_cols <- c(
+      # Ensure required numeric/integer columns exist for downstream export
+      req_num_cols <- c(
         "basePeakIntensity",
         "collisionEnergy",
         "electronBeamEnergy",
@@ -359,12 +358,11 @@ centroid_one_file <- function(
       if (!"polarity" %in% existing_cols) {
         sp@backend@spectraData$polarity <- 0L
       }
-      for (col_name in req_int_cols) {
+      for (col_name in req_num_cols) {
         if (!col_name %in% existing_cols) {
-          sp@backend@spectraData[[col_name]] <- NA_integer_
+          sp@backend@spectraData[[col_name]] <- NA_real_
         }
       }
-      rm(sd)
       .process_spectra_batches(
         spectra = sp,
         outf = outf,
@@ -1141,27 +1139,57 @@ restore_logger <- function() {
 }
 
 #' @noRd
+.xml_escape_attr <- function(x) {
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  x <- gsub('"', "&quot;", x, fixed = TRUE)
+  gsub("'", "&apos;", x, fixed = TRUE)
+}
+
+#' @noRd
+.replace_file <- function(from, to) {
+  if (!file.rename(from, to)) {
+    stop("Failed to move exported file from ", from, " to ", to)
+  }
+}
+
+#' @noRd
+.rewrite_xml_stream <- function(in_path, out_path, run_attr) {
+  con_in <- file(in_path, open = "r")
+  on.exit(close(con_in), add = TRUE)
+  con_out <- file(out_path, open = "w")
+  on.exit(close(con_out), add = TRUE)
+  repeat {
+    chunk <- readLines(con_in, n = 65536L, warn = FALSE)
+    if (length(chunk) == 0L) {
+      break
+    }
+    chunk <- gsub(
+      pattern = 'value="nan"',
+      replacement = 'value="NaN"',
+      x = chunk,
+      fixed = TRUE,
+      useBytes = TRUE
+    )
+    chunk <- gsub(
+      pattern = '<run id="Experiment_1"',
+      replacement = run_attr,
+      x = chunk,
+      fixed = TRUE,
+      useBytes = TRUE
+    )
+    writeLines(chunk, con_out, useBytes = TRUE)
+  }
+}
+
+#' @noRd
 .fix_xml <- function(file_path) {
   temp_file <- tempfile(tmpdir = dirname(file_path))
   on.exit(unlink(temp_file), add = TRUE)
-  lines <- readLines(file_path, warn = FALSE)
-  run_id <- basename(file_path)
-  lines <- gsub(
-    pattern = "value=\"nan\"",
-    replacement = "value=\"NaN\"",
-    x = lines,
-    fixed = TRUE,
-    useBytes = TRUE
-  )
-  lines <- gsub(
-    pattern = "<run id=\"Experiment_1\"",
-    replacement = sprintf("<run id=\"%s\"", run_id),
-    x = lines,
-    fixed = TRUE,
-    useBytes = TRUE
-  )
-  writeLines(lines, temp_file, useBytes = TRUE)
-  file.rename(temp_file, file_path)
+  run_attr <- sprintf('<run id="%s"', .xml_escape_attr(basename(file_path)))
+  .rewrite_xml_stream(file_path, temp_file, run_attr)
+  .replace_file(temp_file, file_path)
 }
 
 #' @noRd
@@ -1218,65 +1246,63 @@ restore_logger <- function() {
   domain_scaling = "legacy",
   mz_ref = 100
 ) {
-  ## concatenateSpectra() below emits the MS1 spectra before the MS2 spectra, so
-  ## the processed order only matches the acquisition order when the input is
-  ## already grouped by MS level. Record which input spectrum each processed
-  ## spectrum came from so .keep_empty() can restore the right one and
-  ## chronological scan order can be restored afterwards.
+  ## Record input indices per level so empty MS1/MS2 restoration maps back to
+  ## the right scan and non-MS1/MS2 levels (e.g. MS3) keep original order.
   ms_levels <- Spectra::msLevel(spectra)
-  order_map <- c(which(ms_levels == 1L), which(ms_levels == 2L))
+  idx_1 <- which(!is.na(ms_levels) & ms_levels == 1L)
+  idx_2 <- which(!is.na(ms_levels) & ms_levels == 2L)
+  other_idx <- which(is.na(ms_levels) | !(ms_levels %in% c(1L, 2L)))
+  order_map <- c(idx_1, idx_2)
   serial_param <- BiocParallel::SerialParam()
 
-  centroided_2 <- spectra |>
-    Spectra::filterMsLevel(2L) |>
-    Spectra::addProcessing(
-      .peaks_combine,
-      tolerance = mz_tol_da_ms2,
-      ppm = mz_tol_ppm_ms2,
-      intensityFun = custom_int_fun_ms2,
-      mzFun = mz_fun_ms2,
-      weighted = mz_weighted,
-      timeDomain = time_domain,
-      intensity_exponent = intensity_exponent,
-      centroid_method = centroid_method,
-      intensity_method = intensity_method,
-      deconvolve = deconvolve,
-      valley_ratio = valley_ratio,
-      valley_hws = valley_hws,
-      baseline_subtract = baseline_subtract,
-      domain_scaling = domain_scaling,
-      mz_ref = mz_ref,
-      msLevel. = 2L
-    ) |>
-    Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
-    Spectra::applyProcessing(BPPARAM = serial_param)
-  centroided_1 <- spectra |>
-    Spectra::filterMsLevel(1L) |>
-    Spectra::addProcessing(
-      .peaks_combine,
-      tolerance = mz_tol_da_ms1,
-      ppm = mz_tol_ppm_ms1,
-      intensityFun = custom_int_fun_ms1,
-      mzFun = mz_fun_ms1,
-      weighted = mz_weighted,
-      timeDomain = time_domain,
-      intensity_exponent = intensity_exponent,
-      centroid_method = centroid_method,
-      intensity_method = intensity_method,
-      deconvolve = deconvolve,
-      valley_ratio = valley_ratio,
-      valley_hws = valley_hws,
-      baseline_subtract = baseline_subtract,
-      domain_scaling = domain_scaling,
-      mz_ref = mz_ref,
-      msLevel. = 1L
-    ) |>
-    Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
-    Spectra::applyProcessing(BPPARAM = serial_param)
+  process_level <- function(lvl, tol_da, tol_ppm, int_fun, mz_fun) {
+    spectra |>
+      Spectra::filterMsLevel(lvl) |>
+      Spectra::addProcessing(
+        .peaks_combine,
+        tolerance = tol_da,
+        ppm = tol_ppm,
+        intensityFun = int_fun,
+        mzFun = mz_fun,
+        weighted = mz_weighted,
+        timeDomain = time_domain,
+        intensity_exponent = intensity_exponent,
+        centroid_method = centroid_method,
+        intensity_method = intensity_method,
+        deconvolve = deconvolve,
+        valley_ratio = valley_ratio,
+        valley_hws = valley_hws,
+        baseline_subtract = baseline_subtract,
+        domain_scaling = domain_scaling,
+        mz_ref = mz_ref,
+        msLevel. = lvl
+      ) |>
+      Spectra::filterIntensity(intensity = c(.Machine$double.eps, Inf)) |>
+      Spectra::applyProcessing(BPPARAM = serial_param)
+  }
+
+  centroided_1 <- process_level(
+    1L,
+    mz_tol_da_ms1,
+    mz_tol_ppm_ms1,
+    custom_int_fun_ms1,
+    mz_fun_ms1
+  )
+  centroided_2 <- process_level(
+    2L,
+    mz_tol_da_ms2,
+    mz_tol_ppm_ms2,
+    custom_int_fun_ms2,
+    mz_fun_ms2
+  )
   centroided <- Spectra::concatenateSpectra(centroided_1, centroided_2)
   res <- .keep_empty(spectra, centroided, order_map)
-  if (length(order_map) == length(res) && is.unsorted(order_map)) {
-    res <- res[order(order_map)]
+  full_order <- c(order_map, other_idx)
+  if (length(other_idx) > 0L) {
+    res <- Spectra::concatenateSpectra(res, spectra[other_idx])
+  }
+  if (length(full_order) == length(res) && is.unsorted(full_order)) {
+    res <- res[order(full_order)]
   }
   res
 }
@@ -1309,7 +1335,10 @@ restore_logger <- function() {
   mz_ref = 100,
   batch_size = 4096L
 ) {
-  setup_logger(dir = outd)
+  if (identical(.centroidr_log$appender, .appender_stdout)) {
+    setup_logger(dir = outd)
+    on.exit(restore_logger(), add = TRUE)
+  }
   custom_int_fun <- function(int_fun, intensities, min_datapoints) {
     if (sum(intensities > 0, na.rm = TRUE) >= min_datapoints) {
       int_fun(intensities)
@@ -1330,10 +1359,8 @@ restore_logger <- function() {
     stop("Input contains no spectra to centroid.")
   }
   batch_starts <- seq(1L, length(spectra), by = batch_size)
-  tmp_batch_dir <- file.path(outd, "tmp")
-  if (!dir.exists(tmp_batch_dir)) {
-    dir.create(tmp_batch_dir, recursive = TRUE)
-  }
+  tmp_batch_dir <- tempfile(pattern = "tmp_", tmpdir = outd)
+  dir.create(tmp_batch_dir, recursive = TRUE)
   on.exit(unlink(tmp_batch_dir, recursive = TRUE), add = TRUE)
   serial_param <- BiocParallel::SerialParam()
   temp_files <- vapply(
@@ -1368,8 +1395,15 @@ restore_logger <- function() {
         domain_scaling = domain_scaling,
         mz_ref = mz_ref
       )
-      result@backend@spectraData$centroided <- TRUE
-      temp_file <- tempfile(fileext = ".mzML", tmpdir = tmp_batch_dir)
+      ms_lvl <- Spectra::msLevel(result)
+      cur_cent <- Spectra::centroided(result)
+      cur_cent[!is.na(ms_lvl) & ms_lvl %in% c(1L, 2L)] <- TRUE
+      result@backend@spectraData$centroided <- cur_cent
+      temp_file <- tempfile(
+        pattern = "centroid_",
+        fileext = ".mzML",
+        tmpdir = tmp_batch_dir
+      )
       Spectra::export(
         result,
         file = temp_file,
@@ -1380,32 +1414,33 @@ restore_logger <- function() {
     },
     character(1)
   )
-  .log_trace("Concatenating all processed batches")
-  sp_cen <- Spectra::Spectra(
-    temp_files,
-    backend = Spectra::MsBackendMzR(),
-    BPPARAM = serial_param
-  )
-  ## Export to a temporary file and publish it with a rename, both inside `outd`
-  ## so the rename stays on one filesystem. A torn export therefore never lands
-  ## at `outf`: the next run would otherwise see that output already exists and
-  ## skip the work, reporting success for a truncated file.
-  tmp_outf <- tempfile(
-    pattern = "centroid_",
-    tmpdir = tmp_batch_dir,
-    fileext = ".mzML"
-  )
-  .log_trace(paste0("Exporting: ", basename(outf)))
-  Spectra::export(
-    sp_cen,
-    file = tmp_outf,
-    backend = Spectra::MsBackendMzR(),
-    BPPARAM = serial_param
-  )
-  rm(sp_cen)
-  if (!file.rename(tmp_outf, outf)) {
-    stop("Failed to move exported file from ", tmp_outf, " to ", outf)
+  ## Export/rename within `outd` keeps publish atomic; 1-batch runs move the
+  ## already-exported batch file directly without re-reading and re-exporting.
+  if (length(temp_files) > 1L) {
+    .log_trace("Concatenating all processed batches")
+    sp_cen <- Spectra::Spectra(
+      temp_files,
+      backend = Spectra::MsBackendMzR(),
+      BPPARAM = serial_param
+    )
+    tmp_outf <- tempfile(
+      pattern = "centroid_",
+      tmpdir = tmp_batch_dir,
+      fileext = ".mzML"
+    )
+    .log_trace(paste0("Exporting: ", basename(outf)))
+    Spectra::export(
+      sp_cen,
+      file = tmp_outf,
+      backend = Spectra::MsBackendMzR(),
+      BPPARAM = serial_param
+    )
+    rm(sp_cen)
+  } else {
+    .log_trace(paste0("Exporting: ", basename(outf)))
+    tmp_outf <- temp_files[[1L]]
   }
+  .replace_file(tmp_outf, outf)
   .log_trace(paste0("Exported: ", basename(outf)))
   .log_trace(paste0("Making a few fixes inside mzML: ", basename(outf)))
   .fix_xml(outf)

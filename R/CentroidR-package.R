@@ -48,12 +48,3 @@ NULL
   mzR::pwiz.version()
   invisible()
 }
-
-#' .onAttach: Package attach hook
-#'
-#' Displays a startup message and citation info when the package is attached.
-#' @noRd
-.onAttach <- function(libname, pkgname) {
-  packageStartupMessage("Welcome to ", pkgname)
-  packageStartupMessage(format(utils::citation(pkgname)))
-}

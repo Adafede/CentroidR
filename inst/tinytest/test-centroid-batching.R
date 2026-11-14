@@ -77,7 +77,7 @@ run_batches <- function(spectra, batch_size, tag) {
     msLevel = Spectra::msLevel(out),
     centroided = Spectra::spectraData(out)$centroided,
     peaks = peaks,
-    tmp_removed = !dir.exists(file.path(outd, "tmp"))
+    tmp_removed = length(list.files(outd, pattern = "^tmp")) == 0L
   )
 }
 
@@ -138,11 +138,15 @@ for (i in seq_len(3)) {
 ## Processed spectra are flagged as centroided so downstream consumers can tell.
 expect_true(all(res$centroided))
 
-## The per-chunk temporary directory is cleaned up on exit.
-## No top level on.exit() here: in tinytest's evaluation context it can fire
-## before the assertions below run, which would make them vacuous.
+## The per-chunk temporary directory is isolated (never clobbers outd/tmp) and
+## direct calls to .process_spectra_batches() restore the logger on exit.
 outd <- tempfile("batch_clean_")
 dir.create(outd)
+user_tmp <- file.path(outd, "tmp")
+dir.create(user_tmp)
+user_sentinel <- file.path(user_tmp, "keep.txt")
+writeLines("user data", user_sentinel)
+centroidr_reset_logging()
 invisible(.process_spectra_batches(
   spectra = make_spectra(3),
   outf = file.path(outd, "out.mzML"),
@@ -162,9 +166,16 @@ invisible(.process_spectra_batches(
   intensity_exponent = 3,
   batch_size = 2L
 ))
-centroidr_reset_logging()
+.log_info <- getFromNamespace(".log_info", "CentroidR")
+.log_trace <- getFromNamespace(".log_trace", "CentroidR")
+expect_equal(
+  length(capture.output(.log_trace("should be suppressed"))),
+  0L,
+  info = "F-07: direct call should restore logger threshold on exit"
+)
 expect_true(file.exists(file.path(outd, "out.mzML")))
-expect_false(dir.exists(file.path(outd, "tmp")))
+expect_true(file.exists(user_sentinel))
+expect_equal(length(list.files(outd, pattern = "^tmp_")), 0L)
 unlink(outd, recursive = TRUE)
 
 ## ---------------------------------------------------------------------------

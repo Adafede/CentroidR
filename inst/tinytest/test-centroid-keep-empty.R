@@ -441,3 +441,77 @@ orig_empty_one <- make_spectra(
 restored_empty <- .keep_empty(orig_empty_one, empty_spectra(2L))
 expect_equal(nrow(Spectra::peaksData(restored_empty)[[1]]), 2L)
 expect_equal(nrow(Spectra::peaksData(restored_empty)[[2]]), 0L)
+
+## F-05: Zero-valued metadata (e.g., rtime = 0 in direct infusion) and numeric types
+di_dir <- tempfile("di_rtime0_")
+dir.create(di_dir)
+di_in <- file.path(di_dir, "profile_di.mzML")
+Spectra::export(
+  Spectra::Spectra(data.frame(
+    msLevel = c(1L, 1L),
+    polarity = c(0L, 0L),
+    rtime = c(0, 0),
+    mz = I(list(c(100, 100.0005), c(200, 200.0005))),
+    intensity = I(list(c(10, 50), c(20, 80)))
+  )),
+  file = di_in,
+  backend = Spectra::MsBackendMzR()
+)
+di_out <- sub("profile_", "centroided_", di_in, fixed = TRUE)
+centroidr_reset_logging()
+expect_true(CentroidR::centroid_one_file(
+  file = di_in,
+  pattern = "profile_",
+  replacement = "centroided_",
+  min_datapoints_ms1 = 1L
+))
+centroidr_reset_logging()
+di_res <- Spectra::Spectra(di_out, backend = Spectra::MsBackendMzR())
+expect_equal(Spectra::rtime(di_res), c(0, 0))
+expect_true(is.double(Spectra::spectraData(di_res)$collisionEnergy))
+unlink(di_dir, recursive = TRUE)
+
+## F-06: MS3 spectra are preserved in acquisition order alongside MS1 and MS2
+ms3_dir <- tempfile("ms3_keep_")
+dir.create(ms3_dir)
+ms3_in <- file.path(ms3_dir, "profile_ms3.mzML")
+Spectra::export(
+  Spectra::Spectra(data.frame(
+    msLevel = c(1L, 3L, 2L),
+    polarity = c(1L, 1L, 1L),
+    centroided = c(FALSE, FALSE, FALSE),
+    rtime = c(1, 2, 3),
+    mz = I(list(
+      c(100, 100.0005, 100.001),
+      c(150.1, 150.2),
+      c(200, 200.0005)
+    )),
+    intensity = I(list(c(10, 50, 20), c(25, 75), c(15, 60)))
+  )),
+  file = ms3_in,
+  backend = Spectra::MsBackendMzR()
+)
+ms3_out <- sub("profile_", "centroided_", ms3_in, fixed = TRUE)
+centroidr_reset_logging()
+expect_true(CentroidR::centroid_one_file(
+  file = ms3_in,
+  pattern = "profile_",
+  replacement = "centroided_",
+  min_datapoints_ms1 = 1L,
+  min_datapoints_ms2 = 1L
+))
+centroidr_reset_logging()
+ms3_res <- Spectra::Spectra(ms3_out, backend = Spectra::MsBackendMzR())
+expect_equal(length(ms3_res), 3L)
+expect_equal(Spectra::msLevel(ms3_res), c(1L, 3L, 2L))
+expect_equal(Spectra::rtime(ms3_res), c(1, 2, 3))
+expect_equal(
+  as.numeric(Spectra::peaksData(ms3_res)[[2L]][, "mz"]),
+  c(150.1, 150.2),
+  tolerance = 1e-5
+)
+expect_equal(
+  Spectra::spectraData(ms3_res)$centroided,
+  c(TRUE, FALSE, TRUE)
+)
+unlink(ms3_dir, recursive = TRUE)

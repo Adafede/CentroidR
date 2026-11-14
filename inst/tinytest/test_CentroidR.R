@@ -10,7 +10,6 @@ library(tinytest)
 )
 .peak_group_metadata <- getFromNamespace(".peak_group_metadata", "CentroidR")
 .onLoad <- getFromNamespace(".onLoad", "CentroidR")
-.onAttach <- getFromNamespace(".onAttach", "CentroidR")
 
 source(
   if (file.exists("helper-logging.R")) {
@@ -94,7 +93,6 @@ expect_equal(meta_out[[2]][, "charge"], 2)
 expect_equal(meta_out[[2]][, "adduct"], "K+")
 
 suppressWarnings(.onLoad(tempdir(), "CentroidR"))
-suppressMessages(.onAttach(tempdir(), "CentroidR"))
 
 tmp_in <- tempfile(pattern = "profile_", fileext = ".mzML")
 writeLines("dummy", tmp_in)

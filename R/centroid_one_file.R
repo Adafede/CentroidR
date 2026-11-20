@@ -518,14 +518,15 @@ restore_logger <- function() {
     return(list(idx))
   }
   n_valleys <- length(maxima) - 1L
-  v_locs <- integer(n_valleys)
-  v_vals <- numeric(n_valleys)
-  for (j in seq_len(n_valleys)) {
-    left <- maxima[[j]]
-    right <- maxima[[j + 1L]]
-    v_locs[[j]] <- left + which.min(ints[left:right]) - 1L
-    v_vals[[j]] <- ints[v_locs[[j]]]
-  }
+  v_locs <- vapply(
+    seq_len(n_valleys),
+    function(j) {
+      left <- maxima[[j]]
+      left + which.min(ints[left:maxima[[j + 1L]]]) - 1L
+    },
+    integer(1L)
+  )
+  v_vals <- ints[v_locs]
   split_at <- NA_integer_
   split_score <- Inf
   for (j in seq_len(n_valleys)) {
@@ -1094,8 +1095,7 @@ restore_logger <- function() {
 
   if (ncol(x) > 2L) {
     meta <- x[, !colnames(x) %in% c("mz", "intensity"), drop = FALSE]
-    meta_combined <- .peak_group_metadata(peak_groups, meta)
-    meta_final <- do.call(rbind, meta_combined)
+    meta_final <- do.call(rbind, .peak_group_metadata(peak_groups, meta))
     rownames(meta_final) <- peak_names
     cbind(mz = mzs, intensity = ints, meta_final)
   } else {
@@ -1176,11 +1176,10 @@ restore_logger <- function() {
     }
     empty_indices <- which(is_empty)
     orig_subset <- Spectra::peaksData(original[order_map[empty_indices]])
-    restored_peaks <- lapply(seq_along(empty_indices), function(k) {
-      pk <- orig_subset[[k]]
-      pk[pk[, "intensity"] > 0, , drop = FALSE]
-    })
-    processed@backend@peaksData[empty_indices] <- restored_peaks
+    processed@backend@peaksData[empty_indices] <- lapply(
+      orig_subset,
+      function(pk) pk[pk[, "intensity"] > 0, , drop = FALSE]
+    )
   }
   processed
 }

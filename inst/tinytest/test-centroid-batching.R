@@ -56,8 +56,7 @@ run_batches <- function(spectra, batch_size, tag) {
     rtime = Spectra::rtime(out),
     msLevel = Spectra::msLevel(out),
     centroided = Spectra::spectraData(out)$centroided,
-    peaks = peaks,
-    tmp_removed = length(list.files(outd, pattern = "^tmp")) == 0L
+    peaks = peaks
   )
 }
 
@@ -133,7 +132,6 @@ invisible(run_process_spectra_batches(
   outd = outd,
   batch_size = 2L
 ))
-.log_info <- getFromNamespace(".log_info", "CentroidR")
 .log_trace <- getFromNamespace(".log_trace", "CentroidR")
 expect_equal(
   length(capture.output(.log_trace("should be suppressed"))),
@@ -172,28 +170,23 @@ mixed <- make_test_spectra(
   rtime = c(1, 1.5, 2, 3, 3.5, 4)
 )
 mixres <- run_batches(mixed, batch_size = 2L, tag = "mix")
-mixed_out <- list(
-  rtime = mixres$rtime,
-  msLevel = mixres$msLevel,
-  peaks = mixres$peaks
-)
 
-expect_equal(length(mixed_out$peaks), 6L)
-expect_equal(sum(mixed_out$msLevel == 1L), 3L)
-expect_equal(sum(mixed_out$msLevel == 2L), 3L)
-expect_equal(sort(mixed_out$rtime), c(1, 1.5, 2, 3, 3.5, 4))
+expect_equal(length(mixres$peaks), 6L)
+expect_equal(sum(mixres$msLevel == 1L), 3L)
+expect_equal(sum(mixres$msLevel == 2L), 3L)
+expect_equal(sort(mixres$rtime), c(1, 1.5, 2, 3, 3.5, 4))
 
 ## Each spectrum keeps its own peaks: match on rtime so the assertion does not
 ## depend on the MS1-first output ordering.
 peaks_at <- function(s, rt) {
   s$peaks[[which(s$rtime == rt)]]
 }
-expect_true(abs(peaks_at(mixed_out, 1)[1, "mz"] - 500.0005) < 1e-5)
-expect_true(abs(peaks_at(mixed_out, 1.5)[1, "mz"] - 100.0005) < 1e-5)
-expect_true(abs(peaks_at(mixed_out, 2)[1, "mz"] - 600.0005) < 1e-5)
-expect_true(abs(peaks_at(mixed_out, 3)[1, "mz"] - 200.0005) < 1e-5)
-expect_true(abs(peaks_at(mixed_out, 3.5)[1, "mz"] - 300.0005) < 1e-5)
-expect_true(abs(peaks_at(mixed_out, 4)[1, "mz"] - 700.0005) < 1e-5)
+expect_true(abs(peaks_at(mixres, 1)[1, "mz"] - 500.0005) < 1e-5)
+expect_true(abs(peaks_at(mixres, 1.5)[1, "mz"] - 100.0005) < 1e-5)
+expect_true(abs(peaks_at(mixres, 2)[1, "mz"] - 600.0005) < 1e-5)
+expect_true(abs(peaks_at(mixres, 3)[1, "mz"] - 200.0005) < 1e-5)
+expect_true(abs(peaks_at(mixres, 3.5)[1, "mz"] - 300.0005) < 1e-5)
+expect_true(abs(peaks_at(mixres, 4)[1, "mz"] - 700.0005) < 1e-5)
 
 ## ---------------------------------------------------------------------------
 ## An input with no spectra is refused with a readable reason

@@ -578,7 +578,6 @@ for (spec in bracket_specs) {
 ## 8f. .peak_group_mzs & .peak_group_intensities all branches
 grp_list <- list(1:3, 4:5)
 mz_vec <- c(100.000, 100.002, 100.004, 200.000, 200.002)
-int_vec <- c(10, 50, 10, 20, 20)
 
 ## weighted = TRUE, centroid_method = "weighted", baseline_subtract = TRUE
 ## Group 1 has baseline 10 -> c(0, 40, 0) -> centroid exactly 100.002

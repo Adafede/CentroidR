@@ -115,11 +115,6 @@ half <- make_spectra(
   list(c(100, 100.001), c(500, 500.001)),
   list(c(7, 70), c(9, 90))
 )
-mixed_in <- empty_spectra(1L)
-mixed_in@backend@peaksData <- c(
-  list(numeric(0)),
-  list(data.frame(mz = 555, intensity = 999))
-)
 mixed_out <- .keep_empty(orig, half)
 expect_equal(nrow(Spectra::peaksData(mixed_out)[[1]]), 2L)
 expect_equal(nrow(Spectra::peaksData(mixed_out)[[2]]), 2L)

@@ -290,7 +290,6 @@ unlink(skip_dir2, recursive = TRUE)
 vanish_dir <- tempfile("logvanish_")
 dir.create(vanish_dir)
 vanish_in <- write_profile("logvanish", dir = vanish_dir)
-vanish_out <- sub("profile_", "centroided_", vanish_in, fixed = TRUE)
 centroidr_reset_logging()
 expect_equal(
   CentroidR::centroid_one_file(

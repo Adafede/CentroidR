@@ -74,10 +74,11 @@ print_cli_help <- function() {
 }
 
 .parse_cli_int <- function(key, val) {
-  if (!grepl("^[+-]?[0-9]+$", val)) {
-    stop("Invalid integer value for --", key, ": ", val, call. = FALSE)
+  out <- if (grepl("^[+-]?[0-9]+$", val)) {
+    suppressWarnings(as.integer(val))
+  } else {
+    NA_integer_
   }
-  out <- suppressWarnings(as.integer(val))
   if (is.na(out)) {
     stop("Invalid integer value for --", key, ": ", val, call. = FALSE)
   }
@@ -152,15 +153,12 @@ parse_cli_args <- function(args = commandArgs(trailingOnly = TRUE)) {
     if (grepl("^--[^=]+=", arg)) {
       key <- sub("^--([^=]+)=.*$", "\\1", arg)
       val <- sub("^--[^=]+=", "", arg)
-    } else if (arg %in% names(short_map)) {
-      key <- short_map[[arg]]
-      i <- i + 1L
-      if (i > n) {
-        stop("Missing value for ", arg, call. = FALSE)
+    } else if (arg %in% names(short_map) || startsWith(arg, "--")) {
+      key <- if (startsWith(arg, "--")) {
+        substring(arg, 3L)
+      } else {
+        short_map[[arg]]
       }
-      val <- args[[i]]
-    } else if (startsWith(arg, "--")) {
-      key <- substring(arg, 3L)
       i <- i + 1L
       if (i > n) {
         stop("Missing value for ", arg, call. = FALSE)

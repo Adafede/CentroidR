@@ -174,85 +174,35 @@ centroid_one_file <- function(
 ) {
   # Input validation for critical arguments
   stopifnot(
-    is.character(file),
-    length(file) == 1L,
-    !is.na(file),
+    .is_scalar_chr(file),
     nzchar(file),
-    is.character(pattern),
-    length(pattern) == 1L,
-    !is.na(pattern),
-    is.character(replacement),
-    length(replacement) == 1L,
-    !is.na(replacement),
-    is.numeric(min_datapoints_ms1),
-    length(min_datapoints_ms1) == 1L,
-    ## A threshold counts data points, so it has to be at least one. Zero and
-    ## negative values used to be accepted and silently centroided groups that
-    ## held no data at all, which is never what a minimum is meant to express.
-    ## An NA fails the comparison, so it is rejected too.
-    min_datapoints_ms1 >= 1,
-    ## It also has to be a whole number of points: a threshold of 1.5 cannot be
-    ## reached, and the argument is documented as integer(1). Inf fails the
-    ## modulus as well, since Inf %% 1 is NaN.
-    min_datapoints_ms1 %% 1 == 0,
-    is.numeric(min_datapoints_ms2),
-    length(min_datapoints_ms2) == 1L,
-    min_datapoints_ms2 >= 1,
-    min_datapoints_ms2 %% 1 == 0,
-    is.numeric(mz_tol_da_ms1),
-    length(mz_tol_da_ms1) == 1L,
-    is.finite(mz_tol_da_ms1),
-    mz_tol_da_ms1 >= 0,
-    is.numeric(mz_tol_da_ms2),
-    length(mz_tol_da_ms2) == 1L,
-    is.finite(mz_tol_da_ms2),
-    mz_tol_da_ms2 >= 0,
-    is.numeric(mz_tol_ppm_ms1),
-    length(mz_tol_ppm_ms1) == 1L,
-    is.finite(mz_tol_ppm_ms1),
-    mz_tol_ppm_ms1 >= 0,
-    is.numeric(mz_tol_ppm_ms2),
-    length(mz_tol_ppm_ms2) == 1L,
-    is.finite(mz_tol_ppm_ms2),
-    mz_tol_ppm_ms2 >= 0,
+    .is_scalar_chr(pattern),
+    .is_scalar_chr(replacement),
+    .is_pos_int(min_datapoints_ms1),
+    .is_pos_int(min_datapoints_ms2),
+    .is_nonneg_num(mz_tol_da_ms1),
+    .is_nonneg_num(mz_tol_da_ms2),
+    .is_nonneg_num(mz_tol_ppm_ms1),
+    .is_nonneg_num(mz_tol_ppm_ms2),
     is.function(mz_fun_ms1),
     is.function(mz_fun_ms2),
     is.function(int_fun_ms1),
     is.function(int_fun_ms2),
-    is.logical(mz_weighted),
-    length(mz_weighted) == 1L,
-    !is.na(mz_weighted),
-    is.logical(time_domain),
-    length(time_domain) == 1L,
-    !is.na(time_domain),
-    is.numeric(intensity_exponent),
-    length(intensity_exponent) == 1L,
-    is.finite(intensity_exponent),
-    intensity_exponent >= 0,
+    .is_flag(mz_weighted),
+    .is_flag(time_domain),
+    .is_nonneg_num(intensity_exponent),
     is.character(centroid_method),
     !anyNA(centroid_method),
     is.character(intensity_method),
     !anyNA(intensity_method),
-    is.logical(deconvolve),
-    length(deconvolve) == 1L,
-    !is.na(deconvolve),
-    is.numeric(valley_ratio),
-    length(valley_ratio) == 1L,
-    is.finite(valley_ratio),
-    valley_ratio >= 0,
+    .is_flag(deconvolve),
+    .is_nonneg_num(valley_ratio),
     valley_ratio <= 1,
-    is.numeric(valley_hws),
-    length(valley_hws) == 1L,
-    valley_hws >= 1,
-    valley_hws %% 1 == 0,
-    is.logical(baseline_subtract),
-    length(baseline_subtract) == 1L,
-    !is.na(baseline_subtract),
+    .is_pos_int(valley_hws),
+    .is_flag(baseline_subtract),
     is.character(domain_scaling),
     !anyNA(domain_scaling),
-    is.numeric(mz_ref),
-    length(mz_ref) == 1L,
-    is.finite(mz_ref),
+    .is_nonneg_num(mz_ref),
     mz_ref > 0
   )
   centroid_method <- match.arg(centroid_method)
@@ -403,6 +353,32 @@ centroid_one_file <- function(
       FALSE
     }
   )
+}
+
+#' @noRd
+.is_scalar_chr <- function(x) {
+  is.character(x) && length(x) == 1L && !is.na(x)
+}
+
+#' @noRd
+.is_pos_int <- function(x) {
+  ## A threshold counts data points, so it has to be at least one. Zero and
+  ## negative values used to be accepted and silently centroided groups that
+  ## held no data at all, which is never what a minimum is meant to express.
+  ## It also has to be a whole number of points: a threshold of 1.5 cannot be
+  ## reached, and the argument is documented as integer(1). NA and Inf fail
+  ## the comparisons/modulus as well (Inf %% 1 is NaN).
+  is.numeric(x) && length(x) == 1L && isTRUE(x >= 1 && x %% 1 == 0)
+}
+
+#' @noRd
+.is_nonneg_num <- function(x) {
+  is.numeric(x) && length(x) == 1L && is.finite(x) && x >= 0
+}
+
+#' @noRd
+.is_flag <- function(x) {
+  is.logical(x) && length(x) == 1L && !is.na(x)
 }
 
 #' Default console appender for CentroidR logging
@@ -657,9 +633,7 @@ restore_logger <- function() {
   bs <- .subtract_baseline(ints, baseline_subtract)
   ints_adj <- bs$ints
   base_applied <- bs$base_applied
-  w_all <- .intensity_weights(ints_adj, exponent)
-  w_sum <- sum(w_all)
-  fallback_mz <- if (w_sum == 0) mzFun(mz) else sum(mz * w_all) / w_sum
+  fallback_mz <- .weighted_centroid(mz, ints_adj, exponent, FALSE, mzFun)
   fallback_apex <- intensityFun(ints)
 
   apex_i <- which.max(ints_adj)
@@ -690,26 +664,16 @@ restore_logger <- function() {
         t1 <- sum(w * x * y)
         t2 <- sum(w * x^2 * y)
 
-        det_a <- s0 *
-          (s2 * s4 - s3^2) -
-          s1 * (s1 * s4 - s2 * s3) +
-          s2 * (s1 * s3 - s2^2)
+        m00 <- s2 * s4 - s3^2
+        m01 <- s1 * s4 - s2 * s3
+        m02 <- s1 * s3 - s2^2
+        det_a <- s0 * m00 - s1 * m01 + s2 * m02
         if (is.finite(det_a) && abs(det_a) > 1e-12) {
-          c0 <- (t0 *
-            (s2 * s4 - s3^2) -
-            s1 * (t1 * s4 - t2 * s3) +
-            s2 * (t1 * s3 - t2 * s2)) /
-            det_a
-          c1 <- (s0 *
-            (t1 * s4 - t2 * s3) -
-            t0 * (s1 * s4 - s2 * s3) +
-            s2 * (s1 * t2 - s2 * t1)) /
-            det_a
-          c2 <- (s0 *
-            (s2 * t2 - s3 * t1) -
-            s1 * (s1 * t2 - s2 * t1) +
-            t0 * (s1 * s3 - s2^2)) /
-            det_a
+          k1 <- t1 * s4 - t2 * s3
+          k2 <- s1 * t2 - s2 * t1
+          c0 <- (t0 * m00 - s1 * k1 + s2 * (t1 * s3 - t2 * s2)) / det_a
+          c1 <- (s0 * k1 - t0 * m01 + s2 * k2) / det_a
+          c2 <- (s0 * (s2 * t2 - s3 * t1) - s1 * k2 + t0 * m02) / det_a
           if (is.finite(c2) && c2 < 0) {
             delta <- -c1 / (2 * c2) * h
             mz_est <- m0 + delta
@@ -1340,19 +1304,17 @@ restore_logger <- function() {
     setup_logger(dir = outd)
     on.exit(restore_logger(), add = TRUE)
   }
-  custom_int_fun <- function(int_fun, intensities, min_datapoints) {
-    if (sum(intensities > 0, na.rm = TRUE) >= min_datapoints) {
-      int_fun(intensities)
-    } else {
-      0
+  make_int_fun <- function(int_fun, min_datapoints) {
+    function(intensities) {
+      if (sum(intensities > 0, na.rm = TRUE) >= min_datapoints) {
+        int_fun(intensities)
+      } else {
+        0
+      }
     }
   }
-  custom_int_fun_ms1 <- function(intensities) {
-    custom_int_fun(int_fun_ms1, intensities, min_datapoints_ms1)
-  }
-  custom_int_fun_ms2 <- function(intensities) {
-    custom_int_fun(int_fun_ms2, intensities, min_datapoints_ms2)
-  }
+  custom_int_fun_ms1 <- make_int_fun(int_fun_ms1, min_datapoints_ms1)
+  custom_int_fun_ms2 <- make_int_fun(int_fun_ms2, min_datapoints_ms2)
   ## seq() below is only well defined for a non-empty input, and there is no
   ## work to do for an empty file anyway. Fail with a readable reason rather
   ## than letting seq() report an unrelated "wrong sign in 'by' argument".

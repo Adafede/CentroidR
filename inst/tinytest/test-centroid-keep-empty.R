@@ -25,16 +25,9 @@ source(
 )
 
 .keep_empty <- getFromNamespace(".keep_empty", "CentroidR")
-.process_spectra <- getFromNamespace(".process_spectra", "CentroidR")
 
 make_spectra <- function(mzs, intensities, ms_level = 1L) {
-  Spectra::Spectra(data.frame(
-    msLevel = rep(ms_level, length(mzs)),
-    polarity = 0L,
-    rtime = seq_along(mzs),
-    mz = I(mzs),
-    intensity = I(intensities)
-  ))
+  make_test_spectra(rep(ms_level, length(mzs)), mzs, intensities)
 }
 
 empty_spectra <- function(n, ms_level = 1L) {
@@ -144,7 +137,7 @@ max_fun <- function(intensities) {
 }
 
 process_ms1 <- function(ms, tol_da, tol_ppm = 0) {
-  .process_spectra(
+  run_process_spectra(
     ms,
     mz_tol_da_ms1 = tol_da,
     mz_tol_da_ms2 = tol_da,
@@ -152,9 +145,6 @@ process_ms1 <- function(ms, tol_da, tol_ppm = 0) {
     mz_tol_ppm_ms2 = tol_ppm,
     custom_int_fun_ms1 = max_fun,
     custom_int_fun_ms2 = max_fun,
-    mz_fun_ms1 = base::mean,
-    mz_fun_ms2 = base::mean,
-    mz_weighted = TRUE,
     time_domain = FALSE
   )
 }
@@ -234,19 +224,7 @@ ms2 <- make_spectra(
   list(c(40, 400), c(60, 600)),
   ms_level = 2L
 )
-out2 <- .process_spectra(
-  ms2,
-  mz_tol_da_ms1 = 0.01,
-  mz_tol_da_ms2 = 0.01,
-  mz_tol_ppm_ms1 = 0,
-  mz_tol_ppm_ms2 = 0,
-  custom_int_fun_ms1 = max_fun,
-  custom_int_fun_ms2 = max_fun,
-  mz_fun_ms1 = base::mean,
-  mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE,
-  time_domain = FALSE
-)
+out2 <- process_ms1(ms2, tol_da = 0.01)
 expect_equal(length(out2), 2L)
 expect_equal(Spectra::msLevel(out2), c(2L, 2L))
 expect_equal(Spectra::rtime(out2), c(1, 2))
@@ -258,7 +236,7 @@ expect_equal(as.numeric(Spectra::peaksData(out2)[[2]][, "intensity"]), 600)
 
 ## An MS2-only input is not treated as MS1: the MS1 tolerance has no effect on
 ## it, and widening the MS1 tolerance must not change the MS2 result.
-out2_wide_ms1 <- .process_spectra(
+out2_wide_ms1 <- run_process_spectra(
   ms2,
   mz_tol_da_ms1 = 1000,
   mz_tol_da_ms2 = 0.01,
@@ -266,9 +244,6 @@ out2_wide_ms1 <- .process_spectra(
   mz_tol_ppm_ms2 = 0,
   custom_int_fun_ms1 = max_fun,
   custom_int_fun_ms2 = max_fun,
-  mz_fun_ms1 = base::mean,
-  mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE,
   time_domain = FALSE
 )
 expect_equal(nrow(Spectra::peaksData(out2_wide_ms1)[[1]]), 1L)
@@ -279,7 +254,7 @@ expect_equal(
 
 ## Widening the MS2 tolerance does change the MS2 result, confirming the
 ## tolerances are routed per MS level rather than applied globally.
-out2_wide_ms2 <- .process_spectra(
+out2_wide_ms2 <- run_process_spectra(
   make_spectra(
     list(c(500, 500.0005, 500.001)),
     list(c(10, 400, 20)),
@@ -291,9 +266,6 @@ out2_wide_ms2 <- .process_spectra(
   mz_tol_ppm_ms2 = 0,
   custom_int_fun_ms1 = max_fun,
   custom_int_fun_ms2 = max_fun,
-  mz_fun_ms1 = base::mean,
-  mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE,
   time_domain = FALSE
 )
 expect_equal(length(out2_wide_ms2), 1L)
@@ -311,45 +283,28 @@ expect_equal(
 ## still get ITS OWN original peaks back, not those of whichever spectrum landed
 ## at the same position.
 
-max_fun_mdp <- function(intensities) {
-  if (length(intensities)) max(intensities) else 0
-}
-
 ## Acquisition order: MS1 @1s, MS2 @1.5s, MS1 @2s holding only sub-eps noise,
 ## MS1 @3s, MS2 @3.5s. The rtime=2s spectrum is the one centroiding empties.
-interleaved <- Spectra::Spectra(data.frame(
-  msLevel = c(1L, 2L, 1L, 1L, 2L),
-  polarity = c(0L, 0L, 0L, 0L, 0L),
-  rtime = c(1, 1.5, 2, 3, 3.5),
-  mz = I(list(
+interleaved <- make_test_spectra(
+  c(1L, 2L, 1L, 1L, 2L),
+  list(
     c(100, 100.0005),
     c(500, 500.0005),
     c(200, 200.0005),
     c(300, 300.0005),
     c(600, 600.0005)
-  )),
-  intensity = I(list(
+  ),
+  list(
     c(10, 50),
     c(40, 400),
     c(1e-18, 2e-18),
     c(30, 300),
     c(60, 600)
-  ))
-))
-
-inter_out <- .process_spectra(
-  interleaved,
-  mz_tol_da_ms1 = 0.01,
-  mz_tol_da_ms2 = 0.01,
-  mz_tol_ppm_ms1 = 0,
-  mz_tol_ppm_ms2 = 0,
-  custom_int_fun_ms1 = max_fun_mdp,
-  custom_int_fun_ms2 = max_fun_mdp,
-  mz_fun_ms1 = base::mean,
-  mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE,
-  time_domain = FALSE
+  ),
+  rtime = c(1, 1.5, 2, 3, 3.5)
 )
+
+inter_out <- process_ms1(interleaved, tol_da = 0.01)
 
 ## Nothing is lost: every input spectrum is present in the output.
 expect_equal(length(inter_out), 5L)
@@ -443,65 +398,38 @@ expect_equal(nrow(Spectra::peaksData(restored_empty)[[1]]), 2L)
 expect_equal(nrow(Spectra::peaksData(restored_empty)[[2]]), 0L)
 
 ## F-05: Zero-valued metadata (e.g., rtime = 0 in direct infusion) and numeric types
-di_dir <- tempfile("di_rtime0_")
-dir.create(di_dir)
-di_in <- file.path(di_dir, "profile_di.mzML")
-Spectra::export(
-  Spectra::Spectra(data.frame(
-    msLevel = c(1L, 1L),
-    polarity = c(0L, 0L),
-    rtime = c(0, 0),
-    mz = I(list(c(100, 100.0005), c(200, 200.0005))),
-    intensity = I(list(c(10, 50), c(20, 80)))
-  )),
-  file = di_in,
-  backend = Spectra::MsBackendMzR()
+di_run <- centroid_temp_spectra(
+  make_test_spectra(
+    c(1L, 1L),
+    list(c(100, 100.0005), c(200, 200.0005)),
+    list(c(10, 50), c(20, 80)),
+    rtime = c(0, 0)
+  ),
+  min_datapoints_ms1 = 1L,
+  tag = "di_rtime0_"
 )
-di_out <- sub("profile_", "centroided_", di_in, fixed = TRUE)
-centroidr_reset_logging()
-expect_true(CentroidR::centroid_one_file(
-  file = di_in,
-  pattern = "profile_",
-  replacement = "centroided_",
-  min_datapoints_ms1 = 1L
-))
-centroidr_reset_logging()
-di_res <- Spectra::Spectra(di_out, backend = Spectra::MsBackendMzR())
+expect_true(di_run$ok)
+di_res <- Spectra::Spectra(di_run$outfile, backend = Spectra::MsBackendMzR())
 expect_equal(Spectra::rtime(di_res), c(0, 0))
 expect_true(is.double(Spectra::spectraData(di_res)$collisionEnergy))
-unlink(di_dir, recursive = TRUE)
+unlink(di_run$dir, recursive = TRUE)
 
 ## F-06: MS3 spectra are preserved in acquisition order alongside MS1 and MS2
-ms3_dir <- tempfile("ms3_keep_")
-dir.create(ms3_dir)
-ms3_in <- file.path(ms3_dir, "profile_ms3.mzML")
-Spectra::export(
-  Spectra::Spectra(data.frame(
-    msLevel = c(1L, 3L, 2L),
-    polarity = c(1L, 1L, 1L),
-    centroided = c(FALSE, FALSE, FALSE),
+ms3_run <- centroid_temp_spectra(
+  make_test_spectra(
+    c(1L, 3L, 2L),
+    list(c(100, 100.0005, 100.001), c(150.1, 150.2), c(200, 200.0005)),
+    list(c(10, 50, 20), c(25, 75), c(15, 60)),
     rtime = c(1, 2, 3),
-    mz = I(list(
-      c(100, 100.0005, 100.001),
-      c(150.1, 150.2),
-      c(200, 200.0005)
-    )),
-    intensity = I(list(c(10, 50, 20), c(25, 75), c(15, 60)))
-  )),
-  file = ms3_in,
-  backend = Spectra::MsBackendMzR()
-)
-ms3_out <- sub("profile_", "centroided_", ms3_in, fixed = TRUE)
-centroidr_reset_logging()
-expect_true(CentroidR::centroid_one_file(
-  file = ms3_in,
-  pattern = "profile_",
-  replacement = "centroided_",
+    polarity = c(1L, 1L, 1L),
+    centroided = c(FALSE, FALSE, FALSE)
+  ),
   min_datapoints_ms1 = 1L,
-  min_datapoints_ms2 = 1L
-))
-centroidr_reset_logging()
-ms3_res <- Spectra::Spectra(ms3_out, backend = Spectra::MsBackendMzR())
+  min_datapoints_ms2 = 1L,
+  tag = "ms3_keep_"
+)
+expect_true(ms3_run$ok)
+ms3_res <- Spectra::Spectra(ms3_run$outfile, backend = Spectra::MsBackendMzR())
 expect_equal(length(ms3_res), 3L)
 expect_equal(Spectra::msLevel(ms3_res), c(1L, 3L, 2L))
 expect_equal(Spectra::rtime(ms3_res), c(1, 2, 3))
@@ -514,30 +442,23 @@ expect_equal(
   Spectra::spectraData(ms3_res)$centroided,
   c(TRUE, FALSE, TRUE)
 )
-unlink(ms3_dir, recursive = TRUE)
+unlink(ms3_run$dir, recursive = TRUE)
 
 ## ---------------------------------------------------------------------------
 ## Unknown polarity (NA_integer_ -> -1L in MsBackendMzR) round-trips cleanly
 ## ---------------------------------------------------------------------------
-pol_dir <- tempfile("missing_pol_")
-dir.create(pol_dir)
-pol_in <- file.path(pol_dir, "profile_pol.mzML")
-pol_out <- file.path(pol_dir, "centroided_pol.mzML")
-pol_sp <- Spectra::Spectra(data.frame(
-  msLevel = 1L,
-  polarity = NA_integer_,
-  rtime = 5,
-  mz = I(list(c(100, 100.0005, 100.001))),
-  intensity = I(list(c(10, 50, 10)))
-))
-Spectra::export(pol_sp, file = pol_in, backend = Spectra::MsBackendMzR())
-expect_true(CentroidR::centroid_one_file(
-  file = pol_in,
-  pattern = "profile_",
-  replacement = "centroided_",
-  min_datapoints_ms1 = 1L
-))
-centroidr_reset_logging()
-pol_res <- Spectra::Spectra(pol_out, backend = Spectra::MsBackendMzR())
+pol_run <- centroid_temp_spectra(
+  make_test_spectra(
+    1L,
+    list(c(100, 100.0005, 100.001)),
+    list(c(10, 50, 10)),
+    rtime = 5,
+    polarity = NA_integer_
+  ),
+  min_datapoints_ms1 = 1L,
+  tag = "missing_pol_"
+)
+expect_true(pol_run$ok)
+pol_res <- Spectra::Spectra(pol_run$outfile, backend = Spectra::MsBackendMzR())
 expect_identical(Spectra::polarity(pol_res), -1L)
-unlink(pol_dir, recursive = TRUE)
+unlink(pol_run$dir, recursive = TRUE)

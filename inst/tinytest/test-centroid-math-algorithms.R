@@ -29,7 +29,37 @@ source(
   "CentroidR"
 )
 .peaks_combine <- getFromNamespace(".peaks_combine", "CentroidR")
-.process_spectra <- getFromNamespace(".process_spectra", "CentroidR")
+
+combine_1 <- function(
+  mz_v,
+  int_v,
+  tolerance = 0.05,
+  intensity_fun = base::max,
+  mz_fun = base::mean,
+  weighted = TRUE,
+  centroid_method = "weighted",
+  intensity_method = "func",
+  deconvolve = FALSE,
+  valley_ratio = 0.50,
+  valley_hws = 1L
+) {
+  .peaks_combine(
+    cbind(mz = mz_v, intensity = int_v),
+    tolerance = tolerance,
+    ppm = 0,
+    intensityFun = intensity_fun,
+    mzFun = mz_fun,
+    weighted = weighted,
+    spectrumMsLevel = 1L,
+    msLevel = 1L,
+    timeDomain = FALSE,
+    centroid_method = centroid_method,
+    intensity_method = intensity_method,
+    deconvolve = deconvolve,
+    valley_ratio = valley_ratio,
+    valley_hws = valley_hws
+  )
+}
 
 ## ---------------------------------------------------------------------------
 ## 1. 1D Morse-Smale topological prominence & baseline subtraction
@@ -183,38 +213,13 @@ int_dbl <- a1 *
   exp(-0.5 * ((mz_dbl - m1) / sigma)^2) +
   a2 * exp(-0.5 * ((mz_dbl - m2) / sigma)^2)
 
-pk_hard <- .peaks_combine(
-  cbind(mz = mz_dbl, intensity = int_dbl),
-  tolerance = 0.05,
-  ppm = 0,
-  intensityFun = base::max,
-  mzFun = base::mean,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
-  timeDomain = FALSE,
-  centroid_method = "weighted",
-  intensity_method = "func",
-  deconvolve = FALSE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
-)
-
-pk_deconv <- .peaks_combine(
-  cbind(mz = mz_dbl, intensity = int_dbl),
-  tolerance = 0.05,
-  ppm = 0,
-  intensityFun = base::max,
-  mzFun = base::mean,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
-  timeDomain = FALSE,
+pk_hard <- combine_1(mz_dbl, int_dbl, deconvolve = FALSE)
+pk_deconv <- combine_1(
+  mz_dbl,
+  int_dbl,
   centroid_method = "gaussian",
   intensity_method = "gaussian_apex",
-  deconvolve = TRUE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  deconvolve = TRUE
 )
 
 expect_equal(nrow(pk_hard), 2L)
@@ -279,82 +284,51 @@ expect_equal(grp_tof_with_low[2], grp_tof_with_low[3])
 ## linear (4^0 = 1 -> 0.001 Da) < tof (4^0.5 = 2 -> 0.002 Da) <
 ## orbitrap (4^1.5 = 8 -> 0.008 Da) < fticr (4^2 = 16 -> 0.016 Da)
 mz_step_005 <- c(400.000, 400.005) # 0.005 Da gap
-expect_equal(
-  length(unique(.group_mz_domain(
-    mz_step_005,
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "linear",
-    mz_ref = 100
-  ))),
-  2L
-)
-expect_equal(
-  length(unique(.group_mz_domain(
-    mz_step_005,
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "tof",
-    mz_ref = 100
-  ))),
-  2L
-)
-expect_equal(
-  length(unique(.group_mz_domain(
-    mz_step_005,
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "orbitrap",
-    mz_ref = 100
-  ))),
-  1L
-)
-expect_equal(
-  length(unique(.group_mz_domain(
-    mz_step_005,
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "fticr",
-    mz_ref = 100
-  ))),
-  1L
-)
+for (spec in list(
+  list(scaling = "linear", expected = 2L),
+  list(scaling = "tof", expected = 2L),
+  list(scaling = "orbitrap", expected = 1L),
+  list(scaling = "fticr", expected = 1L)
+)) {
+  expect_equal(
+    length(unique(.group_mz_domain(
+      mz_step_005,
+      tolerance = 0.001,
+      ppm = 0,
+      domain_scaling = spec$scaling,
+      mz_ref = 100
+    ))),
+    spec$expected
+  )
+}
 
 ## ---------------------------------------------------------------------------
 ## 6. Chronological Scan Order Preservation in .process_spectra
 ## ---------------------------------------------------------------------------
 
-interleaved_sp <- Spectra::Spectra(data.frame(
-  msLevel = c(1L, 2L, 1L, 2L, 1L),
-  polarity = 0L,
-  rtime = c(1.0, 1.2, 2.0, 2.4, 3.0),
-  mz = I(list(
+interleaved_sp <- make_test_spectra(
+  c(1L, 2L, 1L, 2L, 1L),
+  list(
     c(100, 100.0005),
     c(500, 500.0005),
     c(200, 200.0005),
     c(600, 600.0005),
     c(300, 300.0005)
-  )),
-  intensity = I(list(
+  ),
+  list(
     c(10, 50),
     c(40, 400),
     c(20, 200),
     c(60, 600),
     c(30, 300)
-  ))
-))
+  ),
+  rtime = c(1.0, 1.2, 2.0, 2.4, 3.0)
+)
 
-proc_sp <- .process_spectra(
+proc_sp <- run_process_spectra(
   interleaved_sp,
-  mz_tol_da_ms1 = 0.01,
-  mz_tol_da_ms2 = 0.01,
   mz_tol_ppm_ms1 = 0,
   mz_tol_ppm_ms2 = 0,
-  custom_int_fun_ms1 = base::max,
-  custom_int_fun_ms2 = base::max,
-  mz_fun_ms1 = base::mean,
-  mz_fun_ms2 = base::mean,
-  mz_weighted = TRUE,
   time_domain = FALSE
 )
 
@@ -365,50 +339,31 @@ expect_equal(Spectra::msLevel(proc_sp), c(1L, 2L, 1L, 2L, 1L))
 ## 7. End-to-End centroid_one_file() with Advanced Mathematical Options
 ## ---------------------------------------------------------------------------
 
-e2e_dir <- tempfile("math_e2e_")
-dir.create(e2e_dir)
-e2e_in <- file.path(e2e_dir, "profile_test.mzML")
-Spectra::export(
-  Spectra::Spectra(data.frame(
-    msLevel = 1L,
-    polarity = 0L,
-    rtime = 1.0,
-    mz = I(list(mz_pts)),
-    intensity = I(list(int_pts))
-  )),
-  file = e2e_in,
-  backend = Spectra::MsBackendMzR()
+e2e_run <- centroid_temp_spectra(
+  make_test_spectra(1L, list(mz_pts), list(int_pts)),
+  min_datapoints_ms1 = 3L,
+  mz_tol_da_ms1 = 0.05,
+  mz_tol_ppm_ms1 = 10,
+  centroid_method = "gaussian",
+  intensity_method = "gaussian_apex",
+  deconvolve = TRUE,
+  valley_ratio = 0.25,
+  valley_hws = 2L,
+  baseline_subtract = FALSE,
+  domain_scaling = "tof",
+  mz_ref = 100,
+  tag = "math_e2e_"
 )
-e2e_out <- file.path(e2e_dir, "centroided_test.mzML")
-
-expect_true(
-  CentroidR::centroid_one_file(
-    file = e2e_in,
-    pattern = "profile_",
-    replacement = "centroided_",
-    min_datapoints_ms1 = 3L,
-    mz_tol_da_ms1 = 0.05,
-    mz_tol_ppm_ms1 = 10,
-    centroid_method = "gaussian",
-    intensity_method = "gaussian_apex",
-    deconvolve = TRUE,
-    valley_ratio = 0.25,
-    valley_hws = 2L,
-    baseline_subtract = FALSE,
-    domain_scaling = "tof",
-    mz_ref = 100
-  )
-)
-centroidr_reset_logging()
+expect_true(e2e_run$ok)
 
 e2e_peaks <- Spectra::peaksData(
-  Spectra::Spectra(e2e_out, backend = Spectra::MsBackendMzR())
+  Spectra::Spectra(e2e_run$outfile, backend = Spectra::MsBackendMzR())
 )[[1]]
 expect_equal(nrow(e2e_peaks), 1L)
 expect_true(abs(e2e_peaks[1, "mz"] - true_mz) / true_mz * 1e6 < 1e-4)
 expect_true(abs(e2e_peaks[1, "intensity"] - true_amp) / true_amp < 1e-4)
 
-unlink(e2e_dir, recursive = TRUE)
+unlink(e2e_run$dir, recursive = TRUE)
 
 ## ---------------------------------------------------------------------------
 ## 8. Edge Cases, Branch Coverage, and Mutation-Killing Boundary Tests
@@ -597,68 +552,28 @@ expect_equal(.group_mz_domain(250.0), 1L)
 
 ## At m/z = 400, mz_ref = 100 (ratio = 4), tolerance = 0.001, ppm = 0:
 ## tof (4^0.5 = 2 -> tol = 0.002): 0.0019 merges (1L), 0.0021 splits (2L)
-expect_equal(
-  length(unique(.group_mz_domain(
-    c(400, 400.0019),
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "tof",
-    mz_ref = 100
-  ))),
-  1L
-)
-expect_equal(
-  length(unique(.group_mz_domain(
-    c(400, 400.0021),
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "tof",
-    mz_ref = 100
-  ))),
-  2L
-)
 ## orbitrap (4^1.5 = 8 -> tol = 0.008): 0.0079 merges (1L), 0.0081 splits (2L)
-expect_equal(
-  length(unique(.group_mz_domain(
-    c(400, 400.0079),
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "orbitrap",
-    mz_ref = 100
-  ))),
-  1L
-)
-expect_equal(
-  length(unique(.group_mz_domain(
-    c(400, 400.0081),
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "orbitrap",
-    mz_ref = 100
-  ))),
-  2L
-)
 ## fticr (4^2.0 = 16 -> tol = 0.016): 0.0159 merges (1L), 0.0161 splits (2L)
-expect_equal(
-  length(unique(.group_mz_domain(
-    c(400, 400.0159),
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "fticr",
-    mz_ref = 100
-  ))),
-  1L
+bracket_specs <- list(
+  list(scaling = "tof", mz2 = 400.0019, expected = 1L),
+  list(scaling = "tof", mz2 = 400.0021, expected = 2L),
+  list(scaling = "orbitrap", mz2 = 400.0079, expected = 1L),
+  list(scaling = "orbitrap", mz2 = 400.0081, expected = 2L),
+  list(scaling = "fticr", mz2 = 400.0159, expected = 1L),
+  list(scaling = "fticr", mz2 = 400.0161, expected = 2L)
 )
-expect_equal(
-  length(unique(.group_mz_domain(
-    c(400, 400.0161),
-    tolerance = 0.001,
-    ppm = 0,
-    domain_scaling = "fticr",
-    mz_ref = 100
-  ))),
-  2L
-)
+for (spec in bracket_specs) {
+  expect_equal(
+    length(unique(.group_mz_domain(
+      c(400, spec$mz2),
+      tolerance = 0.001,
+      ppm = 0,
+      domain_scaling = spec$scaling,
+      mz_ref = 100
+    ))),
+    spec$expected
+  )
+}
 
 ## 8f. .peak_group_mzs & .peak_group_intensities all branches
 grp_list <- list(1:3, 4:5)
@@ -727,147 +642,54 @@ ints_gapex <- .peak_group_intensities(
 expect_equal(ints_gapex[1], fit_g$apex)
 
 ## 8g. .peaks_combine with deconvolve = TRUE across centroid_method and intensity_method
-pk_deconv_area <- .peaks_combine(
-  cbind(mz = mz_dbl, intensity = int_dbl),
-  tolerance = 0.05,
-  ppm = 0,
-  intensityFun = base::max,
-  mzFun = base::mean,
+pk_deconv_area <- combine_1(
+  mz_dbl,
+  int_dbl,
   weighted = FALSE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
-  timeDomain = FALSE,
   centroid_method = "func",
   intensity_method = "gaussian_area",
-  deconvolve = TRUE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  deconvolve = TRUE
 )
 expect_equal(nrow(pk_deconv_area), 2L)
 expect_true(all(pk_deconv_area[, "intensity"] > 0))
 
 ## Deconvolve with intensity_method = "trapezoid" and a sub-peak gated to 0
 ## (second peak has < 8 points so min_datapoints = 8 gates it to 0)
-pk_deconv_trap_gated <- .peaks_combine(
-  cbind(mz = mz_dbl, intensity = int_dbl),
-  tolerance = 0.05,
-  ppm = 0,
-  intensityFun = function(x) if (length(x) < 10L) 0 else max(x),
-  mzFun = base::mean,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
-  timeDomain = FALSE,
+pk_deconv_trap_gated <- combine_1(
+  mz_dbl,
+  int_dbl,
+  intensity_fun = function(x) if (length(x) < 10L) 0 else max(x),
   centroid_method = "gaussian",
   intensity_method = "trapezoid",
-  deconvolve = TRUE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  deconvolve = TRUE
 )
 expect_equal(nrow(pk_deconv_trap_gated), 2L)
 expect_true(pk_deconv_trap_gated[1, "intensity"] > 0)
 expect_equal(pk_deconv_trap_gated[2, "intensity"], 0)
 
 ## 8h. Parameter validation in centroid_one_file() for new arguments
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    centroid_method = "bad"
-  ),
-  pattern = "should be one of"
+bad_param_cases <- list(
+  list(args = list(centroid_method = "bad"), pattern = "should be one of"),
+  list(args = list(intensity_method = "bad"), pattern = "should be one of"),
+  list(args = list(domain_scaling = "bad"), pattern = "should be one of"),
+  list(args = list(deconvolve = NA), pattern = "deconvolve"),
+  list(args = list(baseline_subtract = NA), pattern = "baseline_subtract"),
+  list(args = list(valley_ratio = -0.1), pattern = "valley_ratio"),
+  list(args = list(valley_ratio = 1.1), pattern = "valley_ratio"),
+  list(args = list(valley_hws = 0L), pattern = "valley_hws"),
+  list(args = list(valley_hws = 1.5), pattern = "valley_hws"),
+  list(args = list(mz_ref = 0), pattern = "mz_ref"),
+  list(args = list(mz_ref = -100), pattern = "mz_ref")
 )
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    intensity_method = "bad"
-  ),
-  pattern = "should be one of"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    domain_scaling = "bad"
-  ),
-  pattern = "should be one of"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    deconvolve = NA
-  ),
-  pattern = "deconvolve"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    baseline_subtract = NA
-  ),
-  pattern = "baseline_subtract"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    valley_ratio = -0.1
-  ),
-  pattern = "valley_ratio"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    valley_ratio = 1.1
-  ),
-  pattern = "valley_ratio"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    valley_hws = 0L
-  ),
-  pattern = "valley_hws"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    valley_hws = 1.5
-  ),
-  pattern = "valley_hws"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    mz_ref = 0
-  ),
-  pattern = "mz_ref"
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    "x.mzML",
-    pattern = "x",
-    replacement = "y",
-    mz_ref = -100
-  ),
-  pattern = "mz_ref"
-)
+for (tc in bad_param_cases) {
+  expect_error(
+    do.call(
+      CentroidR::centroid_one_file,
+      c(list("x.mzML", pattern = "x", replacement = "y"), tc$args)
+    ),
+    pattern = tc$pattern
+  )
+}
 
 ## ---------------------------------------------------------------------------
 ## 9. Regression tests for F-01, F-02, F-03 (baseline area, weights, deconvolve)
@@ -972,37 +794,19 @@ expect_equal(
 ## F-03: deconvolve = TRUE must not alter unsplit singlets or ignore methods
 mz_mix <- c(mz_dbl, 600.000, 600.001, 600.002)
 int_mix <- c(int_dbl, 20, 100, 20)
-res_nodec <- .peaks_combine(
-  cbind(mz = mz_mix, intensity = int_mix),
+res_nodec <- combine_1(
+  mz_mix,
+  int_mix,
   tolerance = 0.005,
-  ppm = 0,
-  intensityFun = base::sum,
-  mzFun = base::mean,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
-  timeDomain = FALSE,
-  centroid_method = "weighted",
-  intensity_method = "func",
-  deconvolve = FALSE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  intensity_fun = base::sum,
+  deconvolve = FALSE
 )
-res_dec <- .peaks_combine(
-  cbind(mz = mz_mix, intensity = int_mix),
+res_dec <- combine_1(
+  mz_mix,
+  int_mix,
   tolerance = 0.005,
-  ppm = 0,
-  intensityFun = base::sum,
-  mzFun = base::mean,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
-  timeDomain = FALSE,
-  centroid_method = "weighted",
-  intensity_method = "func",
-  deconvolve = TRUE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  intensity_fun = base::sum,
+  deconvolve = TRUE
 )
 expect_equal(as.numeric(res_dec[3, "intensity"]), 140)
 expect_equal(
@@ -1015,82 +819,46 @@ expect_false(isTRUE(all.equal(
   as.numeric(pk_deconv[, "mz"])
 )))
 
-res_dec_gapex <- .peaks_combine(
-  cbind(mz = mz_mix, intensity = int_mix),
+res_dec_gapex <- combine_1(
+  mz_mix,
+  int_mix,
   tolerance = 0.005,
-  ppm = 0,
-  intensityFun = base::max,
-  mzFun = base::mean,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
-  timeDomain = FALSE,
   centroid_method = "gaussian",
   intensity_method = "gaussian_apex",
-  deconvolve = TRUE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  deconvolve = TRUE
 )
 expect_equal(nrow(res_dec_gapex), 3L)
 expect_true(abs(as.numeric(res_dec_gapex[2, "intensity"]) - a2) / a2 < 0.005)
 
 ## Split doublet trapezoid area with deconvolve = TRUE uses tail-corrected intensities
-trap_raw <- .peaks_combine(
-  cbind(mz = mz_dbl, intensity = int_dbl),
-  tolerance = 0.05,
-  ppm = 0,
-  intensityFun = base::max,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
+trap_raw <- combine_1(
+  mz_dbl,
+  int_dbl,
   intensity_method = "trapezoid",
-  deconvolve = FALSE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  deconvolve = FALSE
 )
-trap_dec <- .peaks_combine(
-  cbind(mz = mz_dbl, intensity = int_dbl),
-  tolerance = 0.05,
-  ppm = 0,
-  intensityFun = base::max,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
+trap_dec <- combine_1(
+  mz_dbl,
+  int_dbl,
   intensity_method = "trapezoid",
-  deconvolve = TRUE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  deconvolve = TRUE
 )
 expect_true(all(trap_dec[, "intensity"] < trap_raw[, "intensity"]))
 
 ## Low-intensity scale invariance (no 1e-6 clamp distortion)
-pk_scale1 <- .peaks_combine(
-  cbind(mz = mz_dbl, intensity = int_dbl),
-  tolerance = 0.05,
-  ppm = 0,
-  intensityFun = base::max,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
+pk_scale1 <- combine_1(
+  mz_dbl,
+  int_dbl,
   centroid_method = "gaussian",
   intensity_method = "gaussian_area",
-  deconvolve = TRUE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  deconvolve = TRUE
 )
-pk_scale9 <- .peaks_combine(
-  cbind(mz = mz_dbl, intensity = int_dbl * 1e-9),
-  tolerance = 0.05,
-  ppm = 0,
-  intensityFun = base::max,
-  weighted = TRUE,
-  spectrumMsLevel = 1L,
-  msLevel = 1L,
+pk_scale9 <- combine_1(
+  mz_dbl,
+  int_dbl * 1e-9,
   centroid_method = "gaussian",
   intensity_method = "gaussian_area",
-  deconvolve = TRUE,
-  valley_ratio = 0.50,
-  valley_hws = 1L
+  deconvolve = TRUE
 )
 expect_equal(
   pk_scale9[, "intensity"],

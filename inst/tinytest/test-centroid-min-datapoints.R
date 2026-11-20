@@ -18,46 +18,18 @@ source(
   }
 )
 
-write_profile_mzml <- function(mzs, intensities, tag) {
-  infile <- tempfile(pattern = paste0("profile_", tag, "_"), fileext = ".mzML")
-  Spectra::export(
-    Spectra::Spectra(data.frame(
-      msLevel = rep(1L, length(mzs)),
-      polarity = 0L,
-      rtime = seq_along(mzs),
-      mz = I(mzs),
-      intensity = I(intensities)
-    )),
-    file = infile,
-    backend = Spectra::MsBackendMzR()
-  )
-  infile
-}
-
-read_peaks <- function(file) {
-  Spectra::peaksData(Spectra::Spectra(file, backend = Spectra::MsBackendMzR()))
-}
-
 centroid <- function(mzs, intensities, tag, ...) {
-  infile <- write_profile_mzml(mzs, intensities, tag)
-  outfile <- sub("profile_", "centroided_", infile, fixed = TRUE)
-  ## The log is written next to the output, so it has to go with it.
-  on.exit(
-    unlink(c(infile, outfile, file.path(dirname(outfile), "centroiding.log"))),
-    add = TRUE
+  run <- centroid_temp_spectra(
+    make_test_spectra(rep(1L, length(mzs)), mzs, intensities),
+    ...,
+    tag = paste0(tag, "_")
   )
-  expect_true(
-    CentroidR::centroid_one_file(
-      file = infile,
-      pattern = "profile_",
-      replacement = "centroided_",
-      ...
-    ),
-    info = "centroiding should succeed"
-  )
-  pk <- read_peaks(outfile)
-  centroidr_reset_logging()
-  pk
+  on.exit(unlink(run$dir, recursive = TRUE), add = TRUE)
+  expect_true(run$ok, info = "centroiding should succeed")
+  Spectra::peaksData(Spectra::Spectra(
+    run$outfile,
+    backend = Spectra::MsBackendMzR()
+  ))
 }
 
 ## ---------------------------------------------------------------------------

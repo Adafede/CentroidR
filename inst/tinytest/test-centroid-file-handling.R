@@ -18,19 +18,14 @@ source(
 )
 
 mk_input <- function(dir, name = "profile_in", n = 1) {
-  infile <- file.path(dir, paste0(name, ".mzML"))
-  Spectra::export(
-    Spectra::Spectra(data.frame(
-      msLevel = rep(1L, n),
-      polarity = 0L,
-      rtime = seq_len(n),
-      mz = I(lapply(seq_len(n), function(i) c(100 * i, 100 * i + 0.0005))),
-      intensity = I(lapply(seq_len(n), function(i) c(10, 50)))
-    )),
-    file = infile,
-    backend = Spectra::MsBackendMzR()
+  write_test_mzml(
+    make_test_spectra(
+      rep(1L, n),
+      lapply(seq_len(n), function(i) c(100 * i, 100 * i + 0.0005)),
+      lapply(seq_len(n), function(i) c(10, 50))
+    ),
+    file.path(dir, paste0(name, ".mzML"))
   )
-  infile
 }
 
 ## ---------------------------------------------------------------------------
@@ -127,206 +122,59 @@ unlink(dir3, recursive = TRUE)
 
 valid <- mk_input(tempdir(), "profile_valid")
 
-expect_error(CentroidR::centroid_one_file(
-  file = 1,
-  pattern = "profile_",
-  replacement = "c"
-))
-expect_error(CentroidR::centroid_one_file(
-  file = valid,
-  pattern = 1,
-  replacement = "c"
-))
-expect_error(CentroidR::centroid_one_file(
-  file = valid,
-  pattern = "profile_",
-  replacement = 1
-))
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    mz_tol_da_ms1 = "wide"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    mz_tol_ppm_ms1 = "wide"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    mz_fun_ms1 = "not a function"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    mz_fun_ms2 = "not a function"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    int_fun_ms1 = "not a function"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    int_fun_ms2 = "not a function"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    mz_weighted = "yes"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    time_domain = "yes"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    intensity_exponent = "three"
-  )
-)
+check_bad_arg <- function(...) {
+  expect_error(CentroidR::centroid_one_file(...))
+}
 
-## The logical and numeric flags must be length one and non-NA / finite.
-expect_error(
-  CentroidR::centroid_one_file(
-    file = NA_character_,
-    pattern = "profile_",
-    replacement = "c"
-  )
+bad_scalar_args <- list(
+  list(file = 1),
+  list(pattern = 1),
+  list(replacement = 1),
+  list(mz_tol_da_ms1 = "wide"),
+  list(mz_tol_ppm_ms1 = "wide"),
+  list(mz_fun_ms1 = "not a function"),
+  list(mz_fun_ms2 = "not a function"),
+  list(int_fun_ms1 = "not a function"),
+  list(int_fun_ms2 = "not a function"),
+  list(mz_weighted = "yes"),
+  list(time_domain = "yes"),
+  list(intensity_exponent = "three"),
+  list(file = NA_character_),
+  list(file = ""),
+  list(pattern = NA_character_),
+  list(replacement = NA_character_),
+  list(mz_weighted = c(TRUE, FALSE)),
+  list(mz_weighted = NA),
+  list(time_domain = c(TRUE, FALSE)),
+  list(time_domain = NA),
+  list(intensity_exponent = c(1, 2))
 )
-expect_error(
-  CentroidR::centroid_one_file(
-    file = "",
-    pattern = "profile_",
-    replacement = "c"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = NA_character_,
-    replacement = "c"
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = NA_character_
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    mz_weighted = c(TRUE, FALSE)
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    mz_weighted = NA
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    time_domain = c(TRUE, FALSE)
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    time_domain = NA
-  )
-)
-expect_error(
-  CentroidR::centroid_one_file(
-    file = valid,
-    pattern = "profile_",
-    replacement = "c",
-    intensity_exponent = c(1, 2)
-  )
-)
+base_args <- list(file = valid, pattern = "profile_", replacement = "c")
+for (override in bad_scalar_args) {
+  args <- base_args
+  args[names(override)] <- override
+  do.call(check_bad_arg, args)
+}
 for (bad_exp in list(NA_real_, NaN, Inf, -Inf)) {
-  expect_error(
-    CentroidR::centroid_one_file(
-      file = valid,
-      pattern = "profile_",
-      replacement = "c",
-      intensity_exponent = bad_exp
-    )
+  check_bad_arg(
+    file = valid,
+    pattern = "profile_",
+    replacement = "c",
+    intensity_exponent = bad_exp
   )
 }
+tol_keys <- c(
+  "mz_tol_da_ms1",
+  "mz_tol_da_ms2",
+  "mz_tol_ppm_ms1",
+  "mz_tol_ppm_ms2"
+)
 for (bad_tol in list(-0.001, NA_real_, NaN, Inf, -Inf)) {
-  expect_error(
-    CentroidR::centroid_one_file(
-      file = valid,
-      pattern = "profile_",
-      replacement = "c",
-      mz_tol_da_ms1 = bad_tol
-    )
-  )
-  expect_error(
-    CentroidR::centroid_one_file(
-      file = valid,
-      pattern = "profile_",
-      replacement = "c",
-      mz_tol_da_ms2 = bad_tol
-    )
-  )
-  expect_error(
-    CentroidR::centroid_one_file(
-      file = valid,
-      pattern = "profile_",
-      replacement = "c",
-      mz_tol_ppm_ms1 = bad_tol
-    )
-  )
-  expect_error(
-    CentroidR::centroid_one_file(
-      file = valid,
-      pattern = "profile_",
-      replacement = "c",
-      mz_tol_ppm_ms2 = bad_tol
-    )
-  )
+  for (k in tol_keys) {
+    args <- base_args
+    args[[k]] <- bad_tol
+    do.call(check_bad_arg, args)
+  }
 }
 
 ## A threshold counts data points, so it has to be a whole number of at least
@@ -334,24 +182,14 @@ for (bad_tol in list(-0.001, NA_real_, NaN, Inf, -Inf)) {
 ## groups that held no data at all, NA silently failed the comparison, and a
 ## fractional threshold such as 1.5 can never be reached.
 for (bad in list(0L, 0, -1L, -0.5, NA, 1.5, 2.5, Inf)) {
-  expect_error(
-    CentroidR::centroid_one_file(
-      file = valid,
-      pattern = "profile_",
-      replacement = "c",
-      min_datapoints_ms1 = bad
-    ),
-    info = paste("min_datapoints_ms1 =", bad, "should be rejected")
-  )
-  expect_error(
-    CentroidR::centroid_one_file(
-      file = valid,
-      pattern = "profile_",
-      replacement = "c",
-      min_datapoints_ms2 = bad
-    ),
-    info = paste("min_datapoints_ms2 =", bad, "should be rejected")
-  )
+  for (k in c("min_datapoints_ms1", "min_datapoints_ms2")) {
+    args <- base_args
+    args[[k]] <- bad
+    expect_error(
+      do.call(CentroidR::centroid_one_file, args),
+      info = paste(k, "=", bad, "should be rejected")
+    )
+  }
 }
 
 ## A threshold of exactly 1 is the documented MS2 default and stays valid. It is
@@ -431,37 +269,23 @@ unlink(dir5, recursive = TRUE)
 ## spectraData column filter drops it and it must be re-added before export.
 ## This guards against that re-adding step being skipped.
 
-floor_dir <- tempfile("floor_")
-dir.create(floor_dir)
-floor_in <- file.path(floor_dir, "profile_floor.mzML")
-Spectra::export(
-  Spectra::Spectra(data.frame(
-    msLevel = c(1L, 1L),
-    polarity = 0L,
-    rtime = 1:2,
-    mz = I(list(c(100, 100.0005), c(200, 200.0005))),
-    intensity = I(list(c(0, 0), c(0, 0)))
-  )),
-  file = floor_in,
-  backend = Spectra::MsBackendMzR()
-)
-floor_out <- sub("profile_", "centroided_", floor_in, fixed = TRUE)
-
-centroidr_reset_logging()
-expect_equal(
-  CentroidR::centroid_one_file(
-    file = floor_in,
-    pattern = "profile_",
-    replacement = "centroided_"
+floor_run <- centroid_temp_spectra(
+  make_test_spectra(
+    c(1L, 1L),
+    list(c(100, 100.0005), c(200, 200.0005)),
+    list(c(0, 0), c(0, 0))
   ),
-  TRUE
+  tag = "floor_"
 )
-centroidr_reset_logging()
+expect_equal(floor_run$ok, TRUE)
 
 ## Every peak was below the intensity filter, so both spectra come back empty,
 ## but the run succeeds and neither spectrum is lost.
-expect_true(file.exists(floor_out))
-floor_sp <- Spectra::Spectra(floor_out, backend = Spectra::MsBackendMzR())
+expect_true(file.exists(floor_run$outfile))
+floor_sp <- Spectra::Spectra(
+  floor_run$outfile,
+  backend = Spectra::MsBackendMzR()
+)
 expect_equal(length(floor_sp), 2L)
 expect_true(
   all(vapply(Spectra::peaksData(floor_sp), nrow, numeric(1)) == 0L),
@@ -472,7 +296,7 @@ expect_true(
 floor_sd <- Spectra::spectraData(floor_sp)
 expect_true("basePeakIntensity" %in% colnames(floor_sd))
 
-unlink(floor_dir, recursive = TRUE)
+unlink(floor_run$dir, recursive = TRUE)
 
 ## F-04: Non-matching pattern must fail instead of skipping as already existing
 self_dir <- tempfile("self_overwrite_")

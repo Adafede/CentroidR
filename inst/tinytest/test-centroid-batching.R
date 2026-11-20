@@ -10,11 +10,6 @@
 
 library(tinytest)
 
-.process_spectra_batches <- getFromNamespace(
-  ".process_spectra_batches",
-  "CentroidR"
-)
-
 ## setup_logger() installs a file appender pointing into the output directory
 ## and never removes it, so once that directory is deleted any later logging
 ## would fail with "cannot open the connection". Reset the logger to the console
@@ -28,13 +23,11 @@ source(
 )
 
 make_spectra <- function(n) {
-  Spectra::Spectra(data.frame(
-    msLevel = 1L,
-    polarity = 0L,
-    rtime = seq_len(n),
-    mz = I(lapply(seq_len(n), function(i) c(100 * i, 100 * i + 0.0005))),
-    intensity = I(lapply(seq_len(n), function(i) c(10, 50)))
-  ))
+  make_test_spectra(
+    rep(1L, n),
+    lapply(seq_len(n), function(i) c(100 * i, 100 * i + 0.0005)),
+    lapply(seq_len(n), function(i) c(10, 50))
+  )
 }
 
 run_batches <- function(spectra, batch_size, tag) {
@@ -45,23 +38,10 @@ run_batches <- function(spectra, batch_size, tag) {
   ## exit, so it must not still be needed once this function returns.
   on.exit(unlink(outd, recursive = TRUE), add = TRUE)
   expect_true(
-    .process_spectra_batches(
+    run_process_spectra_batches(
       spectra = spectra,
       outf = outf,
       outd = outd,
-      min_datapoints_ms1 = 1L,
-      min_datapoints_ms2 = 1L,
-      mz_tol_da_ms1 = 0.01,
-      mz_tol_da_ms2 = 0.01,
-      mz_tol_ppm_ms1 = 0,
-      mz_tol_ppm_ms2 = 0,
-      mz_fun_ms1 = base::mean,
-      mz_fun_ms2 = base::mean,
-      int_fun_ms1 = base::max,
-      int_fun_ms2 = base::max,
-      mz_weighted = TRUE,
-      time_domain = FALSE,
-      intensity_exponent = 3,
       batch_size = batch_size
     ),
     info = "batched processing should succeed"
@@ -147,23 +127,10 @@ dir.create(user_tmp)
 user_sentinel <- file.path(user_tmp, "keep.txt")
 writeLines("user data", user_sentinel)
 centroidr_reset_logging()
-invisible(.process_spectra_batches(
+invisible(run_process_spectra_batches(
   spectra = make_spectra(3),
   outf = file.path(outd, "out.mzML"),
   outd = outd,
-  min_datapoints_ms1 = 1L,
-  min_datapoints_ms2 = 1L,
-  mz_tol_da_ms1 = 0.01,
-  mz_tol_da_ms2 = 0.01,
-  mz_tol_ppm_ms1 = 0,
-  mz_tol_ppm_ms2 = 0,
-  mz_fun_ms1 = base::mean,
-  mz_fun_ms2 = base::mean,
-  int_fun_ms1 = base::max,
-  int_fun_ms2 = base::max,
-  mz_weighted = TRUE,
-  time_domain = FALSE,
-  intensity_exponent = 3,
   batch_size = 2L
 ))
 .log_info <- getFromNamespace(".log_info", "CentroidR")
@@ -184,27 +151,26 @@ unlink(outd, recursive = TRUE)
 
 ## Interleaved MS1/MS2 input, chunked so the boundaries fall between different
 ## MS levels. Both levels must be centroided and none lost.
-mixed <- Spectra::Spectra(data.frame(
-  msLevel = c(2L, 1L, 2L, 1L, 1L, 2L),
-  polarity = 0L,
-  rtime = c(1, 1.5, 2, 3, 3.5, 4),
-  mz = I(list(
+mixed <- make_test_spectra(
+  c(2L, 1L, 2L, 1L, 1L, 2L),
+  list(
     c(500, 500.0005),
     c(100, 100.0005),
     c(600, 600.0005),
     c(200, 200.0005),
     c(300, 300.0005),
     c(700, 700.0005)
-  )),
-  intensity = I(list(
+  ),
+  list(
     c(40, 400),
     c(10, 50),
     c(60, 600),
     c(20, 200),
     c(30, 300),
     c(70, 700)
-  ))
-))
+  ),
+  rtime = c(1, 1.5, 2, 3, 3.5, 4)
+)
 mixres <- run_batches(mixed, batch_size = 2L, tag = "mix")
 mixed_out <- list(
   rtime = mixres$rtime,
@@ -239,31 +205,12 @@ expect_true(abs(peaks_at(mixed_out, 4)[1, "mz"] - 700.0005) < 1e-5)
 
 empty_outd <- tempfile("batch_empty_")
 dir.create(empty_outd)
-empty_in <- Spectra::Spectra(data.frame(
-  msLevel = integer(0),
-  polarity = integer(0),
-  rtime = numeric(0),
-  mz = I(list()),
-  intensity = I(list())
-))
+empty_in <- make_test_spectra(integer(0), list(), list())
 expect_error(
-  .process_spectra_batches(
+  run_process_spectra_batches(
     spectra = empty_in,
     outf = file.path(empty_outd, "out.mzML"),
     outd = empty_outd,
-    min_datapoints_ms1 = 1L,
-    min_datapoints_ms2 = 1L,
-    mz_tol_da_ms1 = 0.01,
-    mz_tol_da_ms2 = 0.01,
-    mz_tol_ppm_ms1 = 0,
-    mz_tol_ppm_ms2 = 0,
-    mz_fun_ms1 = base::mean,
-    mz_fun_ms2 = base::mean,
-    int_fun_ms1 = base::max,
-    int_fun_ms2 = base::max,
-    mz_weighted = TRUE,
-    time_domain = FALSE,
-    intensity_exponent = 3,
     batch_size = 2L
   ),
   pattern = "no spectra"
@@ -280,23 +227,10 @@ blocked_outf <- file.path(rename_outd, "blocked.mzML")
 dir.create(blocked_outf)
 expect_error(
   suppressWarnings(
-    .process_spectra_batches(
+    run_process_spectra_batches(
       spectra = make_spectra(1),
       outf = blocked_outf,
       outd = rename_outd,
-      min_datapoints_ms1 = 1L,
-      min_datapoints_ms2 = 1L,
-      mz_tol_da_ms1 = 0.01,
-      mz_tol_da_ms2 = 0.01,
-      mz_tol_ppm_ms1 = 0,
-      mz_tol_ppm_ms2 = 0,
-      mz_fun_ms1 = base::mean,
-      mz_fun_ms2 = base::mean,
-      int_fun_ms1 = base::max,
-      int_fun_ms2 = base::max,
-      mz_weighted = TRUE,
-      time_domain = FALSE,
-      intensity_exponent = 3,
       batch_size = 2L
     )
   ),

@@ -10,30 +10,6 @@ source(
   }
 )
 
-make_profile_mzml <- function(mz, intensity) {
-  spd <- data.frame(
-    msLevel = 1L,
-    polarity = 0L,
-    rtime = 1,
-    mz = I(list(mz)),
-    intensity = I(list(intensity))
-  )
-  infile <- tempfile(pattern = "profile_", fileext = ".mzML")
-  Spectra::export(
-    Spectra::Spectra(spd),
-    file = infile,
-    backend = Spectra::MsBackendMzR()
-  )
-  infile
-}
-
-read_centroid_peaks <- function(file) {
-  Spectra::peaksData(Spectra::Spectra(
-    file,
-    backend = Spectra::MsBackendMzR()
-  ))[[1]]
-}
-
 centroid_profile <- function(
   mz,
   intensity,
@@ -43,32 +19,22 @@ centroid_profile <- function(
   mz_tol_ppm_ms2 = mz_tol_ppm_ms1,
   ...
 ) {
-  infile <- make_profile_mzml(mz, intensity)
-  outfile <- sub("profile_", "centroided_", infile, fixed = TRUE)
-  on.exit(
-    {
-      ## The log is written next to the output, so it has to go with it.
-      unlink(c(infile, outfile, file.path(dirname(outfile), "centroiding.log")))
-    },
-    add = TRUE
+  run <- centroid_temp_spectra(
+    make_test_spectra(1L, list(mz), list(intensity)),
+    min_datapoints_ms1 = 1L,
+    min_datapoints_ms2 = 1L,
+    mz_tol_da_ms1 = mz_tol_da_ms1,
+    mz_tol_da_ms2 = mz_tol_da_ms2,
+    mz_tol_ppm_ms1 = mz_tol_ppm_ms1,
+    mz_tol_ppm_ms2 = mz_tol_ppm_ms2,
+    ...
   )
-
-  expect_true(
-    CentroidR::centroid_one_file(
-      file = infile,
-      pattern = "profile_",
-      replacement = "centroided_",
-      min_datapoints_ms1 = 1L,
-      min_datapoints_ms2 = 1L,
-      mz_tol_da_ms1 = mz_tol_da_ms1,
-      mz_tol_da_ms2 = mz_tol_da_ms2,
-      mz_tol_ppm_ms1 = mz_tol_ppm_ms1,
-      mz_tol_ppm_ms2 = mz_tol_ppm_ms2,
-      ...
-    )
-  )
-
-  read_centroid_peaks(outfile)
+  on.exit(unlink(run$dir, recursive = TRUE), add = TRUE)
+  expect_true(run$ok)
+  Spectra::peaksData(Spectra::Spectra(
+    run$outfile,
+    backend = Spectra::MsBackendMzR()
+  ))[[1]]
 }
 
 peaks_exp1 <- centroid_profile(

@@ -97,19 +97,10 @@ write_profile <- function(tag, dir = tempfile(paste0("logrun_", tag, "_"))) {
   if (!dir.exists(dir)) {
     dir.create(dir)
   }
-  infile <- file.path(dir, paste0("profile_", tag, ".mzML"))
-  Spectra::export(
-    Spectra::Spectra(data.frame(
-      msLevel = 1L,
-      polarity = 0L,
-      rtime = 1,
-      mz = I(list(c(100, 100.0005))),
-      intensity = I(list(c(10, 50)))
-    )),
-    file = infile,
-    backend = Spectra::MsBackendMzR()
+  write_test_mzml(
+    make_test_spectra(1L, list(c(100, 100.0005)), list(c(10, 50))),
+    file.path(dir, paste0("profile_", tag, ".mzML"))
   )
-  infile
 }
 
 run_and_read_log <- function(tag, ...) {
@@ -213,34 +204,15 @@ cleanup(custom)
 ## Multi-batch runs log "Concatenating all processed batches"
 two_dir <- tempfile("logtwobatch_")
 dir.create(two_dir)
-.process_spectra_batches <- getFromNamespace(
-  ".process_spectra_batches",
-  "CentroidR"
+two_sp <- make_test_spectra(
+  c(1L, 1L),
+  list(c(100, 100.0005), c(200, 200.0005)),
+  list(c(10, 50), c(20, 60))
 )
-two_sp <- Spectra::Spectra(data.frame(
-  msLevel = c(1L, 1L),
-  polarity = c(0L, 0L),
-  rtime = c(1, 2),
-  mz = I(list(c(100, 100.0005), c(200, 200.0005))),
-  intensity = I(list(c(10, 50), c(20, 60)))
-))
-invisible(.process_spectra_batches(
+invisible(run_process_spectra_batches(
   spectra = two_sp,
   outf = file.path(two_dir, "centroided.mzML"),
   outd = two_dir,
-  min_datapoints_ms1 = 1L,
-  min_datapoints_ms2 = 1L,
-  mz_tol_da_ms1 = 0.01,
-  mz_tol_da_ms2 = 0.01,
-  mz_tol_ppm_ms1 = 0,
-  mz_tol_ppm_ms2 = 0,
-  mz_fun_ms1 = base::mean,
-  mz_fun_ms2 = base::mean,
-  int_fun_ms1 = base::max,
-  int_fun_ms2 = base::max,
-  mz_weighted = TRUE,
-  time_domain = FALSE,
-  intensity_exponent = 3,
   batch_size = 1L
 ))
 expect_true(logged(read_log(two_dir), "Concatenating all processed batches"))
@@ -282,7 +254,6 @@ skip <- capture_log(CentroidR::centroid_one_file(
   pattern = "profile_",
   replacement = "centroided_"
 ))
-centroidr_reset_logging()
 
 expect_equal(skip$value, TRUE)
 expect_true(logged(skip$log, "Skipping. Output file already exists"))
@@ -302,7 +273,6 @@ missing <- capture_log(CentroidR::centroid_one_file(
   pattern = "profile_",
   replacement = "centroided_"
 ))
-centroidr_reset_logging()
 
 expect_equal(missing$value, FALSE)
 expect_true(logged(missing$log, "Input file does not exist"))

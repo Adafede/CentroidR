@@ -87,7 +87,7 @@ print_cli_help <- function() {
 
 .parse_cli_num <- function(key, val) {
   out <- suppressWarnings(as.numeric(val))
-  if (!nzchar(trimws(val)) || is.na(out) || !is.finite(out)) {
+  if (!is.finite(out)) {
     stop("Invalid numeric value for --", key, ": ", val, call. = FALSE)
   }
   out

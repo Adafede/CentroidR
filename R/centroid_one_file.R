@@ -1178,9 +1178,6 @@ restore_logger <- function() {
     orig_subset <- Spectra::peaksData(original[order_map[empty_indices]])
     restored_peaks <- lapply(seq_along(empty_indices), function(k) {
       pk <- orig_subset[[k]]
-      if (nrow(pk) == 0L) {
-        return(pk)
-      }
       pk[pk[, "intensity"] > 0, , drop = FALSE]
     })
     processed@backend@peaksData[empty_indices] <- restored_peaks
